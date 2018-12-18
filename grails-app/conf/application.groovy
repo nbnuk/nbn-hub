@@ -68,7 +68,7 @@ skin.fluidLayout = true
 skin.useAlaSpatialPortal = true
 skin.useAlaBie = true
 skin.taxaLinks.baseUrl = "https://bie.ala.org.au/species/" // 3rd party species pages. Leave blank for no links
-test.var = "ala-hub"
+test.var = "nbn-hub"
 
 // facets.includeDynamicFacets = true // for sandbox
 

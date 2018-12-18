@@ -13,3 +13,861 @@
  *= require autocomplete.css
  *= require base.css
  */
+
+.breadcrumb-list {
+    display: none;
+}
+
+.ac_results {
+    padding: 0px;
+    overflow: hidden;
+    z-index: 99999;
+    border: 1px solid #ccc;
+    background: #fff;
+    -moz-border-radius: 0 0 7px 7px;
+    -webkit-border-radius: 0 0 7px 7px;
+    -o-border-radius: 0 0 7px 7px;
+    -icab-border-radius: 0 0 7px 7px;
+    -khtml-border-radius: 0 0 7px 7px;
+    border-radius: 0 0 7px 7px;
+}
+
+.ac_results ul {
+    width: 100%;
+    list-style-position: outside;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ac_results li {
+    margin: 0px;
+    padding: 5px;
+    cursor: default;
+    display: block;
+    font-size: 12px;
+    font-family: sans-serif;
+    line-height: 12px;
+    overflow: hidden;
+    text-align: left;
+    color: #333;
+}
+
+.ac_loading {
+    background: white url('indicator-03ce3dcc84af110e9da8699a841e5200.gif') right center no-repeat;
+}
+
+li.ac_odd {
+    background-color: transparent;
+}
+
+.ac_results li b {
+    color: #1775BA;
+}
+
+li.ac_over, li.ac_over div, li.ac_over b {
+    background-color: #1775BA;
+    color: #fff !important;
+}
+
+.ac_results li strong {
+    color: #005A8E;
+}
+
+.ac_results li.ac_over strong {
+    color: #fff;
+}
+
+html #content img {
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -o-border-radius: 0px;
+    -icab-border-radius: 0px;
+    -khtml-border-radius: 0px;
+    border-radius: 0px;
+}
+
+#content2 p, #content2 div, #headingBar, #contentBox div {
+    font-size: 13px;
+    line-height: 1.5em;
+}
+
+.sidebar {
+}
+
+a:link, a:visited, #content2 a:link, #content2 a:visited {
+    text-decoration: none;
+}
+
+a:hover, #content2 a:hover {
+    text-decoration: underline;
+}
+
+#nav li a {
+    font-size: 100%;
+}
+
+label {
+    display: inline;
+}
+
+input, textarea, select, button {
+    margin: 0;
+}
+
+form input {
+    padding: 0;
+}
+
+form p input {
+    float: none
+}
+
+table th {
+    text-align: left;
+    padding: 6px 12px;
+    font-weight: bold;
+    color: #444;
+}
+
+table td, table th {
+    text-align: left;
+    padding: 4px 6px;
+    line-height: 1.3em;
+    vertical-align: top;
+}
+
+table.compact, table.nested {
+    width: 100%;
+    margin: 2px 0 4px 0;
+}
+
+#content3 table.compact {
+    border-bottom: 1px solid #CCC;
+}
+
+table.compact thead {
+    border: none;
+}
+
+table.compact th, table.compact td {
+    padding: 4px;
+}
+
+table.nested th, table.nested td {
+    padding: 0;
+}
+
+td.labels {
+    width: 170px;
+}
+
+#headingBar {
+    padding-left: 0px;
+    margin: 10px 0 20px 0;
+}
+
+#headingBar h1 {
+    font-size: 200%;
+    margin-bottom: 10px;
+    margin-top: 0px;
+}
+
+.sidebar h2 {
+    font-size: 130%;
+    margin-top: 10px;
+}
+
+.sidebar h3 {
+    font-size: 120%;
+    padding-top: 4px;
+}
+
+.sidebar h4 {
+    font-size: 100%;
+    padding: 4px 0;
+}
+
+.sidebar li {
+    border-bottom: none;
+}
+
+.sidebar li {
+    font-size: 13px;
+}
+
+#advancedSearch {
+    display: none;
+    margin-top: 5px;
+    padding: 5px;
+    border: 2px solid #CCC;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+}
+
+input.taxaLookup {
+    float: right;
+    margin-right: 10px;
+}
+
+div.autoLine2 {
+    color: #777;
+}
+
+.matchedName {
+    display: inline-block;
+    padding: 2px 8px 4px 8px;
+    margin-right: 10px;
+    border: 0px solid #CCC;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    -khtml-border-radius: 8px;
+    border-radius: 8px;
+    background-color: #C5DCEE;
+    max-width: 90%;
+    float: left;
+    max-height: 15px;
+    overflow: hidden;
+}
+
+#taxonSearchHint {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+table.compact td select {
+    width: auto;
+}
+
+input.region_autocomplete {
+    width: 350px;
+}
+
+#contentBox div.imageThumb {
+    float: left;
+    padding: 2px;
+    line-height: 0;
+}
+
+div.fullWidthHeader {
+    margin-left: 30px;
+    margin-bottom: 20px;
+    padding-left: 0 !important;
+    border-bottom: 2px solid gray;
+}
+
+span#taxonName {
+    color: black;
+}
+
+#content2 div.taxaDescription p {
+    padding-bottom: 10px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.freetext {
+    font-size: 16px;
+}
+
+.freetext {
+    font-size: 16px;
+}
+
+#userFlaggedIssuesDetails {
+    text-align: left;
+}
+
+#userFlaggedIssuesDetails p {
+    margin-top: 5px;
+    padding: 3px;
+    border-bottom: 1px solid #CCC;
+}
+
+#simpleSearchDiv input[type=text] {
+    width: 240px;
+}
+
+#simpleSearchDiv input.occurrence_date {
+    width: 110px;
+}
+
+#extendedOptions {
+    padding-left: 10px;
+}
+
+.toggleSection {
+    display: block;
+    padding-left: 10px;
+    padding-top: 7px;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #DDD;
+}
+
+#extendedOptions {
+    display: none;
+}
+
+a.toggleTitle {
+    background: url("plus-6c46b98e0c60e6dc2ef14f9d4a6607b8.gif") 0 5px no-repeat;
+    display: block;
+    padding-left: 14px;
+    font-weight: bold;
+}
+
+a.toggleTitleActive {
+    background: url("minus-e009322a00011359f76cf7ae59b4d33d.gif") 0 5px no-repeat;
+    display: block;
+    padding-left: 14px;
+}
+
+a.toggleOptions {
+    background: url("plus-6c46b98e0c60e6dc2ef14f9d4a6607b8.gif") 0 3px no-repeat;
+    display: block;
+    padding-left: 14px;
+}
+
+a.toggleOptionsActive {
+    background: url("minus-e009322a00011359f76cf7ae59b4d33d.gif") 0 3px no-repeat;
+    display: block;
+    padding-left: 14px;
+}
+
+#content3 #simpleSearchDiv table.compact {
+    border-bottom: none;
+}
+
+table#taxonomyOptions {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+#taxonSearchDiv {
+    border-bottom: 1px solid #DDD;
+}
+
+#nameMatchingOptions {
+    display: none;
+}
+
+abbr {
+    border-bottom: black dashed 1px;
+    cursor: help;
+}
+
+.tab-content {
+    border-bottom: 1px solid #DDD !important;
+    border-right: 1px solid #DDD !important;
+    border-left: 1px solid #DDD !important;
+    padding: 15px;
+}
+
+#content .nav-tabs li:not(.active) a {
+    background-color: #f2f2f2;
+    border: 1px solid #ddd;
+    margin-right: 4px;
+}
+
+#content .nav-tabs li.active a {
+    margin-right: 4px;
+}
+
+#content ul.nav-tabs {
+    list-style: none;
+    margin-left: 0;
+    margin-bottom: 0;
+}
+
+div#download {
+    font-size: 13px;
+    line-height: 1.4em;
+}
+
+#downloadForm, #downloadMapForm {
+    text-align: left;
+}
+
+#downloadForm label, #downloadMapForm label {
+    width: 35%;
+    display: inline-block;
+    text-align: right;
+    padding-right: 10px;
+    color: #444;
+}
+
+#download p, #downloadMapForm p {
+    margin: 0;
+}
+
+#downloadForm input, #downloadMapForm input, #downloadMapForm select {
+    float: none;
+    margin: 0;
+}
+
+#downloadMapForm p {
+    padding: 4px 6px;
+}
+
+#termsOfUseDownload {
+    text-align: left;
+    padding-bottom: 15px;
+}
+
+#breadcrumb ul, #breadcrumb ol {
+    margin-bottom: 2px;
+}
+
+#mapCanvas img, #mapcanvas img, #leafletMap img, #expertDistroMap img {
+    max-width: none;
+    margin: 0px;
+}
+
+#mapCanvas label, #mapcanvas label, #expertDistroMap label {
+    width: auto;
+    display: inline;
+}
+
+#nav-site .navbar-inner {
+    filter: none;
+    -ms-filter: none;
+}
+
+#nav-site .navbar-inner .nav > .active > a {
+    background-color: inherit;
+}
+
+body.nav-species #nav-site .navbar-inner .nav > li.nav-species > a, body.nav-locations #nav-site .navbar-inner .nav > li.nav-locations > a, body.nav-collections #nav-site .navbar-inner .nav > li.nav-collections > a, body.nav-mapping #nav-site .navbar-inner .nav > li.nav-mapping > a, body.nav-datasets #nav-site .navbar-inner .nav > li.nav-datasets > a, body.nav-blogs #nav-site .navbar-inner .nav > li.nav-blogs > a, body.nav-getinvolved #nav-site .navbar-inner .nav > li.nav-getinvolved > a, body.nav-about #nav-site .navbar-inner .nav > li.nav-about > a {
+    background-color: #333a3f;
+}
+
+.breadcrumb > li > .icon {
+    color: #555555;
+    opacity: 0.6;
+    filter: alpha(opacity=60);
+    margin: 1px 4px 0;
+}
+
+#headingBar h1 {
+    margin: 0;
+}
+
+#content #headingBar {
+    margin-left: 0;
+    margin-bottom: 10px;
+    min-height: 55px;
+}
+
+#content #headingBar.recordHeader {
+    padding-bottom: 0;
+}
+
+#content #headingBar h1 {
+    padding-top: 15px;
+}
+
+#border #content .recordHeader {
+    padding: 0 15px !important;
+    margin-bottom: 10px;
+}
+
+#border #content .recordHeader h1 {
+    width: 100%;
+    padding-left: 0;
+}
+
+div#advancedSearch {
+    margin: 10px 30px 10px 0px;
+    background-color: #eeeeee;
+}
+
+#solrSearchForm {
+    margin: 0;
+}
+
+#advancedSearch table {
+    border-bottom: none;
+}
+
+#content2 {
+    /* margin-right: 10px; RR pushes lsit of records below Narrow your results */
+    margin-bottom: 20px;
+    float: left;
+}
+
+#content2.span9 {
+    margin-right: 0;
+    margin-bottom: 10px;
+    float: left;
+}
+
+#content2 > p {
+    padding: 15px;
+}
+
+#content #loginId {
+    display: none;
+}
+
+#results .rowA {
+    padding-bottom: 2px;
+    margin-bottom: 0;
+}
+
+#listHeader h1 {
+    color: inherit;
+}
+
+.sidebar #currentFilter h4 {
+}
+
+input::-webkit-input-placeholder {
+    color: #666666;
+}
+
+.facets .sidebar ul li {
+    margin: 3px 0px 3px 3px;
+    text-indent: 0px;
+}
+
+ul.facets {
+    margin-bottom: 0;
+}
+
+.sidebar h4 > span.FieldName {
+    float: none;
+}
+
+.solrResults #searchNavBar ul li {
+    font-size: 13px;
+}
+
+#content2 > div > h3 {
+}
+
+span#assertionMaker {
+    font-size: 100%;
+}
+
+#SidebarBox {
+    float: left;
+    margin-right: 20px;
+}
+
+#SidebarBox.facets {
+    margin-left: 0;
+    padding-left: 10px;
+    margin-right: 0px;
+}
+
+#SidebarBox h2 {
+    margin-top: 4px;
+    font-size: 20px;
+}
+
+#content2 > ul.css-tabs > li > a {
+    padding: 4px 20px;
+}
+
+.additionalData {
+    clear: left;
+}
+
+select.btn {
+    -webkit-appearance: button;
+    -moz-appearance: button;
+    appearance: button;
+    width: auto;
+}
+
+select.btn-small {
+    height: auto;
+    line-height: 18px;
+    padding-right: 16px;
+}
+
+select.btn-small + .caret {
+    margin-left: -20px;
+    margin-top: 9px;
+}
+
+.occurrenceTable td, .layerIntersections td {
+    padding: 5px;
+}
+
+h2#headingSciName {
+    margin: 0;
+}
+
+#multipleFacets h3 {
+    line-height: 100%;
+    margin: 0;
+    margin-bottom: 4px;
+}
+
+#advancedSearchForm table {
+    width: 100%;
+}
+
+#advancedSearchForm td {
+    vertical-align: middle;
+}
+
+#advancedSearchForm input.occurrence_date {
+    width: 7em;
+}
+
+#sortWidget label {
+    display: inline;
+    padding-left: 8px;
+}
+
+#sortWidgets .input-small, .layerControls select, #speciesGalleryControls select {
+    height: 22px;
+    width: auto;
+    font-size: 11px;
+    line-height: 18px;
+    margin-bottom: 4px;
+}
+
+#loginId {
+    text-align: right;
+    margin-top: -14px;
+    margin-bottom: -4px;
+    margin-right: 5px;
+    font-size: 11px;
+}
+
+#alert {
+    text-align: center;
+}
+
+.searchPage select, .searchPage input {
+}
+
+.searchPage textarea {
+    width: 480px;
+}
+
+.searchPage select {
+    height: 24px;
+    line-height: 24px;
+    padding: 0px 6px;
+}
+
+.searchPage select {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 2px;
+}
+
+#outageMessage {
+    padding: 10px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #df4a21;
+}
+
+.container .tabbable .nav-tabs {
+    margin-bottom: 0;
+}
+
+@media (min-width: 1200px) {
+    #mapwrapper #mapcanvas {
+        width: 100%;
+        height: 700px;
+    }
+
+    #mapwrapper #maploading {
+        width: 835px;
+    }
+
+    body.show #content2 {
+        width: 740px;
+    }
+}
+
+@media (min-width: 980px) and (max-width: 1199px) {
+    #mapwrapper #mapcanvas {
+        width: 678px;
+        height: 700px;
+    }
+
+    #mapwrapper #maploading {
+        width: 668px;
+    }
+
+    #searchBox > #solrSearchForm > input#taxaQuery {
+        width: 360px;
+    }
+
+    body.show #content2 {
+        width: 600px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 979px) {
+    #mapwrapper #mapcanvas {
+        width: 515px;
+        height: 600px;
+    }
+
+    #mapwrapper #maploading {
+        width: 505px;
+    }
+
+    #searchBox > #solrSearchForm > input#taxaQuery {
+        width: 300px;
+    }
+
+    body.show #content2 {
+        width: 400px;
+    }
+}
+
+@media (max-width: 767px) {
+    #mapCanvas {
+        margin-top: 50px;
+    }
+
+    body.show #content2 {
+        width: 100%;
+    }
+
+    #resultsReturned {
+        margin-left: 60px !important;
+    }
+
+    .input-append {
+        display: block;
+    }
+
+    input#taxaQuery {
+        width: 70%;
+    }
+}
+
+.toggleResponsive {
+    display: none;
+}
+
+#main-content {
+    margin-bottom: 5em;
+}
+
+#content .nav-tabs li:not(.active) a {
+    background-color: #f2f2f2;
+}
+
+.rowA {
+    margin-bottom: 2px;
+}
+
+body #main-content #customiseFacetsButton > .dropdown-menu, #main-content #resultsReturned .dropdown-menu {
+    background-color: white;
+}
+
+#main-content .leaflet-container a {
+    color: #C44D34;
+}
+
+#main-content .leaflet-bar a.leaflet-disabled {
+    color: #bbb;
+}
+
+#main-content .leaflet-container a.leaflet-popup-close-button {
+    color: #999;
+}
+
+#main-content .leaflet-bar a, #main-content .leaflet-bar a:hover, #main-content a.colour-by-legend-toggle {
+    color: black;
+}
+
+#outageMessage {
+    font-size: 18px;
+    border: 4px solid #df4a21;
+    display: table;
+    margin: 0 auto;
+    min-width: 50%;
+}
+
+#currentFilter span.checkbox-unchecked {
+    background: url('images/checkbox-unchecked-21f659860732f225592a34742186fdcb.png') no-repeat left top;
+}
+
+#currentFilter span.checkbox-checked {
+    background: url('images/checkbox-checked-4c0c3e60a247a82dc5a72f1d7d7c4f43.png') no-repeat left top;
+}
+
+@media only screen and (max-width: 992px) {
+    body > #main-content {
+        margin-top: 60px;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    body > #main-content {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    body > #main-content {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    input#taxaQuery {
+        width: 50%;
+    }
+}
+
+.decade-chart {
+    width: 100%;
+}
+
+.month-chart {
+    width: 100%;
+}
+
+.year-chart {
+    width: 100%;
+}
+
+.cl14-chart {
+    width: 100%;
+}
+
+.cl28-chart {
+    width: 100%;
+}
+
+i.legendColour {
+    margin-bottom: -2px;
+}
+.legendTable input[type="checkbox"] {
+    margin-top: -3px;
+}
+
+#cl14-chart-6 {
+    width: 90%
+}
+/* IoM specific rather do in layout.nbnatlas.org:/srv/layout.nbnatlas.org/www/isleofman/commonui-bs2/workarounds.css  */
+/* #geospatialTable #country {
+    display: none;
+} */
+
+/* RR not sure why need this, but otherwise expanded sections on e.g. downloads options 1 remain hidden (visibility:hidden); only display:none is removed by show() */
+.collapse {
+    visibility: visible !important;
+}
+
+.form-horizontal .control-label {
+    padding-top: 2px;
+}

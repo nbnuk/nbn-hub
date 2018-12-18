@@ -1,8 +1,8 @@
-rootProject.name='ala-hub'
+rootProject.name='nbn-hub'
 
 // Inplace plugin config
 // Set to true it needed only for development
-boolean inplace = false
+boolean inplace = true
 
 if (inplace) {
 //    include ':ala-charts-plugin'
@@ -10,15 +10,15 @@ if (inplace) {
 //    include ':images-client-plugin'
 //    project(':images-client-plugin').projectDir = new File(settingsDir,'../images-client-plugin')
     include ':downloads-plugin'
-    project(':downloads-plugin').projectDir = new File(settingsDir,'../downloads-plugin')
-//    include ':ala-bootstrap3'
-//    project(':ala-bootstrap3').projectDir = new File(settingsDir,'../ala-bootstrap3')
+    project(':downloads-plugin').projectDir = new File(settingsDir,'../ala/downloads-plugin')
+    include ':ala-bootstrap3'
+    project(':ala-bootstrap3').projectDir = new File(settingsDir,'../ala-bootstrap3')
     include ':biocache-hubs'
-    project(':biocache-hubs').projectDir = new File(settingsDir,'../biocache-hubs')
-
+    project(':biocache-hubs').projectDir = new File(settingsDir,'../ala/biocache-hubs')
+    include ':ala-auth-plugin'
+    project(':ala-auth-plugin').projectDir = new File(settingsDir,'../ala-auth-plugin')
 //    include ':ala-ws-plugin'
 //    project(':ala-ws-plugin').projectDir = new File(settingsDir,'../ala-ws-plugin')
 
 }
-rootProject.name = 'ala-hub'
 

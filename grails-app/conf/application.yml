@@ -6,9 +6,9 @@ grails:
     config:
         locations:
             - classpath:plugin.groovy # biocache-hubs
-            - file:/data/ala-hub/config/ala-hub-config.properties
-            - file:/data/ala-hub/config/ala-hub-config.yml
-            - file:/data/ala-hub/config/ala-hub-config.groovy
+            - file:/data/nbn-hub/config/nbn-hub-config.properties
+            - file:/data/nbn-hub/config/nbn-hub-config.yml
+            - file:/data/nbn-hub/config/nbn-hub-config.groovy
     spring:
         transactionManagement:
             proxies: false
@@ -104,7 +104,7 @@ security:
         uriExclusionFilterPattern: '/occurrences/shapeUpload,/images.*,/css.*,/js.*,.*json,/help/.*'
 
 server:
-    contextPath: /ala-hub
+    contextPath: /nbn-hub
 
 environments:
     development:

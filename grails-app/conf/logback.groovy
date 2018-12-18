@@ -7,7 +7,7 @@ conversionRule 'clr', ColorConverter
 conversionRule 'wex', WhitespaceThrowableProxyConverter
 
 def loggingDir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs' : './logs')
-def appName = 'ala-hub'
+def appName = 'nbn-hub'
 final APPENDER = 'APP_APPENDER'
 switch (Environment.current) {
     case Environment.PRODUCTION:
