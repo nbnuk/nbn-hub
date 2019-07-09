@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.grails.plugins:ala-admin-plugin:2.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.grails.plugins/ala-admin-plugin/2.0/de6d6635da42affd6587818902b6de21dfef6e39/ala-admin-plugin-2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.grails.plugins/ala-admin-plugin/2.0/abd7035b3db13ca2ef2335de105574bcdfc05aec/ala-admin-plugin-2.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

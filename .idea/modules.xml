@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/372039761/au.org.ala.plugins.grails-biocache-hubs.iml" filepath="$PROJECT_DIR$/.idea/modules/372039761/au.org.ala.plugins.grails-biocache-hubs.iml" group="nbn-hub/biocache-hubs" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/372039761/au.org.ala.plugins.grails-biocache-hubs_ast.iml" filepath="$PROJECT_DIR$/.idea/modules/372039761/au.org.ala.plugins.grails-biocache-hubs_ast.iml" group="nbn-hub/biocache-hubs" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/372039761/au.org.ala.plugins.grails-biocache-hubs_main.iml" filepath="$PROJECT_DIR$/.idea/modules/372039761/au.org.ala.plugins.grails-biocache-hubs_main.iml" group="nbn-hub/biocache-hubs" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/372039761/au.org.ala.plugins.grails-biocache-hubs_test.iml" filepath="$PROJECT_DIR$/.idea/modules/372039761/au.org.ala.plugins.grails-biocache-hubs_test.iml" group="nbn-hub/biocache-hubs" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-121537899/au.org.ala.plugins.grails-downloads-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/-121537899/au.org.ala.plugins.grails-downloads-plugin.iml" group="nbn-hub/downloads-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-121537899/au.org.ala.plugins.grails-downloads-plugin_ast.iml" filepath="$PROJECT_DIR$/.idea/modules/-121537899/au.org.ala.plugins.grails-downloads-plugin_ast.iml" group="nbn-hub/downloads-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-121537899/au.org.ala.plugins.grails-downloads-plugin_main.iml" filepath="$PROJECT_DIR$/.idea/modules/-121537899/au.org.ala.plugins.grails-downloads-plugin_main.iml" group="nbn-hub/downloads-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-121537899/au.org.ala.plugins.grails-downloads-plugin_test.iml" filepath="$PROJECT_DIR$/.idea/modules/-121537899/au.org.ala.plugins.grails-downloads-plugin_test.iml" group="nbn-hub/downloads-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/nbn-hub.iml" filepath="$PROJECT_DIR$/nbn-hub.iml" group="nbn-hub" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nbn-hub_main.iml" filepath="$PROJECT_DIR$/.idea/modules/nbn-hub_main.iml" group="nbn-hub" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nbn-hub_test.iml" filepath="$PROJECT_DIR$/.idea/modules/nbn-hub_test.iml" group="nbn-hub" />
+    </modules>
+  </component>
+</project>

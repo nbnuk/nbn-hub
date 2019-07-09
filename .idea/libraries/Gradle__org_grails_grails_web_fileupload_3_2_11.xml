@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.grails:grails-web-fileupload:3.2.11">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.grails/grails-web-fileupload/3.2.11/327fdf6e9fb20a4888866be2a03d44cd53756c7b/grails-web-fileupload-3.2.11.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.grails/grails-web-fileupload/3.2.11/53bb18bb1aeb85085bebf2b816f66faaf72fc0ea/grails-web-fileupload-3.2.11-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

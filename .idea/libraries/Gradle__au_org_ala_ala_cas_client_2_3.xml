@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: au.org.ala:ala-cas-client:2.3">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/au/org/ala/ala-cas-client/2.3/ala-cas-client-2.3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,7 +1,7 @@
 target/*
 *.iml
-.idea/*
 .slcache/*
 out/*
 build
 .gradle
+.idea/workspace.xml
