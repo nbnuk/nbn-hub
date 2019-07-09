@@ -247,7 +247,7 @@
                 "sort":"count",
                 "field":"user_assertions"
             },
-            {  
+            {
                 "sort":"index",
                 "field":"assertion_user_id"
             },
