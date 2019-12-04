@@ -104,7 +104,7 @@ security:
         uriExclusionFilterPattern: '/occurrences/shapeUpload,/images.*,/css.*,/js.*,.*json,/help/.*'
 
 server:
-    contextPath: /nbn-hub
+    contextPath: /
 
 environments:
     development:

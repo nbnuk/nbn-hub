@@ -4,6 +4,5 @@ target/*
 out/*
 build
 .gradle
-.idea/workspace.xml
-.idea/modules.xml
+.idea/*
 .DS_Store
