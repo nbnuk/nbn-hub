@@ -1,0 +1,31 @@
+
+
+/* https://slawomir-zaziablo.github.io/range-slider */
+.rs-pointer[data-dir="left"] .rs-tooltip {
+    transform: translate(-25%,25px);
+}
+
+.rs-pointer[data-dir="right"] .rs-tooltip {
+    transform: translate(-75%,-35px);
+}
+
+.rs-container .rs-selected {
+    background-color: #337ab7;
+    border: 1px solid #245580;
+    transition: all .2s linear;
+    width: 0;
+}
+
+.rs-tooltip {
+    border: 1px solid #337ab7;
+}
+
+/* end range slider */
+
+.nbn fieldset {
+    margin-top:2rem;
+}
+
+.nbn fieldset legend {
+    font-size:18px
+}
