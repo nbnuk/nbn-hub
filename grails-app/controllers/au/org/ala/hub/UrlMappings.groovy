@@ -16,6 +16,8 @@ class UrlMappings {
         "/occurrences/searchByEventID"(controller: 'occurrenceSearch', action: 'searchByEventID')
         "/occurrences/searchByCollectionCode"(controller: 'occurrenceSearch', action: 'searchByCollectionCode')
         "/occurrences/searchByOther"(controller: 'occurrenceSearch', action: 'searchByOther')
+        "/occurrences/search"(controller: 'occurrence', action: 'list', destination:'occurrence')
+        "/occurrence/search"(controller: 'occurrence', action: 'list', destination:'occurrence')
         "500"(view:'/error')
         "404"(view:'/notFound')
     }

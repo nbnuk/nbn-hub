@@ -9,7 +9,7 @@
 <div class="nbn">
 
 
-    <form class="form-horizontal" action="${request.contextPath}/occurrences/searchByOccurrenceID" method="POST">
+    <form class="form-horizontal" action="${request.contextPath}/occurrences/searchByOccurrenceID" method="POST" >
 
 
         <fieldset>
@@ -93,13 +93,13 @@
         <div class="col-md-2">
             <div class="checkbox">
                 <label>
-                    <g:checkBox name="basisOfRecord" value="HumanObservation" />
+                    <input name="basisOfRecord" type="checkbox" value="HumanObservation" checked>
                     Human observation
                 </label>
             </div>
             <div class="checkbox">
                 <label>
-                    <g:checkBox name="basisOfRecord" value="PreservedSpecimen" />
+                    <input name="basisOfRecord" type="checkbox" value="PreservedSpecimen" checked>
                     Preserved specimen
                 </label>
             </div>
@@ -108,13 +108,13 @@
         <div class="col-md-2">
             <div class="checkbox">
                 <label>
-                    <input name="basisOfRecord" type="checkbox" value="FossilSpecimen" >
+                    <input name="basisOfRecord" type="checkbox" value="FossilSpecimen" checked>
                     Fossil specimen
                 </label>
             </div>
             <div class="checkbox">
                 <label>
-                    <input name="basisOfRecord" type="checkbox" value="LivingSpecimen" >
+                    <input name="basisOfRecord" type="checkbox" value="LivingSpecimen" checked>
                     Living specimen
                 </label>
             </div>
@@ -122,7 +122,7 @@
         <div class="col-md-2">
             <div class="checkbox">
                 <label>
-                    <input name="basisOfRecord" type="checkbox" value="MaterialSample" >
+                    <input name="basisOfRecord" type="checkbox" value="MaterialSample" checked>
                     Material sample
                 </label>
             </div>
@@ -560,13 +560,15 @@
     </fieldset>
 </form>
 </div>
-<asset:javascript src="nbn/advancedSearch.js" />
+%{-- TODO <asset:javascript src="nbn/advancedSearch.js" />--}%
 <asset:script type="text/javascript">
-    $(document).ready(function() {console.log("document load");
+    var mySlider;
+    $(document).ready(function() {console.log("document load");console.log($('input[type=radio][name=dateType]').val());
         // $('#select_licence').hide();
         // $('.combobox').combobox({bsVersion: '3'});
 
-        var mySlider = new rSlider({
+         if (typeof mySlider == 'undefined') {console.log(" undefined");
+             mySlider = new rSlider({
         target: '#slider',
         values: {min:1600, max:2021},
         step:1,
@@ -576,7 +578,7 @@
          disabled:true,
          labels:false,
         });
-
+}
 
 
          $('input[type=radio][name=dateType]').click(function(){
@@ -614,7 +616,7 @@
 
              function init(){console.log("..............init");
                  var licenceType = $('input:radio[name=licenceType]:checked').val();
-                 console.log("....................."+licenceType)
+                 console.log(".....................licenceType:"+licenceType)
                  if ("SELECTED"==licenceType){
                      $('#select_licence').show();
                  }
@@ -626,7 +628,8 @@
              init();
 
 
-
+// $('input:radio[name=licenceType]').on("blur input", function () {
+//     })
 
      });
 
