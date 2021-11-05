@@ -1,6 +1,7 @@
 <%@ page import="au.org.ala.biocache.hubs.FacetsName; org.apache.commons.lang.StringUtils" contentType="text/html;charset=UTF-8" %>
 <g:render template="/layouts/global"/>
 
+<asset:javascript src="nbn/advancedSearch.js" />
 <asset:stylesheet src="nbn/rSlider.min.css" />
 <asset:javascript src="nbn/rSlider.min.js" />
 
@@ -64,7 +65,8 @@
 
 
 
-        <form class="form-horizontal" name="advancedSearchForm" id="advancedSearchForm" action="${request.contextPath}/occurrences/searchByOther" method="POST">
+        <form class="form-horizontal" name="advancedSearchForm" id="advancedSearchForm"
+              action="${request.contextPath}/occurrences/searchByOther" method="POST" id="advancedSearchForm">
 %{--            <input type="text" id="solrQuery" name="q" style="position:absolute;left:-9999px;" value="${params.q}"/>--}%
             <input type="hidden" name="nameType" value="${grailsApplication.config.advancedTaxaField?:'matched_name_children'}"/>
 
@@ -560,14 +562,17 @@
     </fieldset>
 </form>
 </div>
-%{-- TODO <asset:javascript src="nbn/advancedSearch.js" />--}%
+
 <asset:script type="text/javascript">
     var mySlider;
     $(document).ready(function() {console.log("document load");console.log($('input[type=radio][name=dateType]').val());
-        // $('#select_licence').hide();
-        // $('.combobox').combobox({bsVersion: '3'});
 
-         if (typeof mySlider == 'undefined') {console.log(" undefined");
+
+
+
+
+         function initYearRangeSlider(){
+         if (typeof mySlider == 'undefined') {console.log(" slider undefined");
              mySlider = new rSlider({
         target: '#slider',
         values: {min:1600, max:2021},
@@ -578,58 +583,93 @@
          disabled:true,
          labels:false,
         });
-}
-
+             }
+         }
 
          $('input[type=radio][name=dateType]').click(function(){
-            var value = $('input:radio[name=dateType]:checked').val();
 
-            if ("SPECIFIC_DATE" == value){
+            initDateType($('input:radio[name=dateType]:checked').val())
+
+             });
+
+         function initDateType(dateType, dateRange){
+              $("[name=dateType][value="+dateType+"]").prop("checked", true);
+
+              if ("SPECIFIC_DATE" == dateType){
                 mySlider.disabled(true);
                 $('input[name=year]').prop('disabled', false);
                 $('input[name=month]').prop('disabled', false);
                 $('input[name=day]').prop('disabled', false);
              }
             else{
+
                 mySlider.disabled(false);
-                 $('input[name=year]').prop('disabled', true);
+                if (dateRange){
+                    mySlider.setValues(dateRange[0], dateRange[1]);
+                }
+                $('input[name=year]').prop('disabled', true);
                 $('input[name=month]').prop('disabled', true);
                 $('input[name=day]').prop('disabled', true);
                 }
+      }
+
+
+             $('input[type=radio][name=licenceType]').click(function(){
+
+                initLicenceType($('input:radio[name=licenceType]:checked').val())
 
              });
 
-         $('input[type=radio][name=licenceType]').change(function(){})
+         function initLicenceType(licenceType){
+             $("[name=licenceType][value="+licenceType+"]").prop("checked", true);
 
-             $('input[type=radio][name=licenceType]').click(function(){
-                var value = $('input:radio[name=licenceType]:checked').val();
-
-                if ("SELECTED" == value){
+              if ("SELECTED" == licenceType){
                     $('#select_licence').show();
-
-                }
+       }
                 else {
                     $('#select_licence').hide();
                 }
+             }
 
-             });
+         $( "#advancedSearchForm" ).submit(function( event ) {
+             var formState= "licenceType:"+$('input:radio[name=licenceType]:checked').val()
+             +"|dateType:"+$('input:radio[name=dateType]:checked').val()
+             +"|yearRange:"+mySlider.getValue();
+
+            $.cookie("advanced_search_form_state",formState);
+               console.log( "formState: "+formState );
+                return true;
+            });
+
 
              function init(){console.log("..............init");
-                 var licenceType = $('input:radio[name=licenceType]:checked').val();
-                 console.log(".....................licenceType:"+licenceType)
-                 if ("SELECTED"==licenceType){
-                     $('#select_licence').show();
-                 }
-                 else {
-                      $('#select_licence').hide();
-                 }
+                var formState = $.cookie("advanced_search_form_state")?.split("|");
+                console.log(formState);
+                initYearRangeSlider();
+                initLicenceType(formState?.[0]?formState[0].split(":")[1]:"ALL");
+                // var a =formState[2]; console.log("a:");console.log(a);
+                // var b = a.split(":"); console.log("b:");console.log(b);
+                // var c = b[1].split(",");console.log("c2:");console.log(c);
+                 // console.log(b); console.log(c);
+                 initDateType(getDateType(formState), getYearRange(formState));
+                // initDateType(formState?.[1]?formState[1].split(":")[1]:"SPECIFIC_DATE",
+                // c);
+                // formState?.[2]?formState[2].split(":")[1].split(","):undefined);
+
              }
 
              init();
 
+             function getDateType(formState){
+                    formState?.[1]?formState[1].split(":")[1]:"SPECIFIC_DATE"
+             }
 
-// $('input:radio[name=licenceType]').on("blur input", function () {
-//     })
+             function getYearRange(formState){
+                 var yearRangeState = formState[2]; //yearRange:1832,2010
+                 var yearRangeAsStr = yearRangeState.split(":")[1].split(",");
+                 var yearRange =[parseInt(yearRangeAsStr[0]),parseInt(yearRangeAsStr[1])]
+             }
+
 
      });
 

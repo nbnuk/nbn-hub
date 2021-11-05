@@ -1,3 +1,5 @@
+//= require jquery.cookie.js
+
 $(document).ready(function() {
     $('.combobox').combobox({bsVersion: '3'});
 
