@@ -1,10 +1,11 @@
 <%@ page import="au.org.ala.biocache.hubs.FacetsName; org.apache.commons.lang.StringUtils" contentType="text/html;charset=UTF-8" %>
 <g:render template="/layouts/global"/>
 
-<asset:stylesheet src="nbn/nbn.css" />
+
 <asset:javascript src="nbn/advancedSearch.js" />
 <asset:stylesheet src="nbn/rSlider.min.css" />
 <asset:javascript src="nbn/rSlider.min.js" />
+<asset:stylesheet src="nbn/nbn.css" />
 
 %{--<asset:stylesheet src="nbn/nbn.css" />--}%
 
@@ -444,6 +445,7 @@
     <div class="form-group">
         <label class="col-md-2 control-label" for="gridReference">Grid reference</label>
         <div class="col-md-6">
+            <label class="radio-inline"><input name="gridReferenceType" type="radio" value="GB" checked> GB</label> <label class="radio-inline"><input name="gridReferenceType" type="radio" value="IRISH" > Irish</label>
             <input type="text" value="" id="gridReference" name="gridReference" class="form-control" size="8" maxlength="8" placeholder="">
         </div>
     </div>

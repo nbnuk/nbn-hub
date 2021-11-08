@@ -33,6 +33,7 @@ class AdvancedSearchParams implements Validateable {
     String[] basisOfRecord = []
     String identificationVerificationStatus = ""
     String identifiedBy = ""
+    String gridReferenceType =""
     String gridReference = ""
     String licenceType = ""
     String[] selectedLicence = []
@@ -70,7 +71,7 @@ class AdvancedSearchParams implements Validateable {
         queryItem = buildIdentifiedByQuery(identifiedBy);
         if (queryItem) queryItems.add(queryItem)
 
-        queryItem = buildGridReferenceQuery(gridReference);
+        queryItem = buildGridReferenceQuery(gridReferenceType, gridReference);
         if (queryItem) queryItems.add(queryItem)
 
         queryItem = buildLicenceQuery(licenceType, selectedLicence);
@@ -232,27 +233,58 @@ class AdvancedSearchParams implements Validateable {
 
     }
 
-    private String buildGridReferenceQuery(String gridReference) {
+    private String buildGridReferenceQuery(String gridReferenceType, String gridReference) {
         String query="";
 
         if (gridReference) {
-            switch (gridReference.length()) {
-                case 4:
-                    query = "grid_ref_10000:" + gridReference;
-                    break;
-                case 5:
-                    query = "grid_ref_2000:" + gridReference;
-                    break;
-                case 6:
-                    query = "grid_ref_1000:" + gridReference;
-                    break;
-                case 8:
-                    query = "grid_ref_100:" + gridReference;
-                    break;
+            if ("IRISH".equals(gridReferenceType)) {
+                query = buildGridReferenceIrish(gridReference);
+            }
+            else {
+                query = buildGridReferenceGB(gridReference);
             }
         }
         return query;
     }
+
+    private String buildGridReferenceGB(gridReference) {
+        String query = "";
+        switch (gridReference.length()) {
+            case 4:
+                query = "grid_ref_10000:" + gridReference;
+                break;
+            case 5:
+                query = "grid_ref_2000:" + gridReference;
+                break;
+            case 6:
+                query = "grid_ref_1000:" + gridReference;
+                break;
+            case 8:
+                query = "grid_ref_100:" + gridReference;
+                break;
+        }
+        return query;
+    }
+
+    private String buildGridReferenceIrish(gridReference) {
+        String query = "";
+        switch (gridReference.length()) {
+            case 3:
+                query = "grid_ref_10000:" + gridReference;
+                break;
+            case 4:
+                query = "grid_ref_2000:" + gridReference;
+                break;
+            case 5:
+                query = "grid_ref_1000:" + gridReference;
+                break;
+            case 7:
+                query = "grid_ref_100:" + gridReference;
+                break;
+        }
+        return query;
+    }
+
 
     private String buildBasisOfRecordQuery(String[] basisOfRecord){
         return (basisOfRecord?.length && basisOfRecord.length<5)?buildBooleanQuerySegment(basisOfRecord, "basis_of_record", "OR"):"";
