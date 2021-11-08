@@ -29,3 +29,7 @@
 .nbn fieldset legend {
     font-size:18px
 }
+
+label.not_done_yet {
+    color: #C2C2C2;
+}

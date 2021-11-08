@@ -224,7 +224,7 @@ class AdvancedSearchParams implements Validateable {
             query = "(license:CC-BY OR license:CC0 OR license:OGL)"
         }
         else if ("SELECTED".equals(licenceType)){
-            if (selectedLicence.length<4) {
+            if (selectedLicence.length && selectedLicence.length<4) {
                 query = buildBooleanQuerySegment(selectedLicence, "license", "OR")
             }
         }
