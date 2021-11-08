@@ -20,6 +20,10 @@
     border: 1px solid #337ab7;
 }
 
+.nbn select.form-control {
+    height:34px
+}
+
 /* end range slider */
 
 .nbn fieldset {

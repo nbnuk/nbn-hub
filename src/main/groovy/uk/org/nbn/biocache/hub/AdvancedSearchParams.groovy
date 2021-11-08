@@ -44,6 +44,7 @@ class AdvancedSearchParams implements Validateable {
     String month = ""
     String day = ""
     String annotations = ""
+    String dataProviderUID =""
 
 
     private String taxa = ""
@@ -85,6 +86,10 @@ class AdvancedSearchParams implements Validateable {
 
         queryItem = buildAnnotationsQuery(annotations)
         if (queryItem) queryItems.add(queryItem)
+
+        queryItem = buildDataProviderQuery(dataProviderUID);
+        if (queryItem) queryItems.add(queryItem)
+
 
 
         ArrayList<String> taxas = new ArrayList<String>()
@@ -297,6 +302,10 @@ class AdvancedSearchParams implements Validateable {
 
     private String buildIdentifiedByQuery(String identifiedBy){
         return identifiedBy?"identified_by:"+identifiedBy+"~":"";
+    }
+
+    private String buildDataProviderQuery(String dataProviderUID){
+        return dataProviderUID?"data_provider_uid:"+dataProviderUID:"";
     }
 
 

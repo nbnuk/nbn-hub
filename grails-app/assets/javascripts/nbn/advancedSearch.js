@@ -1,7 +1,31 @@
 //= require jquery.cookie.js
 
 $(document).ready(function() {
-    $('.combobox').combobox({bsVersion: '3'});
+
+    function populateDataProviders() {
+        $.getJSON(DATA_PROVIDER_WS_URL, function(data) {
+            if (data) {
+                $.each(data, function (i, item) {
+                    $('#data-provider').append($('<option>', {
+                        value: item.uid,
+                        text : item.name
+                    }));
+                });
+                // for (i=0;i<data.length;i++) {
+                //
+                // }
+                // {
+                //     name: "Aggregate Industries",
+                //     uri: "https://registry.nbnatlas.org/ws/dataProvider/dp132",
+                //     uid: "dp132",
+                //     groupClassification: "Commercial companies and environmental consultancies",
+                //     networkMembership: "",
+                //     dateCreated: "2017-03-13T10:55:30Z",
+                //     lastUpdated: "2019-09-24T13:12:09Z"
+                // }
+            }
+        })
+    }
 
     var mySlider;
     $(document).ready(function() {console.log("document load");console.log($('input[type=radio][name=dateType]').val());
@@ -88,7 +112,8 @@ $(document).ready(function() {
         });
 
 
-        function init(){console.log("..............init()");
+        function init(){
+            populateDataProviders();
             initYearRangeSlider();
             var cookieValue = $.cookie("advanced_search_form_state");
             console.log(cookieValue);
@@ -101,6 +126,8 @@ $(document).ready(function() {
                 initDateType(formState.dateType?formState.dateType:"SPECIFIC_DATE",
                     formState.yearRange?formState.yearRange:[1600,(new Date()).getFullYear()]);
             }
+
+
 
         }
 
@@ -118,5 +145,7 @@ $(document).ready(function() {
 
 
     });
+
+
 
 });
