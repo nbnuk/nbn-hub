@@ -11,31 +11,32 @@ $(document).ready(function() {
                         text : item.name
                     }));
                 });
-                // for (i=0;i<data.length;i++) {
-                //
-                // }
-                // {
-                //     name: "Aggregate Industries",
-                //     uri: "https://registry.nbnatlas.org/ws/dataProvider/dp132",
-                //     uid: "dp132",
-                //     groupClassification: "Commercial companies and environmental consultancies",
-                //     networkMembership: "",
-                //     dateCreated: "2017-03-13T10:55:30Z",
-                //     lastUpdated: "2019-09-24T13:12:09Z"
-                // }
+            }
+        })
+    }
+
+    function populateViceCounty() {
+        $.getJSON(VICE_COUNTY_WS_URL, function(data) {
+            if (data) {
+                $.each(data, function (i, item) {
+                    $('#vice-county').append($('<option>', {
+                        value: item.name,
+                        text : item.name
+                    }));
+                });
             }
         })
     }
 
     var mySlider;
-    $(document).ready(function() {console.log("document load");console.log($('input[type=radio][name=dateType]').val());
+    $(document).ready(function() {
 
 
 
 
 
         function initYearRangeSlider(){
-            if (typeof mySlider == 'undefined') {console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!slider undefined");
+            if (typeof mySlider == 'undefined') {
                 mySlider = new rSlider({
                     target: '#slider',
                     values: {min:1600, max:(new Date()).getFullYear()},
@@ -58,8 +59,8 @@ $(document).ready(function() {
 
         });
 
-        function initDateType(dateType, yearRange){console.log("initDateType dateType:"+dateType);
-            console.log(yearRange);
+        function initDateType(dateType, yearRange){
+
             $("[name=dateType][value="+dateType+"]").prop("checked", true);
 
             if ("SPECIFIC_DATE" == dateType){
@@ -86,7 +87,7 @@ $(document).ready(function() {
 
         });
 
-        function initLicenceType(licenceType){ console.log(" licenceType:"+licenceType);
+        function initLicenceType(licenceType){
             $("[name=licenceType][value="+licenceType+"]").prop("checked", true);
 
             if ("SELECTED" == licenceType){
@@ -107,21 +108,20 @@ $(document).ready(function() {
 
 
             $.cookie("advanced_search_form_state",JSON.stringify(formState));
-            console.log( "formState: "+formState );
+
             return true;
         });
 
 
         function init(){
             populateDataProviders();
+            populateViceCounty();
             initYearRangeSlider();
             var cookieValue = $.cookie("advanced_search_form_state");
-            console.log(cookieValue);
+
             if (cookieValue){
                 var formState = JSON.parse(cookieValue);
-                console.log(formState);
-
-                initLicenceType(formState.licenceType?formState.licenceType:"ALL");
+               initLicenceType(formState.licenceType?formState.licenceType:"ALL");
 
                 initDateType(formState.dateType?formState.dateType:"SPECIFIC_DATE",
                     formState.yearRange?formState.yearRange:[1600,(new Date()).getFullYear()]);

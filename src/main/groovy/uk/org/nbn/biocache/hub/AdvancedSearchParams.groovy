@@ -45,11 +45,13 @@ class AdvancedSearchParams implements Validateable {
     String day = ""
     String annotations = ""
     String dataProviderUID =""
+    String viceCountyName = ""
 
 
     private String taxa = ""
     private final String QUOTE = "\""
     private final String BOOL_OP = "AND"
+    private List queryItems = [];
 
     /**
      * This custom toString method outputs a valid /occurrence/search query string.
@@ -59,38 +61,16 @@ class AdvancedSearchParams implements Validateable {
     @Override
     public String toString() {
 
-
-        List queryItems = []
-        String queryItem;
-
-        queryItem = buildBasisOfRecordQuery(basisOfRecord);
-        if (queryItem) queryItems.add(queryItem)
-
-        queryItem =  buildIdentificationVerificationStatusQuery(identificationVerificationStatus);
-        if (queryItem) queryItems.add(queryItem)
-
-        queryItem = buildIdentifiedByQuery(identifiedBy);
-        if (queryItem) queryItems.add(queryItem)
-
-        queryItem = buildGridReferenceQuery(gridReferenceType, gridReference);
-        if (queryItem) queryItems.add(queryItem)
-
-        queryItem = buildLicenceQuery(licenceType, selectedLicence);
-        if (queryItem) queryItems.add(queryItem)
-
-        queryItem = buildRecordedByQuery(recordedBy);
-        if (queryItem) queryItems.add(queryItem)
-
-        queryItem  = buildDateQuery(dateType, yearRange, year, month, day);
-        if (queryItem) queryItems.add(queryItem)
-
-        queryItem = buildAnnotationsQuery(annotations)
-        if (queryItem) queryItems.add(queryItem)
-
-        queryItem = buildDataProviderQuery(dataProviderUID);
-        if (queryItem) queryItems.add(queryItem)
-
-
+        addQueryItem(buildBasisOfRecordQuery(basisOfRecord))
+        addQueryItem(buildIdentificationVerificationStatusQuery(identificationVerificationStatus));
+        addQueryItem(buildIdentifiedByQuery(identifiedBy))
+        addQueryItem(buildGridReferenceQuery(gridReferenceType, gridReference))
+        addQueryItem(buildLicenceQuery(licenceType, selectedLicence))
+        addQueryItem(buildRecordedByQuery(recordedBy))
+        addQueryItem(buildDateQuery(dateType, yearRange, year, month, day))
+        addQueryItem(buildAnnotationsQuery(annotations))
+        addQueryItem(buildDataProviderQuery(dataProviderUID))
+        addQueryItem(buildViceCountyQuery(viceCountyName))
 
         ArrayList<String> taxas = new ArrayList<String>()
 
@@ -306,6 +286,17 @@ class AdvancedSearchParams implements Validateable {
 
     private String buildDataProviderQuery(String dataProviderUID){
         return dataProviderUID?"data_provider_uid:"+dataProviderUID:"";
+    }
+
+    private String buildViceCountyQuery(String viceCountyName){
+        return viceCountyName?"cl254:"+viceCountyName:"";
+    }
+
+
+    private void addQueryItem(String queryString) {
+        if (queryString) {
+            queryItems.add(queryString)
+        }
     }
 
 
