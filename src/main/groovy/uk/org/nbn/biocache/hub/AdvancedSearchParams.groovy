@@ -176,7 +176,10 @@ class AdvancedSearchParams implements Validateable {
 
     private String buildDateQuery(String dateType, String yearRange, String year, String month, String day) {
         String query="";
-        if ("YEAR_RANGE".equals(dateType)) {
+        if ("ANY".equals(dateType)) {
+            query=""
+        }
+        else if ("YEAR_RANGE".equals(dateType)) {
             String[] years = yearRange.split(",");
             query = "occurrence_date:["+years[0]+"-01-01T00:00:00Z"+" TO "+years[1]+"-12-31T23:59:59Z]";
         }
@@ -190,7 +193,6 @@ class AdvancedSearchParams implements Validateable {
             else if (year && month && day) {
                 query = "occurrence_date:["+year+"-"+month+"-"+day+"T00:00:00Z"+" TO "+year+"-"+month+"-"+day+"T23:59:59Z]"
             }
-
         }
         return query;
     }

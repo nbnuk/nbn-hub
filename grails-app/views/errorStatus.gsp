@@ -7,15 +7,15 @@
 <body>
 <div class="heading-bar row">
 <h1>
-    We were unable to complete your request
+    Unable to complete request
 </h1>
 </div>
 
 <div class="row" id="content">
 <g:if test="${errorMessage.contains("Solr")}">
-    <p style="text-align: center">
-        Atlas is struggling at the moment. Please try again later.
-    </p>
+    <div class="alert alert-warning text-center" role="alert">
+        Atlas is temporarily down at the moment. Please try again later.
+    </div>
 </g:if>
 <g:else>
 <p style="text-align: center">
@@ -24,8 +24,8 @@
 </g:else>
 
 <g:if env="development">
-    <div class="alert warn">
-    <h3>This is visible in development view only</h3>
+    <div class="alert alert-warning" role="alert">
+    <h3>Below is visible in development view only</h3>
     <ul class="errors">
         <li>Error: ${errorMessage}</li>
     </ul>

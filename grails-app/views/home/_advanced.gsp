@@ -12,8 +12,6 @@
 <asset:stylesheet src="nbn/nbn.css" />
 
 
-%{--<asset:stylesheet src="nbn/nbn.css" />--}%
-
 <div class="nbn">
 
 
@@ -74,7 +72,6 @@
 
         <form class="form-horizontal" name="advancedSearchForm" id="advancedSearchForm"
               action="${request.contextPath}/occurrences/searchByOther" method="POST" id="advancedSearchForm">
-%{--            <input type="text" id="solrQuery" name="q" style="position:absolute;left:-9999px;" value="${params.q}"/>--}%
             <input type="hidden" name="nameType" value="${grailsApplication.config.advancedTaxaField?:'matched_name_children'}"/>
 
     <fieldset>
@@ -271,11 +268,21 @@
             </div>
         </div>
 
-    <div class="form-group">
-        <label class="col-md-2 control-label" >Date</label>
+        <div class="form-group">
+            <label class="col-md-2 control-label" >Date</label>
+            <div class="col-md-6 radio">
+                <label>
+                    <input type="radio" name="dateType" value="ANY" checked> Any
+                </label>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+        <label class="col-md-2 control-label" ></label>
         <div class="col-md-6 radio">
         <label>
-            <input type="radio" name="dateType" value="SPECIFIC_DATE" checked> Year OR month OR year/month/day
+            <input type="radio" name="dateType" value="SPECIFIC_DATE"> Year OR month OR year/month/day
         </label>
         </div>
     </div>
@@ -306,7 +313,7 @@
     <div style="height:10px"></div>
     <div class="form-group">
         <label class="col-md-2 control-label">  </label>
-        <div class="col-md-6" style="padding-left:30px;padding-right:30px">
+        <div id="yearRangeSlider" class="col-md-6" style="padding-left:30px;padding-right:30px">
             <input type="text" id="slider" class="slider" name="yearRange">
         </div>
     </div>
@@ -322,11 +329,11 @@
         </div>
     </div>
 
-    <div class="form-group" id="taxon_row_${i}">
+    <div class="form-group">
         <div class="col-md-2"></div>
         <div class="col-md-6" >
             <div style="float:right">
-            <input type="reset" value="Clear all" id="clearAll" class="btn btn-default" onclick="$('input#solrQuery').val(''); $('input.clear_taxon').click(); return true;"/>
+            <input type="reset" value="Clear all" id="clearAll" class="btn btn-default" />
             <input type="submit" value=<g:message code="advancedsearch.button.submit" default="Search"/> class="btn btn-primary" />
     </div>
 
