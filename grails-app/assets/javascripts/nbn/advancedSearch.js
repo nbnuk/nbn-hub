@@ -150,6 +150,7 @@ $(document).ready(function() {
             populateViceCounty();
             initYearRangeSlider();
             initLicenceType("ALL");
+            initDateType("ANY");
             var cookieValue = $.cookie("advanced_search_form_state");
 
             if (cookieValue){

@@ -14,7 +14,7 @@
 <div class="row" id="content">
 <g:if test="${errorMessage.contains("Solr")}">
     <div class="alert alert-warning text-center" role="alert">
-        Atlas is temporarily down at the moment. Please try again later.
+        Records is temporarily down at the moment. Please try again later.
     </div>
 </g:if>
 <g:else>

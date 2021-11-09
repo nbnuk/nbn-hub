@@ -37,3 +37,8 @@
 label.not_done_yet {
     color: #C2C2C2;
 }
+
+#yearRangeSlider {
+    padding-left:30px;
+    padding-right:30px
+}

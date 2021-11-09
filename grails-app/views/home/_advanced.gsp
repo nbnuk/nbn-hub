@@ -301,7 +301,7 @@
     </div>
 
 
-    <div class="form-group"  style="margin-top:30px">
+    <div class="form-group"  >
         <label class="col-md-2 control-label"></label>
         <div class="col-md-6 radio">
             <label>
@@ -310,10 +310,10 @@
         </div>
     </div>
 
-    <div style="height:10px"></div>
+    <div style="height:10px">&nbsp;</div>
     <div class="form-group">
         <label class="col-md-2 control-label">  </label>
-        <div id="yearRangeSlider" class="col-md-6" style="padding-left:30px;padding-right:30px">
+        <div id="yearRangeSlider" class="col-md-6">
             <input type="text" id="slider" class="slider" name="yearRange">
         </div>
     </div>
