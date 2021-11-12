@@ -8,20 +8,22 @@ $(document).ready(function() {
     var mySlider;
     $(document).ready(function() {
 
-        function populateDataProviders() {
+        function populateDataProviders(selectedDataProviderUID) {
             $.getJSON(DATA_PROVIDER_WS_URL, function(data) {
                 if (data) {
                     $.each(data, function (i, item) {
-                        $('#data-provider').append($('<option>', {
+                        $('#data-provider').append($('<option>',{
                             value: item.uid,
                             text : item.name
                         }));
                     });
+                    initDataProviderUID(selectedDataProviderUID)
+
                 }
             })
         }
 
-        function populateViceCounty() {
+        function populateViceCounty(selectedViceCountyName) {
             $.getJSON(VICE_COUNTY_WS_URL, function(data) {
                 if (data) {
                     $.each(data, function (i, item) {
@@ -30,13 +32,14 @@ $(document).ready(function() {
                             text : item.name
                         }));
                     });
+                    initViceCountyName(selectedViceCountyName)
                 }
             })
         }
 
         $('#t2').click(function(){
             //This is a fix to get the slider to render properly when the form first becomes visible
-            setTimeout(()=>{
+            setTimeout(function(){
                     mySlider.sliderLeft = document.getElementById("yearRangeSlider").getBoundingClientRect().left;
                     mySlider.sliderWidth = document.getElementById("yearRangeSlider").clientWidth;
                     mySlider.updateScale();
@@ -45,7 +48,7 @@ $(document).ready(function() {
 
         });
 
-        $('#advancedSearchForm').on('reset', ()=> {
+        $('#advancedSearchForm').on('reset', function(){
             initDateType('ANY');
             initLicenceType('ALL');
             $.cookie("advanced_search_form_state",null)
@@ -130,14 +133,26 @@ $(document).ready(function() {
             }
         }
 
+        function initDataProviderUID(dataProviderUID) {
+            $("#data-provider").val(dataProviderUID);
+            // $("select #data-provider option[value="+dataProviderUID+"]").prop('selected', true);
+            // $("#data-provider").children('option:selected').val();
+        }
+
+        function initViceCountyName(viceCountyName) {
+            $("#vice-county").val(viceCountyName);
+            // $("#vice-county").children('option:selected').val();
+        }
+
         $( "#advancedSearchForm" ).submit(function( event ) {
             var yearRange = mySlider.getValue().split(",");
             var formState = {
                 "licenceType:":$('input:radio[name=licenceType]:checked').val(),
                 "dateType":$('input:radio[name=dateType]:checked').val(),
-                "yearRange":[parseInt(yearRange[0]),parseInt(yearRange[1])]
+                "yearRange":[parseInt(yearRange[0]),parseInt(yearRange[1])],
+                "dataProviderUID":$('#data-provider').children("option:selected").val(),
+                "viceCountyName":$('#vice-county').children("option:selected").val()
             }
-
 
             $.cookie("advanced_search_form_state",JSON.stringify(formState));
 
@@ -146,31 +161,26 @@ $(document).ready(function() {
 
 
         function init(){
-            populateDataProviders();
-            populateViceCounty();
+
             initYearRangeSlider();
             initLicenceType("ALL");
             initDateType("ANY");
             var cookieValue = $.cookie("advanced_search_form_state");
-
+            var dataProvider = "";
+            var viceCountyName = "";
             if (cookieValue){
                 var formState = JSON.parse(cookieValue);
-               initLicenceType(formState.licenceType?formState.licenceType:"ALL");
+                initLicenceType(formState.licenceType?formState.licenceType:"ALL");
 
-                 initDateType(formState.dateType?formState.dateType:"SPECIFIC_DATE",
+                initDateType(formState.dateType?formState.dateType:"SPECIFIC_DATE",
                      formState.yearRange?formState.yearRange:[1600,(new Date()).getFullYear()]);
+                dataProvider = formState.dataProviderUID?formState.dataProviderUID:"";
+                viceCountyName = formState.viceCountyName?formState.viceCountyName:""
             }
 
-        }
+            populateDataProviders(dataProvider);
+            populateViceCounty(viceCountyName);
 
-        function getDateType(formState){
-            formState?.[1]?formState[1].split(":")[1]:"SPECIFIC_DATE"
-        }
-
-        function getYearRange(formState){
-            var yearRangeState = formState[2]; //yearRange:1832,2010
-            var yearRangeAsStr = yearRangeState.split(":")[1].split(",");
-            var yearRange =[parseInt(yearRangeAsStr[0]),parseInt(yearRangeAsStr[1])]
         }
 
         init();

@@ -114,7 +114,7 @@ class AdvancedSearchParams implements Validateable {
 
         String finalQuery = ((taxa) ? "taxa=" + encodedTaxa + "&" : "") + ((encodedQ) ? "q=" + encodedQ : "")
         log.debug("query: " + finalQuery)
-
+        queryItems.clear();
         return finalQuery
     }
 
@@ -181,7 +181,9 @@ class AdvancedSearchParams implements Validateable {
         }
         else if ("YEAR_RANGE".equals(dateType)) {
             String[] years = yearRange.split(",");
-            query = "occurrence_date:["+years[0]+"-01-01T00:00:00Z"+" TO "+years[1]+"-12-31T23:59:59Z]";
+            //query = "occurrence_date:["+years[0]+"-01-01T00:00:00Z"+" TO "+years[1]+"-12-31T23:59:59Z]";
+            query = "year:["+years[0]+" TO "+years[1]+"]";
+
         }
         else {
             if (year && !month && !day) {
