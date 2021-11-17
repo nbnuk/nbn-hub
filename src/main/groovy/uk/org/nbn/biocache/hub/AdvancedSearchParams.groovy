@@ -46,6 +46,7 @@ class AdvancedSearchParams implements Validateable {
     String annotations = ""
     String dataProviderUID =""
     String viceCountyName = ""
+    String taxonID=""
 
 
     private String taxa = ""
@@ -71,6 +72,7 @@ class AdvancedSearchParams implements Validateable {
         addQueryItem(buildAnnotationsQuery(annotations))
         addQueryItem(buildDataProviderQuery(dataProviderUID))
         addQueryItem(buildViceCountyQuery(viceCountyName))
+        addQueryItem(buildTaxonIDQuery(taxonID))
 
         ArrayList<String> taxas = new ArrayList<String>()
 
@@ -251,6 +253,9 @@ class AdvancedSearchParams implements Validateable {
             case 8:
                 query = "grid_ref_100:" + gridReference;
                 break;
+            default:
+                query = "grid_ref:"+gridReference+" AND !cl28:\"Northern Ireland\"";
+                break;
         }
         return query;
     }
@@ -270,6 +275,9 @@ class AdvancedSearchParams implements Validateable {
             case 7:
                 query = "grid_ref_100:" + gridReference;
                 break;
+            default:
+                query = "grid_ref:"+gridReference+" AND cl28:\"Northern Ireland\"";
+                break;
         }
         return query;
     }
@@ -281,11 +289,12 @@ class AdvancedSearchParams implements Validateable {
     }
 
     private String buildRecordedByQuery(String recordedBy){
-        return recordedBy?"collector_text:"+recordedBy+"~":"";
+        return recordedBy?"collector_text:"+recordedBy:"";
     }
 
+
     private String buildIdentifiedByQuery(String identifiedBy){
-        return identifiedBy?"identified_by:"+identifiedBy+"~":"";
+        return identifiedBy?"identified_by_text:"+identifiedBy:"";
     }
 
     private String buildDataProviderQuery(String dataProviderUID){
@@ -295,6 +304,12 @@ class AdvancedSearchParams implements Validateable {
     private String buildViceCountyQuery(String viceCountyName){
         return viceCountyName?"cl254:"+viceCountyName:"";
     }
+
+    private String buildTaxonIDQuery(String taxonID){
+        return taxonID?"lsid:"+taxonID:"";
+    }
+
+
 
 
     private void addQueryItem(String queryString) {

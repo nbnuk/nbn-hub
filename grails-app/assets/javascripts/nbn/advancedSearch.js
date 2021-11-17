@@ -49,11 +49,19 @@ $(document).ready(function() {
         });
 
         $('#advancedSearchForm').on('reset', function(){
+            resetAll();
+            return true;
+        })
+
+        function resetAll() {
+            $('#occurrenceID').val('');
+            $('#eventID').val('');
+            $('#collectionCode').val('');
             initDateType('ANY');
             initLicenceType('ALL');
             $.cookie("advanced_search_form_state",null)
-            return true;
-        })
+        }
+
 
 
             function initYearRangeSlider(){
@@ -105,15 +113,9 @@ $(document).ready(function() {
         }
 
         function initYearRange(enabled, yearRange) {
-            if (!enabled) {
-                mySlider.setValues(1600, (new Date()).getFullYear());
-                mySlider.disabled(true);
-            }
-            else {
-                mySlider.disabled(false);
-                if (yearRange){
-                    mySlider.setValues(yearRange[0], yearRange[1]);
-                }
+            if (mySlider) {
+                mySlider.setValues(yearRange[0], yearRange[1]);
+                mySlider.disabled(!enabled);
             }
         }
 
@@ -135,13 +137,10 @@ $(document).ready(function() {
 
         function initDataProviderUID(dataProviderUID) {
             $("#data-provider").val(dataProviderUID);
-            // $("select #data-provider option[value="+dataProviderUID+"]").prop('selected', true);
-            // $("#data-provider").children('option:selected').val();
         }
 
         function initViceCountyName(viceCountyName) {
             $("#vice-county").val(viceCountyName);
-            // $("#vice-county").children('option:selected').val();
         }
 
         $( "#advancedSearchForm" ).submit(function( event ) {
@@ -161,7 +160,6 @@ $(document).ready(function() {
 
 
         function init(){
-
             initYearRangeSlider();
             initLicenceType("ALL");
             initDateType("ANY");
@@ -183,6 +181,7 @@ $(document).ready(function() {
 
         }
 
+        resetAll();
         init();
 
 
