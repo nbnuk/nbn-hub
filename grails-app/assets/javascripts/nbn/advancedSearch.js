@@ -59,7 +59,7 @@ $(document).ready(function() {
             $('#collectionCode').val('');
             initDateType('ANY');
             initLicenceType('ALL');
-            $.cookie("advanced_search_form_state",null)
+            $.removeCookie("advanced_search_form_state")
         }
 
 
