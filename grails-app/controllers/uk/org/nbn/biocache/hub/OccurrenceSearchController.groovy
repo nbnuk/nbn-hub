@@ -23,7 +23,9 @@ class OccurrenceSearchController {
 
     def searchByOther(AdvancedSearchParams requestParams) {
 //        forward(controller: "loading", params: [url:OCCURRENCE_SEARCH+"?"+requestParams.toString()])
-       redirect(controller: "occurrences", action:"search", params: requestParams.toParamMap())
+        Map paramMap = requestParams.toParamMap();
+        paramMap.put("sort","score")
+       redirect(controller: "occurrences", action:"search", params: paramMap)
 
     }
 

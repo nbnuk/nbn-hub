@@ -38,11 +38,14 @@ $(document).ready(function() {
         }
 
         $('#t2').click(function(){
+            $.removeCookie("advanced_search_form_state");
+
             //This is a fix to get the slider to render properly when the form first becomes visible
             setTimeout(function(){
                     mySlider.sliderLeft = document.getElementById("yearRangeSlider").getBoundingClientRect().left;
                     mySlider.sliderWidth = document.getElementById("yearRangeSlider").clientWidth;
                     mySlider.updateScale();
+                    mySlider.onResize();
                 }
                 ,500);
 
@@ -59,12 +62,11 @@ $(document).ready(function() {
             $('#collectionCode').val('');
             initDateType('ANY');
             initLicenceType('ALL');
-            $.removeCookie("advanced_search_form_state")
         }
 
 
 
-            function initYearRangeSlider(){
+        function initYearRangeSlider(){
             if (typeof mySlider == 'undefined') {
                 mySlider = new rSlider({
                     target: '#slider',
@@ -113,7 +115,7 @@ $(document).ready(function() {
         }
 
         function initYearRange(enabled, yearRange) {
-            if (mySlider) {
+            if (mySlider && yearRange) {
                 mySlider.setValues(yearRange[0], yearRange[1]);
                 mySlider.disabled(!enabled);
             }
@@ -143,17 +145,38 @@ $(document).ready(function() {
             $("#vice-county").val(viceCountyName);
         }
 
+        function validate() {
+            var isValid = true
+            $('div.specific_date_input').removeClass('has-error');
+            $('#specific_date_input_error').removeClass("hidden");
+            $('#specific_date_input_error').addClass("hidden");
+            if ("SPECIFIC_DATE"==$('input:radio[name=dateType]:checked').val()) {
+                if ($('input[name=day]').val() &&
+                    !($('input[name=month]').val() && $('input[name=year]').val())) {
+                    $('div.specific_date_input').addClass('has-error');
+                    $('#specific_date_input_error').removeClass("hidden");
+                    isValid =  false;
+                }
+            }
+            return isValid
+        }
+
         $( "#advancedSearchForm" ).submit(function( event ) {
+            if (!validate()) {
+                event.preventDefault();
+                return false;
+            }
+
             var yearRange = mySlider.getValue().split(",");
             var formState = {
-                "licenceType:":$('input:radio[name=licenceType]:checked').val(),
+                "licenceType":$('input:radio[name=licenceType]:checked').val(),
                 "dateType":$('input:radio[name=dateType]:checked').val(),
                 "yearRange":[parseInt(yearRange[0]),parseInt(yearRange[1])],
                 "dataProviderUID":$('#data-provider').children("option:selected").val(),
                 "viceCountyName":$('#vice-county').children("option:selected").val()
             }
 
-            $.cookie("advanced_search_form_state",JSON.stringify(formState));
+            $.cookie("advanced_search_form_state",JSON.stringify(formState), {path:"/"});
 
             return true;
         });
@@ -161,8 +184,6 @@ $(document).ready(function() {
 
         function init(){
             initYearRangeSlider();
-            initLicenceType("ALL");
-            initDateType("ANY");
             var cookieValue = $.cookie("advanced_search_form_state");
             var dataProvider = "";
             var viceCountyName = "";
@@ -175,13 +196,17 @@ $(document).ready(function() {
                 dataProvider = formState.dataProviderUID?formState.dataProviderUID:"";
                 viceCountyName = formState.viceCountyName?formState.viceCountyName:""
             }
+            else {
+                initLicenceType("ALL");
+                initDateType("ANY");
+            }
 
             populateDataProviders(dataProvider);
             populateViceCounty(viceCountyName);
 
         }
 
-        resetAll();
+        // resetAll();
         init();
 
 

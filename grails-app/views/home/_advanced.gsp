@@ -278,16 +278,17 @@
         </div>
 
 
-        <div class="form-group">
+        <div class="form-group specific_date_input">
         <label class="col-md-2 control-label" ></label>
         <div class="col-md-6 radio">
         <label>
             <input type="radio" name="dateType" value="SPECIFIC_DATE"> Year OR month OR year/month/day
         </label>
+            <span id="specific_date_input_error" class="help-block hidden">Cannot search by day only. It must be a month and/or a year or a full date</span>
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group specific_date_input">
         <label class="col-md-2 control-label"></label>
         <div class="col-md-2">
             <input type="text" value="" placeholder="YYYY" id="year" name="year" class="form-control" size="4" maxlength="4">
