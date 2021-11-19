@@ -13,7 +13,7 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        location.replace("${params.url}")
+        location.replace("${raw(url)}")
     })
 
 </script>
