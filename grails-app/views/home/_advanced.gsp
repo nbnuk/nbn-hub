@@ -4,7 +4,8 @@
 %{--TODO: get the layers url with the layerid (below) into a config file--}%
 <asset:script type="text/javascript">
     var DATA_PROVIDER_WS_URL = "${grailsApplication.config.collectory.baseUrl}/ws/dataProvider";
-    var VICE_COUNTY_WS_URL = "https://layers.nbnatlas.org/ws/objects/cl254";
+    var VICE_COUNTY_WS_URL = "https://layers.nbnatlas.org/ws/objects/${grailsApplication.config.layer.vice_county}";
+    var VICE_COUNTY_IRELAND_WS_URL = "https://layers.nbnatlas.org/ws/objects/${grailsApplication.config.layer.vice_county_ireland}";
 </asset:script>
 <asset:javascript src="nbn/advancedSearch.js" />
 <asset:stylesheet src="nbn/rSlider.min.css" />
@@ -263,6 +264,15 @@
             <label class="col-md-2 control-label" for="vice-county">Vice county</label>
             <div class="col-md-6">
                 <select class="form-control" name="viceCountyName" id="vice-county" >
+                    <option value="">-- select one --</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group" >
+            <label class="col-md-2 control-label" for="vice-county-ireland">Vice county Ireland</label>
+            <div class="col-md-6">
+                <select class="form-control" name="viceCountyIrelandName" id="vice-county-ireland" >
                     <option value="">-- select one --</option>
                 </select>
             </div>

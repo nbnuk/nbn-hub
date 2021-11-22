@@ -37,6 +37,20 @@ $(document).ready(function() {
             })
         }
 
+        function populateViceCountyIreland(selectedViceCountyIrelandName) {
+            $.getJSON(VICE_COUNTY_IRELAND_WS_URL, function(data) {
+                if (data) {
+                    $.each(data, function (i, item) {
+                        $('#vice-county-ireland').append($('<option>', {
+                            value: item.name,
+                            text : item.name
+                        }));
+                    });
+                    initViceCountyIrelandName(selectedViceCountyIrelandName)
+                }
+            })
+        }
+
         $('#t2').click(function(){
             $.removeCookie("advanced_search_form_state");
 
@@ -145,6 +159,10 @@ $(document).ready(function() {
             $("#vice-county").val(viceCountyName);
         }
 
+        function initViceCountyIrelandName(viceCountyIrelandName) {
+            $("#vice-county-ireland").val(viceCountyIrelandName);
+        }
+
         function validate() {
             var isValid = true
             $('div.specific_date_input').removeClass('has-error');
@@ -173,7 +191,8 @@ $(document).ready(function() {
                 "dateType":$('input:radio[name=dateType]:checked').val(),
                 "yearRange":[parseInt(yearRange[0]),parseInt(yearRange[1])],
                 "dataProviderUID":$('#data-provider').children("option:selected").val(),
-                "viceCountyName":$('#vice-county').children("option:selected").val()
+                "viceCountyName":$('#vice-county').children("option:selected").val(),
+                "viceCountyIrelandName":$('#vice-county-ireland').children("option:selected").val()
             }
 
             $.cookie("advanced_search_form_state",JSON.stringify(formState), {path:"/"});
@@ -187,6 +206,7 @@ $(document).ready(function() {
             var cookieValue = $.cookie("advanced_search_form_state");
             var dataProvider = "";
             var viceCountyName = "";
+            var viceCountyIrelandName = "";
             if (cookieValue){
                 var formState = JSON.parse(cookieValue);
                 initLicenceType(formState.licenceType?formState.licenceType:"ALL");
@@ -195,6 +215,7 @@ $(document).ready(function() {
                      formState.yearRange?formState.yearRange:[1600,(new Date()).getFullYear()]);
                 dataProvider = formState.dataProviderUID?formState.dataProviderUID:"";
                 viceCountyName = formState.viceCountyName?formState.viceCountyName:""
+                viceCountyIrelandName = formState.viceCountyIrelandName?formState.viceCountyIrelandName:""
             }
             else {
                 initLicenceType("ALL");
@@ -203,6 +224,7 @@ $(document).ready(function() {
 
             populateDataProviders(dataProvider);
             populateViceCounty(viceCountyName);
+            populateViceCountyIreland(viceCountyIrelandName);
 
         }
 

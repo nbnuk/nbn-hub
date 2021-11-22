@@ -14,6 +14,7 @@
  */
 package uk.org.nbn.biocache.hub
 
+import grails.core.GrailsApplication
 import grails.validation.Validateable
 import groovy.util.logging.Slf4j
 import org.apache.commons.httpclient.URIException
@@ -28,6 +29,8 @@ import org.grails.web.util.WebUtils
 //@Validateable
 @Slf4j
 class AdvancedSearchParams implements Validateable {
+    GrailsApplication grailsApplication;
+
     String[] taxonText=[];
     String nameType = ""
     String[] basisOfRecord = []
@@ -46,6 +49,7 @@ class AdvancedSearchParams implements Validateable {
     String annotations = ""
     String dataProviderUID =""
     String viceCountyName = ""
+    String viceCountyIrelandName = ""
     String taxonID=""
 
 
@@ -72,6 +76,7 @@ class AdvancedSearchParams implements Validateable {
         addQueryItem(buildAnnotationsQuery(annotations))
         addQueryItem(buildDataProviderQuery(dataProviderUID))
         addQueryItem(buildViceCountyQuery(viceCountyName))
+        addQueryItem(buildViceCountyIrelandQuery(viceCountyIrelandName))
         addQueryItem(buildTaxonIDQuery(taxonID))
 
         ArrayList<String> taxas = new ArrayList<String>()
@@ -305,7 +310,11 @@ class AdvancedSearchParams implements Validateable {
     }
 
     private String buildViceCountyQuery(String viceCountyName){
-        return viceCountyName?"cl254:"+viceCountyName:"";
+        return viceCountyName?"${grailsApplication.config.layer.vice_county}:\""+viceCountyName+"\"":"";
+    }
+
+    private String buildViceCountyIrelandQuery(String viceCountyIrelandName){
+        return viceCountyIrelandName?"${grailsApplication.config.layer.vice_county_ireland}:\""+viceCountyIrelandName+"\"":"";
     }
 
     private String buildTaxonIDQuery(String taxonID){
