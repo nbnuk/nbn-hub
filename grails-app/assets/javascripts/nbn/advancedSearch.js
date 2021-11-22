@@ -165,17 +165,18 @@ $(document).ready(function() {
 
         function validate() {
             var isValid = true
-            $('div.specific_date_input').removeClass('has-error');
-            $('#specific_date_input_error').removeClass("hidden");
-            $('#specific_date_input_error').addClass("hidden");
-            if ("SPECIFIC_DATE"==$('input:radio[name=dateType]:checked').val()) {
-                if ($('input[name=day]').val() &&
-                    !($('input[name=month]').val() && $('input[name=year]').val())) {
-                    $('div.specific_date_input').addClass('has-error');
-                    $('#specific_date_input_error').removeClass("hidden");
-                    isValid =  false;
-                }
-            }
+            //NOT needed. Can now search on day only
+            // $('div.specific_date_input').removeClass('has-error');
+            // $('#specific_date_input_error').removeClass("hidden");
+            // $('#specific_date_input_error').addClass("hidden");
+            // if ("SPECIFIC_DATE"==$('input:radio[name=dateType]:checked').val()) {
+            //     if ($('input[name=day]').val() &&
+            //         !($('input[name=month]').val() && $('input[name=year]').val())) {
+            //         $('div.specific_date_input').addClass('has-error');
+            //         $('#specific_date_input_error').removeClass("hidden");
+            //         isValid =  false;
+            //     }
+            // }
             return isValid
         }
 

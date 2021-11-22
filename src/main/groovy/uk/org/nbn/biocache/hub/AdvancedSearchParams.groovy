@@ -193,18 +193,25 @@ class AdvancedSearchParams implements Validateable {
 
         }
         else {
-            if (year && !month && !day) {
-                query = "year:"+year;
-            }
-            else if (!year && month && !day) {
-                query = "month:"+month;
-            }
-            else if (year && month && !day) {
-                query = "(year:"+year+" AND month:"+month+")";
-            }
-            else if (year && month && day) {
+            if (year && month && day) {
                 query = "occurrence_date:["+year+"-"+month+"-"+day+"T00:00:00Z"+" TO "+year+"-"+month+"-"+day+"T23:59:59Z]"
             }
+            else {
+                List parts = new ArrayList();
+                if (year) {
+                    parts.add("year:"+year);
+                }
+                if (month) {
+                    parts.add("month:"+month);
+                }
+                if (day) {
+                    parts.add("day:"+day);
+                }
+                if (parts.size()) {
+                    query = "("+parts.join(" AND ")+")";
+                }
+            }
+
         }
         return query;
     }

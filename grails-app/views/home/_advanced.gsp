@@ -292,9 +292,9 @@
         <label class="col-md-2 control-label" ></label>
         <div class="col-md-6 radio">
         <label>
-            <input type="radio" name="dateType" value="SPECIFIC_DATE"> Year OR month OR year/month/day
+            <input type="radio" name="dateType" value="SPECIFIC_DATE"> Year and/or month and/or day
         </label>
-            <span id="specific_date_input_error" class="help-block hidden">Cannot search by day only. It must be a month and/or a year or a full date</span>
+%{--            <span id="specific_date_input_error" class="help-block hidden">Cannot search by day only. It must be a month and/or a year or a full date</span>--}%
         </div>
     </div>
 
