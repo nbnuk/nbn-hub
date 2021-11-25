@@ -118,7 +118,7 @@ $(document).ready(function() {
             }
             else{
                 initSpecificDate(false);
-                initYearRange(true, yearRange);
+                initYearRange(true, yearRange?yearRange:[1600,(new Date()).getFullYear()]);
             }
         }
 
@@ -213,7 +213,7 @@ $(document).ready(function() {
                 initLicenceType(formState.licenceType?formState.licenceType:"ALL");
 
                 initDateType(formState.dateType?formState.dateType:"SPECIFIC_DATE",
-                     formState.yearRange?formState.yearRange:[1600,(new Date()).getFullYear()]);
+                    formState.yearRange?formState.yearRange:[1600,(new Date()).getFullYear()]);
                 dataProvider = formState.dataProviderUID?formState.dataProviderUID:"";
                 viceCountyName = formState.viceCountyName?formState.viceCountyName:""
                 viceCountyIrelandName = formState.viceCountyIrelandName?formState.viceCountyIrelandName:""

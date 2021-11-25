@@ -14,7 +14,7 @@
 
 <div class="row" id="content">
     <g:if test="${errorMessage && errorMessage.contains("Solr")}">
-        <div class="alert alert-warning text-center" role="alert">
+        <div class="status-message-down" style="display:block;text-align:center"role="alert">
             The NBN Atlas records search is unavailable at the moment. Please try again later.
         </div>
     </g:if>
@@ -27,7 +27,7 @@
 
 
     <g:if test="${grails.util.Environment.current == grails.util.Environment.DEVELOPMENT || authService?.userInRole("ROLE_ADMIN")}">
-        <div class="alert alert-warning" role="alert">
+        <div class="alert alert-warning" style="margin-top:2rem" role="alert">
             <h3>Below is visible to admins only</h3>
             <ul class="errors">
                 <li>Error message: ${errorMessage}</li>
