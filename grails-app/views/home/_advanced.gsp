@@ -24,7 +24,8 @@
         <div class="form-group">
                 <label class="col-md-2 control-label" for="occurrenceID">Occurrence ID</label>
                 <div class="col-md-6 input-group" style="padding:0px 15px">
-                        <input type="text" class="form-control" name="occurrenceID" id="occurrenceID"/>
+                        <input type="text" class="form-control" name="occurrenceID" id="occurrenceID"
+                               placeholder="e.g. a record id"/>
                         <span class="input-group-btn">
                             <input class="form-control btn btn-primary" type="submit"
                                    value="${g.message(code:"home.index.simsplesearch.button", default:"Search")}"/>
@@ -41,7 +42,8 @@
                 <div class="form-group">
                     <label class="col-md-2 control-label" for="collectionCode">Event ID</label>
                     <div class="col-md-6 input-group" style="padding:0px 15px">
-                        <input type="text" class="form-control" name="eventID" id="eventID"/>
+                        <input type="text" class="form-control" name="eventID" id="eventID"
+                               placeholder="e.g. a survey id"/>
                         <span class="input-group-btn">
                             <input class="form-control btn btn-primary" type="submit"
                                    value="${g.message(code:"home.index.simsplesearch.button", default:"Search")}"/>
@@ -59,7 +61,8 @@
                 <div class="form-group">
                     <label class="col-md-2 control-label" for="collectionCode">Collection Code</label>
                     <div class="col-md-6 input-group" style="padding:0px 15px">
-                        <input type="text" class="form-control" name="collectionCode" id="collectionCode"/>
+                        <input type="text" class="form-control" name="collectionCode" id="collectionCode"
+                               placeholder="e.g. a sample id"/>
                         <span class="input-group-btn">
                             <input class="form-control btn btn-primary" type="submit"
                                    value="${g.message(code:"home.index.simsplesearch.button", default:"Search")}"/>
@@ -82,7 +85,8 @@
     <div class="form-group" id="taxa">
         <label class="col-md-2 control-label" for="taxonText">Taxon name</label>
         <div class="col-md-6" >
-            <input type="text" value="" id="taxonText" name="taxonText" class="name_autocomplete form-control" size="60" >
+            <input type="text" value="" id="taxonText" name="taxonText" class="name_autocomplete form-control"
+                   placeholder="Enter a common name or a scientific name" size="60" >
         </div>
     </div>
 
@@ -91,7 +95,8 @@
     <div class="form-group" >
         <label class="col-md-2 control-label" for="taxonID">Taxon ID (UKSI TVK)</label>
         <div class="col-md-6">
-            <input type="text" value="" id="taxonID" name="taxonID" class="form-control" size="60">
+            <input type="text" value="" id="taxonID" name="taxonID" class="form-control" size="60"
+            placeholder="e.g. NHMSYS0000376154">
         </div>
     </div>
 
@@ -167,22 +172,24 @@
     <div class="form-group">
         <label class="col-md-2 control-label" for="identifiedBy">Identified by</label>
         <div class="col-md-6">
-            <input type="text" value="" id="identifiedBy" name="identifiedBy" class="form-control" size="60">
+            <input type="text" value="" id="identifiedBy" name="identifiedBy" class="form-control" size="60"
+            placeholder="Enter all or part of the name">
         </div>
     </div>
 
     <div class="form-group">
         <label class="col-md-2 control-label" for="recordedBy">Recorded by</label>
         <div class="col-md-6">
-            <input  type="text" value="" id="recordedBy" name="recordedBy" class="form-control" size="60">
+            <input  type="text" value="" id="recordedBy" name="recordedBy" class="form-control" size="60"
+                    placeholder="Enter all or part of the name">
         </div>
     </div>
 
     <div class="form-group not_done_yet" >
-        <label class="col-md-2 control-label" for="data-provider">Data partners</label>
+        <label class="col-md-2 control-label" for="data-provider">Data partner</label>
         <div class="col-md-6">
             <select class="form-control" name="dataProviderUID" id="data-provider" >
-                <option value="">-- select one --</option>
+                <option value="">-- Select one --</option>
             </select>
         </div>
     </div>
@@ -264,7 +271,7 @@
             <label class="col-md-2 control-label" for="vice-county">Vice county</label>
             <div class="col-md-6">
                 <select class="form-control" name="viceCountyName" id="vice-county" >
-                    <option value="">-- select one --</option>
+                    <option value="">-- Select one --</option>
                 </select>
             </div>
         </div>
@@ -273,7 +280,7 @@
             <label class="col-md-2 control-label" for="vice-county-ireland">Vice county Ireland</label>
             <div class="col-md-6">
                 <select class="form-control" name="viceCountyIrelandName" id="vice-county-ireland" >
-                    <option value="">-- select one --</option>
+                    <option value="">-- Select one --</option>
                 </select>
             </div>
         </div>

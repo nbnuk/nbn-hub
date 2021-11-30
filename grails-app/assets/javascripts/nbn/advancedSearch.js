@@ -8,6 +8,19 @@ $(document).ready(function() {
     var mySlider;
     $(document).ready(function() {
 
+        function sortJSON(arr, key, ascending) {
+            return arr.sort(function(a, b) {
+                var x = a[key];
+                var y = b[key];
+                if (ascending) {
+                    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                }
+                else{
+                    return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+                }
+            });
+        }
+
         function populateDataProviders(selectedDataProviderUID) {
             $.getJSON(DATA_PROVIDER_WS_URL, function(data) {
                 if (data) {
@@ -26,7 +39,8 @@ $(document).ready(function() {
         function populateViceCounty(selectedViceCountyName) {
             $.getJSON(VICE_COUNTY_WS_URL, function(data) {
                 if (data) {
-                    $.each(data, function (i, item) {
+                    var sortedData = sortJSON(data,"name", true);
+                    $.each(sortedData, function (i, item) {
                         $('#vice-county').append($('<option>', {
                             value: item.name,
                             text : item.name
@@ -40,7 +54,8 @@ $(document).ready(function() {
         function populateViceCountyIreland(selectedViceCountyIrelandName) {
             $.getJSON(VICE_COUNTY_IRELAND_WS_URL, function(data) {
                 if (data) {
-                    $.each(data, function (i, item) {
+                    var sortedData = sortJSON(data,"name", true);
+                    $.each(sortedData, function (i, item) {
                         $('#vice-county-ireland').append($('<option>', {
                             value: item.name,
                             text : item.name
