@@ -28,7 +28,7 @@
 </p>
 
 <p style="text-align: center;">
-    Please wait while we search over 200 million records
+    Please wait, searching ...
 </p>
 
 </div>

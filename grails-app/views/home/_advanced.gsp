@@ -263,7 +263,8 @@
         <label class="col-md-2 control-label" for="gridReference">Grid reference</label>
         <div class="col-md-6">
             <label class="radio-inline"><input name="gridReferenceType" type="radio" value="GB" checked> GB</label> <label class="radio-inline"><input name="gridReferenceType" type="radio" value="IRISH" > Irish</label>
-            <input type="text" value="" id="gridReference" name="gridReference" class="form-control" size="8" maxlength="8" placeholder="">
+            <input type="text" value="" id="gridReference" name="gridReference" class="form-control" size="8"
+                   placeholder="Enter any grid reference e.g.SK5740" maxlength="8" placeholder="">
         </div>
     </div>
 
