@@ -20,7 +20,7 @@
     </g:if>
     <g:else>
         <p style="text-align: center">
-            This could just be because the Atlas is very busy. Please try again.
+            This could just be because the NBN Atlas is very busy. Please try again.
         </p>
     </g:else>
 

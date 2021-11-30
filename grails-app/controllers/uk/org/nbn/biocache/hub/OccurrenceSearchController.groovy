@@ -7,24 +7,20 @@ class OccurrenceSearchController {
     private final String OCCURRENCE_SEARCH="/occurrences/search";
 
     def searchByOccurrenceID(String occurrenceID) {
-//        return forward(controller: "loading", params: [url:OCCURRENCE_SEARCH+"?q="+ buildOccurrenceIDQuery(occurrenceID)])
         return redirect(controller: 'occurrences', action: 'search', params: [q:"occurrence_id:"+occurrenceID])
     }
 
     def searchByEventID(String eventID) {
-//        return forward(controller: "loading", params: [url:OCCURRENCE_SEARCH+"?q="+ buildEventIDQuery(eventID)])
         return redirect(controller: 'occurrences', action: 'search', params: [q:"event_id:"+eventID])
     }
 
     def searchByCollectionCode(String collectionCode) {
-//        return forward(controller: "loading", params: [url:OCCURRENCE_SEARCH+"?q="+ buildCollectionCodeQuery(collectionCode)])
         return redirect(controller: 'occurrences', action: 'search', params: [q:"collection_code:"+collectionCode])
     }
 
     def searchByOther(AdvancedSearchParams requestParams) {
-//        forward(controller: "loading", params: [url:OCCURRENCE_SEARCH+"?"+requestParams.toString()])
         Map paramMap = requestParams.toParamMap();
-        paramMap.put("sort","score")
+       // paramMap.put("sort","score")
        redirect(controller: "occurrences", action:"search", params: paramMap)
 
     }
