@@ -17,11 +17,11 @@ class LoadingInterceptorSpec extends Specification {
 
     }
 
-    void "Test loading interceptor matching"() {
-        when:"A request matches the interceptor"
-            withRequest(controller:"loading")
-
-        then:"The interceptor does match"
-            interceptor.doesMatch()
-    }
+//    void "Test loading interceptor matching"() {
+//        when:"A request matches the interceptor"
+//            withRequest(controller:"loading")
+//
+//        then:"The interceptor does match"
+//            interceptor.doesMatch()
+//    }
 }
