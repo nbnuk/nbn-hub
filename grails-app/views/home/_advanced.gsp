@@ -1,4 +1,4 @@
-<%@ page import="au.org.ala.biocache.hubs.FacetsName; org.apache.commons.lang.StringUtils" contentType="text/html;charset=UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <g:render template="/layouts/global"/>
 
 %{--TODO: get the layers url with the layerid (below) into a config file--}%
