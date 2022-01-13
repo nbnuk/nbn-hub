@@ -15,7 +15,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "4.0.0"
+version "5.0.0-SNAPSHOT"
 group "au.org.ala"
 
 apply plugin:"eclipse"
@@ -47,7 +47,7 @@ bootRepackage {
 // Inplace plugin config
 
 // Set to true it needed only for development
-boolean inplace = true
+boolean inplace = false
 
 if (inplace) {
     grails {
@@ -95,6 +95,7 @@ dependencies {
 
     // Jars
     compile "org.apache.httpcomponents:httpclient:4.5.6"
+    compile "commons-httpclient:commons-httpclient:3.1"
     compile 'xml-apis:xml-apis:1.4.01' // really?
 
     // Plugins
@@ -103,8 +104,8 @@ dependencies {
     //compile "org.grails.plugins:ala-auth:3.0.4", noCache // NBN removed
 
     if(!inplace) {
-        runtime "au.org.ala.plugins.grails:biocache-hubs:2.0.3", noCache //was -SNAPSHOT
-        runtime "au.org.ala.plugins.grails:downloads-plugin:2.0.3", noCache
+        runtime "au.org.ala.plugins.grails:biocache-hubs:2.0.8", noCache //was -SNAPSHOT
+        runtime "au.org.ala.plugins.grails:downloads-plugin:2.0.6", noCache
         //runtime "au.org.ala.plugins.grails:ala-charts-plugin:xxxx", noCache
     }
 
