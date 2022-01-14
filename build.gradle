@@ -2,6 +2,8 @@ buildscript {
     repositories {
         mavenLocal()
         maven { url "https://nexus.ala.org.au/content/groups/public/" }
+        maven { url "https://repository.gbif.org/repository/uk-nbn-snapshots/" }
+        maven { url "https://repository.gbif.org/repository/uk-nbn-releases/" }
         maven { url "https://repo.grails.org/grails/core" }
     }
     dependencies {
@@ -16,7 +18,7 @@ plugins {
 }
 
 version "5.0.0-SNAPSHOT"
-group "au.org.ala"
+group "uk.org.nbn"
 
 apply plugin:"eclipse"
 apply plugin:"idea"
@@ -25,7 +27,7 @@ apply plugin:"org.grails.grails-web"
 apply plugin:"org.grails.grails-gsp"
 apply plugin:"asset-pipeline"
 
-apply from: 'https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/travis_grails_publish.gradle'
+//apply from: 'https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/travis_grails_publish.gradle'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -33,6 +35,8 @@ targetCompatibility = 1.8
 repositories {
     mavenLocal()
     maven { url "https://nexus.ala.org.au/content/groups/public/" }
+    maven { url "https://repository.gbif.org/repository/uk-nbn-snapshots/" }
+    maven { url "https://repository.gbif.org/repository/uk-nbn-releases/" }
     maven { url "https://repo.grails.org/grails/core" }
 }
 
@@ -104,7 +108,7 @@ dependencies {
     //compile "org.grails.plugins:ala-auth:3.0.4", noCache // NBN removed
 
     if(!inplace) {
-        runtime "au.org.ala.plugins.grails:biocache-hubs:2.0.8", noCache //was -SNAPSHOT
+        runtime "au.org.ala.plugins.grails:biocache-hubs-nbn:5.0.0-SNAPSHOT", noCache
         runtime "au.org.ala.plugins.grails:downloads-plugin:2.0.6", noCache
         //runtime "au.org.ala.plugins.grails:ala-charts-plugin:xxxx", noCache
     }
@@ -123,4 +127,36 @@ bootRun {
 assets {
     minifyJs = true
     minifyCss = true
+}
+
+publishing {
+    repositories {
+        maven {
+            name 'Nexus'
+            url "https://repository.gbif.org/repository/${project.version.endsWith('-SNAPSHOT') ? 'uk-nbn-snapshots' : 'uk-nbn-releases' }"
+            credentials {
+                username = System.getenv('TRAVIS_DEPLOY_USERNAME')
+                password = System.getenv('TRAVIS_DEPLOY_PASSWORD')
+            }
+        }
+    }
+    publications {
+        mavenJar(MavenPublication) {
+            pom.withXml {
+                def pomNode = asNode()
+                pomNode.dependencyManagement.replaceNode {}
+
+                // simply remove dependencies without a version
+                // version-less dependencies are handled with dependencyManagement
+                // see https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/8 for more complete solutions
+                pomNode.dependencies.dependency.findAll {
+                    it.version.text().isEmpty()
+                }.each {
+                    it.replaceNode {}
+                }
+            }
+            from components.java
+
+        }
+    }
 }

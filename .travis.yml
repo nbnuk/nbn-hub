@@ -9,18 +9,16 @@ branches:
   - develop
   - EYA-enhancements
 before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-  - $HOME/.m2
-  - $HOME/.gradle/caches/
-  - $HOME/.gradle/wrapper/
-
+  - "$HOME/.m2"
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
 after_success:
-  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
+- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
 env:
   global:
-  - secure: "lGcOqqoDCQD+sJoIMyI8RT4ykFYmNA1G193IHmMAK3b/8rKuiPNgMgOJuZ8Lbth9Wj6dc5E9FSfGhvzqLbzzdOoCNbo+m32GmGNjohiKJ03ePAU6+BylsyYElAMmglPOQiH0qZLhsgtoDm7zWnoB0jZLUHa7G5HANvzP7BvjM6WIQ8LqoJVnWfb1dPmLq8DZPpKfDV91/sEIfqZylBK4iWBbk/VYdYy4ayl2Y2DbG8Wkl8Wpw4HAJ4OnBY5g2wUAp0cXIADxmDRje8fMVf55panKIgIoct2BhffRLTKmzUK4G737ER5Vl4vu0ALf5r9w4NG51Fe/CU2cfsVrlKcZN7RxzGbrvz8UspClEIcE4VxONQBycKFM0WiOY/EqaqIfKpPH9GGWWfMCn52K6H82p98kEwOWoqK0BncZvxzg2rRR1LW5dl8Qvjrf1+krCxfLJuSAeJyKMas2myK7qSJkZ6HEt0BHZpreztXmHl+sgYTzS0qGH/TEfpzdx8CBJ6wjLgmrgnk407Cla3jLx4vCjJqNB+MANY+5cInCyhENc0xCnhF9Ply2zQH3yYmTw4fPmdIyvl4r5en9VB7DtosHi/0/GIyldc4GwYjAIHg7tlQ0zsNqhInQzbEJzVc3BqDXYq0dlzh5zUYQSZ5OWqBRWxWGyJDpdVfGbosWvDIza34="
-  - secure: "vEt5bTwpV1ViDBnvSsxePOPhegUNJr8K6H9UgZ20CWbCol6mVpB/KcHgIqeCcKgNbidpjJbm4OSqA8mw3J8sQF/Ndh9u94gOZ9f3X3FY/JFND0s14i/r8Fj1fPYzd30QgZ+iBEoBqki+IhTjhO5u9ad7Su+NhU54QAvDxQEXoqrV1Ex8C9kXYD8Ve9oGaiY4ynvYpkt7iEB0CanBFa01A0JrOATnF6X7LoNg81u4bJDFcoRzrArx+JYpOviPJ6O51taVE8TPS4mBA3a/lmIA26prsPN9laaJIJhRZcQWEqYLVvwpbXDCoE7hZNoE2vLGGBJErUWKg7myGQSueur1Oh4wYKcBqRGgz/h4Aqfds0C9ih/IQP8GlJaIvc4YkfbWAkBr6e0yMIcZTFukt/FHQnWWbtg4VQE81ynMNYd1nTGER18VRprIZFdgAocS4xGjH6upC+19sawUiQ7DyDaweJG3+SR6eEpyv/NOLWdzzjB4ojQlGpZgLnFMUPz+orIMVkmjlJdpuUm4VEW06LErIHFMPURT18G1QttDEuppnAp16nej/afbP/OmnJ7xl3KBsaD7X4eprUQ/+eabJaRYBhvzVnrJsO7F5zS7SwNT2tEadH41ikpHWBWBMGRmtI160alWZPHjNt1raVmNR0xheem990uNQGJFCE97OfEOfbA="
+  - secure: dPFHku7w+kOmr3uhXRwJ8o29tV8iwNO+u4MXRfZWo6bjLBMukR+rK6iJEyNDMPQaPDY9ycHeTkkrPEdm0p2D/jrtleltibxcf71d7NXFCiw4UvWOi2DHSPmc9QhvK43f5ECEQSNDIPayMcRGtkGjDmHNVAlUcbzWFptW2nePMKBWBtthWQ7ouri8HM9txddBteMFVOGUWlDeg6cb4pn2TRFKhIljwFrcZKf7wymMlIH6/JYWk1DkxvnyiV4JPx2Mhfg0HGEwVhhe0Zp3j0AKQPD40wiBkZ8vM4jkT6Pv8+psHgBLp+TSjgJHZTh/DwKQ1WZ9SGK186N+TVFf9H9tAlI4IaWrw6evaO+7/hKmqh9dhGd8VmL37J73a9ym1DOyZwK8rqNZ0n0Fr7wwp8Zry8doXQqV5EnYRMMn/JuMJSHwnRJrE/04R08eAYrKYx+E/a3rRwE8ryOPpR7YcHlcnzcnmDZOJwSqUP1hInVBUtHjHUnJt/koJR4CGgspKZ+RS/bX7OLPjX724xWsvcnJCqz2kapluNzPleSy4Y/TayTmkSt5o1TtWJd7tXMLPdPrHxl8ZncaMmPjw4sE8pWgS91Y0ENJhmKuFrQyaKxxBmtTAxoWywwB+9SnqDz3GBwH0jcM4W7AYYPa+FKHnqGNemlN7V8eZV4zA7KxwmYJ0cE=
+  - secure: NqIQLbLMPNCz6Z+TbCvNor42Ff3LOXDP8s49oYeTx85+9utRCcRug/RcrzZMiIMjCNZpKjfs8uhStfsY0Q5y+Bhyd6eSZ8fIy7kmhf+fADfL3rjqcb6Q76w+h+2jfWsnA6tL3AafrgtbXRuL3W8S5rtL8MW2Vakeidq2l+vX9YQDqB6JfjnDq/IYo+DMvTSwhHERavM8F3UKC94IGhAtUjww/KGE3elJ/x2uS/W0raynp87VqOKXFTHk8LnUZITNdNY/8N22OxE/gZvT7ZqBUYNG3ZxWKn6tIqKuFqNH19O6M16vFV8+LA7GbGGwIAabBK0ItLWycRbxeSEIkSN2LaCEoP1I/tB/Vx5b3qc79CbEwi7cFNCEYpHE5kaLwGj/EISIDKYVRiuh/b5uXX1fR2U4vHCrpPxyny7EUcjQUmVWbS2mvIKvXR/0GxjRel8MlVgaQvVf8/lUH1t1BsIDZozYoQgeFYcYXaGG/AKw4pgmAyth0Yv5DN0GpH4hVKYY5PLeqY77vb8lSDvAHk178+Bgfeg95bpdFqxGILORZ/b2d+foMtEJ47LudazecWMe7Dw12+ExikHfImbjvFR1yeXIujnm7IvgwJ+Rz5XAcm6y9Qa5oZGih6f3TfetCFjVmOntgXrvt2dLpJHhUbDemR1HDcH1qDj/kUPcuSfrxc4=
