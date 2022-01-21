@@ -102,8 +102,6 @@ $(document).ready(function() {
 
         function resetAll() {
             $('#occurrenceID').val('');
-            $('#eventID').val('');
-            $('#collectionCode').val('');
             initDateType('ANY');
             initLicenceType('ALL');
             initLercName("");

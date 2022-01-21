@@ -54,6 +54,8 @@ class AdvancedSearchParams implements Validateable {
     String lercName =""
     String nativeStatus = ""
     String habitatTaxon = ""
+    String eventID = ""
+    String collectionCode = ""
 
 
     private String taxa = ""
@@ -84,6 +86,8 @@ class AdvancedSearchParams implements Validateable {
         addQueryItem(buildViceCountyQuery(viceCountyName))
         addQueryItem(buildViceCountyIrelandQuery(viceCountyIrelandName))
         addQueryItem(buildTaxonIDQuery(taxonID))
+        addQueryItem(buildEventIDQuery(eventID))
+        addQueryItem(buildCollectionCodeQuery(collectionCode))
 
         ArrayList<String> taxas = new ArrayList<String>()
 
@@ -361,6 +365,14 @@ class AdvancedSearchParams implements Validateable {
 
     private String buildTaxonIDQuery(String taxonID){
         return taxonID?"lsid:"+taxonID:"";
+    }
+
+    private String buildEventIDQuery(String eventID){
+        return eventID?"event_id:\""+eventID+"\"":"";
+    }
+
+    private String buildCollectionCodeQuery(String collectionCode){
+        return collectionCode?"collection_code:\""+collectionCode+"\"":"";
     }
 
 
