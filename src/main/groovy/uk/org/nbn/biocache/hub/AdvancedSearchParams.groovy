@@ -51,6 +51,7 @@ class AdvancedSearchParams implements Validateable {
     String viceCountyName = ""
     String viceCountyIrelandName = ""
     String taxonID=""
+    String lercName =""
 
 
     private String taxa = ""
@@ -75,6 +76,7 @@ class AdvancedSearchParams implements Validateable {
         addQueryItem(buildDateQuery(dateType, yearRange, year, month, day))
         addQueryItem(buildAnnotationsQuery(annotations))
         addQueryItem(buildDataProviderQuery(dataProviderUID))
+        addQueryItem(buildLercQuery(lercName))
         addQueryItem(buildViceCountyQuery(viceCountyName))
         addQueryItem(buildViceCountyIrelandQuery(viceCountyIrelandName))
         addQueryItem(buildTaxonIDQuery(taxonID))
@@ -314,6 +316,10 @@ class AdvancedSearchParams implements Validateable {
 
     private String buildDataProviderQuery(String dataProviderUID){
         return dataProviderUID?"data_provider_uid:"+dataProviderUID:"";
+    }
+
+    private String buildLercQuery(String lercName){
+        return lercName?"${grailsApplication.config.layer.lerc}:\""+lercName+"\"":"";
     }
 
     private String buildViceCountyQuery(String viceCountyName){

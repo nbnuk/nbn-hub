@@ -6,6 +6,7 @@
     var DATA_PROVIDER_WS_URL = "${grailsApplication.config.collectory.baseUrl}/ws/dataProvider";
     var VICE_COUNTY_WS_URL = "https://layers.nbnatlas.org/ws/objects/${grailsApplication.config.layer.vice_county}";
     var VICE_COUNTY_IRELAND_WS_URL = "https://layers.nbnatlas.org/ws/objects/${grailsApplication.config.layer.vice_county_ireland}";
+    var LERC_WS_URL = "https://layers.nbnatlas.org/ws/objects/${grailsApplication.config.layer.lerc}";
 </asset:script>
 <asset:javascript src="nbn/advancedSearch.js" />
 <asset:stylesheet src="nbn/rSlider.min.css" />
@@ -267,6 +268,15 @@
                    placeholder="Enter any grid reference e.g.SK5740" maxlength="8" placeholder="">
         </div>
     </div>
+
+        <div class="form-group" >
+            <label class="col-md-2 control-label" for="lerc">LERC</label>
+            <div class="col-md-6">
+                <select class="form-control" name="lercName" id="lerc" >
+                    <option value="">-- Select one --</option>
+                </select>
+            </div>
+        </div>
 
         <div class="form-group" >
             <label class="col-md-2 control-label" for="vice-county">Vice county</label>

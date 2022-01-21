@@ -66,6 +66,21 @@ $(document).ready(function() {
             })
         }
 
+        function populateLerc(selectedLercName) {
+            $.getJSON(LERC_WS_URL, function(data) {
+                if (data) {
+                    $.each(data, function (i, item) {
+                        $('#lerc').append($('<option>',{
+                            value: item.name,
+                            text : item.name
+                        }));
+                    });
+                    initLercName(selectedLercName)
+
+                }
+            })
+        }
+
         $('#t2').click(function(){
             $.removeCookie("advanced_search_form_state");
 
@@ -91,6 +106,9 @@ $(document).ready(function() {
             $('#collectionCode').val('');
             initDateType('ANY');
             initLicenceType('ALL');
+            initLercName("");
+            initViceCountyName("");
+            initViceCountyIrelandName("");
         }
 
 
@@ -119,7 +137,7 @@ $(document).ready(function() {
 
         });
 
-        function initDateType(dateType, yearRange){
+        function  initDateType(dateType, yearRange){
 
             $("[name=dateType][value="+dateType+"]").prop("checked", true);
 
@@ -170,6 +188,11 @@ $(document).ready(function() {
             $("#data-provider").val(dataProviderUID);
         }
 
+        function initLercName(lercName) {
+            $("#lerc").val(lercName);
+        }
+
+
         function initViceCountyName(viceCountyName) {
             $("#vice-county").val(viceCountyName);
         }
@@ -208,7 +231,8 @@ $(document).ready(function() {
                 "yearRange":[parseInt(yearRange[0]),parseInt(yearRange[1])],
                 "dataProviderUID":$('#data-provider').children("option:selected").val(),
                 "viceCountyName":$('#vice-county').children("option:selected").val(),
-                "viceCountyIrelandName":$('#vice-county-ireland').children("option:selected").val()
+                "viceCountyIrelandName":$('#vice-county-ireland').children("option:selected").val(),
+                "lercName":$('#lerc').children("option:selected").val(),
             }
 
             $.cookie("advanced_search_form_state",JSON.stringify(formState), {path:"/"});
@@ -223,6 +247,7 @@ $(document).ready(function() {
             var dataProvider = "";
             var viceCountyName = "";
             var viceCountyIrelandName = "";
+            var lercName = "";
             if (cookieValue){
                 var formState = JSON.parse(cookieValue);
                 initLicenceType(formState.licenceType?formState.licenceType:"ALL");
@@ -230,8 +255,9 @@ $(document).ready(function() {
                 initDateType(formState.dateType?formState.dateType:"SPECIFIC_DATE",
                     formState.yearRange?formState.yearRange:[1600,(new Date()).getFullYear()]);
                 dataProvider = formState.dataProviderUID?formState.dataProviderUID:"";
-                viceCountyName = formState.viceCountyName?formState.viceCountyName:""
-                viceCountyIrelandName = formState.viceCountyIrelandName?formState.viceCountyIrelandName:""
+                viceCountyName = formState.viceCountyName?formState.viceCountyName:"";
+                viceCountyIrelandName = formState.viceCountyIrelandName?formState.viceCountyIrelandName:"";
+                lercName = formState.lercName?formState.lercName:"";
             }
             else {
                 initLicenceType("ALL");
@@ -241,6 +267,7 @@ $(document).ready(function() {
             populateDataProviders(dataProvider);
             populateViceCounty(viceCountyName);
             populateViceCountyIreland(viceCountyIrelandName);
+            populateLerc(lercName)
 
         }
 
