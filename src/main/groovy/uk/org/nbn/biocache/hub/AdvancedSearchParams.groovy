@@ -52,6 +52,7 @@ class AdvancedSearchParams implements Validateable {
     String viceCountyIrelandName = ""
     String taxonID=""
     String lercName =""
+    String nativeStatus = ""
 
 
     private String taxa = ""
@@ -69,6 +70,7 @@ class AdvancedSearchParams implements Validateable {
 
         addQueryItem(buildBasisOfRecordQuery(basisOfRecord))
         addQueryItem(buildIdentificationVerificationStatusQuery(identificationVerificationStatus));
+        addQueryItem(buildNativeStatusQuery(nativeStatus));
         addQueryItem(buildIdentifiedByQuery(identifiedBy))
         addQueryItem(buildGridReferenceQuery(gridReferenceType, gridReference))
         addQueryItem(buildLicenceQuery(licenceType, selectedLicence))
@@ -179,6 +181,17 @@ class AdvancedSearchParams implements Validateable {
         else if ("UNCONFIRMED".equals(identificationVerificationStatus)){
             query = "(identification_verification_status:\"Unconfirmed\" OR identification_verification_status:\"Unconfirmed - plausible\" OR " +
                     "identification_verification_status:\"Unconfirmed - not reviewed\")"
+        }
+        return query;
+    }
+
+    private String buildNativeStatusQuery(String nativeStatus) {
+        String query="";
+        if ("NATIVE".equals(nativeStatus)) {
+            query = "establishment_means_taxon:\"Native\""
+        }
+        else if ("NONE-NATIVE".equals(nativeStatus)){
+            query = "establishment_means_taxon:\"Non-native\""
         }
         return query;
     }
