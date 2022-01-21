@@ -53,6 +53,7 @@ class AdvancedSearchParams implements Validateable {
     String taxonID=""
     String lercName =""
     String nativeStatus = ""
+    String habitatTaxon = ""
 
 
     private String taxa = ""
@@ -71,6 +72,7 @@ class AdvancedSearchParams implements Validateable {
         addQueryItem(buildBasisOfRecordQuery(basisOfRecord))
         addQueryItem(buildIdentificationVerificationStatusQuery(identificationVerificationStatus));
         addQueryItem(buildNativeStatusQuery(nativeStatus));
+        addQueryItem(buildHabitatTaxonQuery(habitatTaxon));
         addQueryItem(buildIdentifiedByQuery(identifiedBy))
         addQueryItem(buildGridReferenceQuery(gridReferenceType, gridReference))
         addQueryItem(buildLicenceQuery(licenceType, selectedLicence))
@@ -192,6 +194,20 @@ class AdvancedSearchParams implements Validateable {
         }
         else if ("NONE-NATIVE".equals(nativeStatus)){
             query = "establishment_means_taxon:\"Non-native\""
+        }
+        return query;
+    }
+
+    private String buildHabitatTaxonQuery(String habitatTaxon) {
+        String query="";
+        if ("FRESHWATER".equals(habitatTaxon)) {
+            query = "habitats_taxon:\"freshwater\""
+        }
+        else if ("MARINE".equals(habitatTaxon)){
+            query = "habitats_taxon:\"marine\""
+        }
+        else if ("TERRESTRIAL".equals(habitatTaxon)){
+            query = "habitats_taxon:\"terrestrial\""
         }
         return query;
     }

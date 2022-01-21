@@ -170,7 +170,7 @@
 
 
         <div class="form-group">
-            <label class="col-md-2 control-label" >Native/None Native</label>
+            <label class="col-md-2 control-label" >Establishment means taxon</label>
             <div class="col-md-6">
                 <div class="radio">
                     <label>
@@ -188,6 +188,38 @@
                     <label>
                         <input type="radio" name="nativeStatus" value="NONE-NATIVE" >
                         None native
+                    </label>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label" >Habitat taxon</label>
+            <div class="col-md-6">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="habitatTaxon" value="ALL" checked>
+                        All
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="habitatTaxon" value="FRESHWATER">
+                        Freshwater
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="habitatTaxon" value="MARINE" >
+                        Marine
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="habitatTaxon" value="TERRESTRIAL" >
+                        Terrestrial
                     </label>
                 </div>
             </div>
