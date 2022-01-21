@@ -287,7 +287,7 @@
         </div>
 
         <div class="form-group">
-            <label class="col-md-2 control-label" >Date</label>
+            <label class="col-md-2 control-label" >Occurrence Date</label>
             <div class="col-md-6 radio">
                 <label>
                     <input type="radio" name="dateType" value="ANY" checked> Any
