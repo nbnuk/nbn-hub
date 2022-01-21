@@ -36,45 +36,6 @@
     </fieldset>
     </form>
 
-
-        <form class="form-horizontal" action="${request.contextPath}/occurrences/searchByEventID" method="POST">
-            <fieldset>
-                <legend>Search by Event ID</legend>
-                <div class="form-group">
-                    <label class="col-md-2 control-label" for="collectionCode">Event ID</label>
-                    <div class="col-md-6 input-group" style="padding:0px 15px">
-                        <input type="text" class="form-control" name="eventID" id="eventID"
-                               placeholder="e.g. a survey id"/>
-                        <span class="input-group-btn">
-                            <input class="form-control btn btn-primary" type="submit"
-                                   value="${g.message(code:"home.index.simsplesearch.button", default:"Search")}"/>
-                        </span>
-                    </div>
-                </div>
-            </fieldset>
-        </form>
-
-
-
-        <form class="form-horizontal" action="${request.contextPath}/occurrences/searchByCollectionCode" method="POST">
-            <fieldset>
-                <legend>Search by Collection Code</legend>
-                <div class="form-group">
-                    <label class="col-md-2 control-label" for="collectionCode">Collection Code</label>
-                    <div class="col-md-6 input-group" style="padding:0px 15px">
-                        <input type="text" class="form-control" name="collectionCode" id="collectionCode"
-                               placeholder="e.g. a sample id"/>
-                        <span class="input-group-btn">
-                            <input class="form-control btn btn-primary" type="submit"
-                                   value="${g.message(code:"home.index.simsplesearch.button", default:"Search")}"/>
-                        </span>
-                    </div>
-                </div>
-            </fieldset>
-        </form>
-
-
-
         <form class="form-horizontal" name="advancedSearchForm" id="advancedSearchForm"
               action="${request.contextPath}/occurrences/searchByOther" method="POST" id="advancedSearchForm">
             <input type="hidden" name="nameType" value="${grailsApplication.config.advancedTaxaField?:'matched_name_children'}"/>
@@ -82,6 +43,21 @@
     <fieldset>
         <legend>Search by Other</legend>
 
+        <div class="form-group">
+            <label class="col-md-2 control-label" for="collectionCode">Event ID</label>
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="eventID" id="eventID"
+                       placeholder="e.g. A survey id"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label" for="collectionCode">Collection Code</label>
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="collectionCode" id="collectionCode"
+                       placeholder="e.g. A sample id"/>
+            </div>
+        </div>
 
     <div class="form-group" id="taxa">
         <label class="col-md-2 control-label" for="taxonText">Taxon name</label>
