@@ -85,26 +85,19 @@
                 <label class="col-md-2 control-label">Native/non-native</label>
 
                 <div class="col-md-6">
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="nativeStatus" value="ALL" checked>
-                            All
-                        </label>
-                    </div>
+                    <label class="radio-inline">
+                        <input type="radio" name="nativeStatus" value="ALL" checked>
+                        All
+                    </label>
 
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="nativeStatus" value="NATIVE">
-                            Native
-                        </label>
-                    </div>
-
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="nativeStatus" value="NONE-NATIVE">
-                            None native
-                        </label>
-                    </div>
+                    <label class="radio-inline">
+                        <input type="radio" name="nativeStatus" value="NATIVE">
+                        Native
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="nativeStatus" value="NONE-NATIVE">
+                        None native
+                    </label>
                 </div>
             </div>
 
@@ -112,79 +105,50 @@
                 <label class="col-md-2 control-label">Habitat</label>
 
                 <div class="col-md-6">
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="habitatTaxon" value="ALL" checked>
-                            All
-                        </label>
-                    </div>
+                    <label class="radio-inline">
+                        <input type="radio" name="habitatTaxon" value="ALL" checked>
+                        All
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="habitatTaxon" value="TERRESTRIAL">
+                        Terrestrial
+                    </label>
 
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="habitatTaxon" value="FRESHWATER">
-                            Freshwater
-                        </label>
-                    </div>
-
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="habitatTaxon" value="MARINE">
-                            Marine
-                        </label>
-                    </div>
-
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="habitatTaxon" value="TERRESTRIAL">
-                            Terrestrial
-                        </label>
-                    </div>
+                    <label class="radio-inline">
+                        <input type="radio" name="habitatTaxon" value="FRESHWATER">
+                        Freshwater
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="habitatTaxon" value="MARINE">
+                        Marine
+                    </label>
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="col-md-2 control-label">Basis of record</label>
 
-                <div class="col-md-2">
-                    <div class="checkbox">
-                        <label>
-                            <input name="basisOfRecord" type="checkbox" value="HumanObservation" checked>
-                            Human observation
-                        </label>
-                    </div>
-
-                    <div class="checkbox">
-                        <label>
-                            <input name="basisOfRecord" type="checkbox" value="PreservedSpecimen" checked>
-                            Preserved specimen
-                        </label>
-                    </div>
-
-                </div>
-
-                <div class="col-md-2">
-                    <div class="checkbox">
-                        <label>
-                            <input name="basisOfRecord" type="checkbox" value="FossilSpecimen" checked>
-                            Fossil specimen
-                        </label>
-                    </div>
-
-                    <div class="checkbox">
-                        <label>
-                            <input name="basisOfRecord" type="checkbox" value="LivingSpecimen" checked>
-                            Living specimen
-                        </label>
-                    </div>
-                </div>
-
-                <div class="col-md-2">
-                    <div class="checkbox">
-                        <label>
-                            <input name="basisOfRecord" type="checkbox" value="MaterialSample" checked>
-                            Material sample
-                        </label>
-                    </div>
+                <div class="col-md-6">
+                    <label class="checkbox-inline">
+                        <input name="basisOfRecord" type="checkbox" value="HumanObservation" checked>
+                        Human observation
+                    </label>
+                    <label class="checkbox-inline">
+                        <input name="basisOfRecord" type="checkbox" value="PreservedSpecimen" checked>
+                        Preserved specimen
+                    </label>
+                    <label class="checkbox-inline">
+                        <input name="basisOfRecord" type="checkbox" value="FossilSpecimen" checked>
+                        Fossil specimen
+                    </label>
+                    <label class="checkbox-inline">
+                        <input name="basisOfRecord" type="checkbox" value="LivingSpecimen" checked>
+                        Living specimen
+                    </label>
+                    <label class="checkbox-inline">
+                        <input name="basisOfRecord" type="checkbox" value="MaterialSample" checked>
+                        Material sample
+                    </label>
                 </div>
             </div>
 
@@ -192,26 +156,18 @@
                 <label class="col-md-2 control-label">Identification verification status</label>
 
                 <div class="col-md-6">
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="identificationVerificationStatus" value="ANY" checked>
-                            Any
-                        </label>
-                    </div>
-
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="identificationVerificationStatus" value="ACCEPTED">
-                            Accepted
-                        </label>
-                    </div>
-
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="identificationVerificationStatus" value="UNCONFIRMED">
-                            Unconfirmed
-                        </label>
-                    </div>
+                    <label class="radio-inline">
+                        <input type="radio" name="identificationVerificationStatus" value="ANY" checked>
+                        Any
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="identificationVerificationStatus" value="ACCEPTED">
+                        Accepted
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="identificationVerificationStatus" value="UNCONFIRMED">
+                        Unconfirmed
+                    </label>
                 </div>
             </div>
 
@@ -248,26 +204,18 @@
                 <label class="col-md-2 control-label">Licence type</label>
 
                 <div class="col-md-6">
-                    <div class="radio">
-                        <label>
-                            <input name="licenceType" type="radio" value="ALL" checked/>
-                            All
-                        </label>
-                    </div>
-
-                    <div class="radio">
-                        <label>
-                            <input name="licenceType" type="radio" value="OPEN">
-                            Open
-                        </label>
-                    </div>
-
-                    <div class="radio">
-                        <label>
-                            <input name="licenceType" type="radio" value="SELECTED">
-                            Choose from list
-                        </label>
-                    </div>
+                    <label class="radio-inline">
+                        <input name="licenceType" type="radio" value="ALL" checked/>
+                        All
+                    </label>
+                    <label class="radio-inline">
+                        <input name="licenceType" type="radio" value="OPEN">
+                        Open
+                    </label>
+                    <label class="radio-inline">
+                        <input name="licenceType" type="radio" value="SELECTED">
+                        Choose from list
+                    </label>
                 </div>
 
             </div>
@@ -446,9 +394,3 @@
         </fieldset>
     </form>
 </div>
-
-
-
-
-
-
