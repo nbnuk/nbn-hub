@@ -101,7 +101,7 @@
                     </label>
                     <label class="radio">
                         <input type="radio" name="nativeStatus" value="NONE-NATIVE">
-                        None native
+                        Non-native
                     </label>
                 </div>
             </div>
