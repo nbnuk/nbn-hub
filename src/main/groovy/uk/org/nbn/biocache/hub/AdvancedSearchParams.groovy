@@ -50,6 +50,7 @@ class AdvancedSearchParams implements Validateable {
     String dataProviderUID =""
     String viceCountyName = ""
     String viceCountyIrelandName = ""
+    String northernIrelandCountyBoundaryName = ""
     String taxonID=""
     String lercName =""
     String nativeStatus = ""
@@ -85,6 +86,7 @@ class AdvancedSearchParams implements Validateable {
         addQueryItem(buildLercQuery(lercName))
         addQueryItem(buildViceCountyQuery(viceCountyName))
         addQueryItem(buildViceCountyIrelandQuery(viceCountyIrelandName))
+        addQueryItem(buildNorthernIrelandCountyBoundaryQuery(northernIrelandCountyBoundaryName))
         addQueryItem(buildTaxonIDQuery(taxonID))
         addQueryItem(buildEventIDQuery(eventID))
         addQueryItem(buildCollectionCodeQuery(collectionCode))
@@ -361,6 +363,9 @@ class AdvancedSearchParams implements Validateable {
 
     private String buildViceCountyIrelandQuery(String viceCountyIrelandName){
         return viceCountyIrelandName?"${grailsApplication.config.layer.vice_county_ireland}:\""+viceCountyIrelandName+"\"":"";
+    }
+    private String buildNorthernIrelandCountyBoundaryQuery(String northernIrelandCountyBoundaryName ){
+        return northernIrelandCountyBoundaryName?"${grailsApplication.config.layer.northernireland_county_boundaries}:\""+northernIrelandCountyBoundaryName+"\"":"";
     }
 
     private String buildTaxonIDQuery(String taxonID){

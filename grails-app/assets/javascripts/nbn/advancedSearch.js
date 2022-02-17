@@ -21,6 +21,8 @@ $(document).ready(function() {
             });
         }
 
+
+
         function populateDataProviders(selectedDataProviderUID) {
             $.getJSON(DATA_PROVIDER_WS_URL, function(data) {
                 if (data) {
@@ -35,6 +37,8 @@ $(document).ready(function() {
                 }
             })
         }
+
+
 
         function populateViceCounty(selectedViceCountyName) {
             $.getJSON(VICE_COUNTY_WS_URL, function(data) {
@@ -51,6 +55,7 @@ $(document).ready(function() {
             })
         }
 
+
         function populateViceCountyIreland(selectedViceCountyIrelandName) {
             $.getJSON(VICE_COUNTY_IRELAND_WS_URL, function(data) {
                 if (data) {
@@ -65,6 +70,22 @@ $(document).ready(function() {
                 }
             })
         }
+
+        function populateNorthernIrelandCountyBoundary(selectedNortherIrelandCountyBoundaryName) {
+            $.getJSON(NORTHERN_IRELAND_COUNTY_BOUNDARY_WS_URL, function(data) {
+                if (data) {
+                    var sortedData = sortJSON(data,"name", true);
+                    $.each(sortedData, function (i, item) {
+                        $('#northernireland-county-boundary').append($('<option>', {
+                            value: item.name,
+                            text : item.name
+                        }));
+                    });
+                    initNorthernIrelandCountyBoundaryName(selectedNortherIrelandCountyBoundaryName)
+                }
+            })
+        }
+
 
         function populateLerc(selectedLercName) {
             $.getJSON(LERC_WS_URL, function(data) {
@@ -107,6 +128,7 @@ $(document).ready(function() {
             initLercName("");
             initViceCountyName("");
             initViceCountyIrelandName("");
+            initNorthernIrelandCountyBoundaryName("");
         }
 
 
@@ -199,6 +221,12 @@ $(document).ready(function() {
             $("#vice-county-ireland").val(viceCountyIrelandName);
         }
 
+        function initNorthernIrelandCountyBoundaryName(northernIrelandCountyBoundaryName) {
+            $("#northernireland-county-boundary").val(northernIrelandCountyBoundaryName);
+        }
+
+
+
         function validate() {
             var isValid = true
             //NOT needed. Can now search on day only
@@ -230,6 +258,7 @@ $(document).ready(function() {
                 "dataProviderUID":$('#data-provider').children("option:selected").val(),
                 "viceCountyName":$('#vice-county').children("option:selected").val(),
                 "viceCountyIrelandName":$('#vice-county-ireland').children("option:selected").val(),
+                "northernIrelandCountyBoundaryName":$('#northernireland-county-boundary').children("option:selected").val(),
                 "lercName":$('#lerc').children("option:selected").val(),
             }
 
@@ -245,6 +274,7 @@ $(document).ready(function() {
             var dataProvider = "";
             var viceCountyName = "";
             var viceCountyIrelandName = "";
+            var northernIrelandCountyBoundaryName = "";
             var lercName = "";
             if (cookieValue){
                 var formState = JSON.parse(cookieValue);
@@ -255,6 +285,7 @@ $(document).ready(function() {
                 dataProvider = formState.dataProviderUID?formState.dataProviderUID:"";
                 viceCountyName = formState.viceCountyName?formState.viceCountyName:"";
                 viceCountyIrelandName = formState.viceCountyIrelandName?formState.viceCountyIrelandName:"";
+                northernIrelandCountyBoundaryName = formState.northernIrelandCountyBoundaryName?formState.northernIrelandCountyBoundaryName:"";
                 lercName = formState.lercName?formState.lercName:"";
             }
             else {
@@ -265,7 +296,8 @@ $(document).ready(function() {
             populateDataProviders(dataProvider);
             populateViceCounty(viceCountyName);
             populateViceCountyIreland(viceCountyIrelandName);
-            populateLerc(lercName)
+            populateNorthernIrelandCountyBoundary(northernIrelandCountyBoundaryName);
+            populateLerc(lercName);
 
         }
 

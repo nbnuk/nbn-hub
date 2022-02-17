@@ -5,7 +5,6 @@ enum HubType {
     WALES("wales-records"),
     SCOTLAND("scotland-records"),
     NI("northernireland-records"),
-    INNS("wales-records-inns"),
     IOM("isleofman-records")
 
     String hubName
