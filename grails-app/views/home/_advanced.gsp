@@ -7,6 +7,7 @@
     var DATA_PROVIDER_WS_URL = "${grailsApplication.config.collectory.baseUrl}/ws/dataProvider";
     var VICE_COUNTY_WS_URL = "https://layers.nbnatlas.org/ws/objects/${grailsApplication.config.layer.vice_county}";
     var VICE_COUNTY_IRELAND_WS_URL = "https://layers.nbnatlas.org/ws/objects/${grailsApplication.config.layer.vice_county_ireland}";
+    var NORTHERN_IRELAND_COUNTY_BOUNDARY_WS_URL = "https://layers.nbnatlas.org/ws/objects/${grailsApplication.config.layer.northernireland_county_boundaries}";
     var LERC_WS_URL = "https://layers.nbnatlas.org/ws/objects/${grailsApplication.config.layer.lerc}";
 </asset:script>
 <asset:javascript src="nbn/advancedSearch.js"/>
@@ -16,7 +17,10 @@
 
 
 <div class="nbn">
-
+<a href="/test/changeHub?serverName=northernireland-records.nbnatlas.org">Northern Ireland</a> |
+    <a href="/test/changeHub?serverName=wales-records.nbnatlas.org">Wales</a> |
+    <a href="/test/changeHub?serverName=scotland-records.nbnatlas.org">Scotland</a> |
+    <a href="/test/changeHub?serverName=isleofman-records.nbnatlas.org">Isle of Man</a>
     <form class="form-horizontal" action="${request.contextPath}/occurrences/searchByOccurrenceID" method="POST">
 
         <fieldset>
@@ -302,6 +306,17 @@
 
                     <div class="col-md-6">
                         <select class="form-control" name="viceCountyIrelandName" id="vice-county-ireland">
+                            <option value="">-- Select one --</option>
+                        </select>
+                    </div>
+                </div>
+            </g:if>
+            <g:if test="${request.HUB == HubType.NI}">
+                <div class="form-group">
+                    <label class="col-md-2 control-label" for="northernireland-county-boundary">County Boundary</label>
+
+                    <div class="col-md-6">
+                        <select class="form-control" name="northernIrelandCountyBoundaryName" id="northernireland-county-boundary">
                             <option value="">-- Select one --</option>
                         </select>
                     </div>
