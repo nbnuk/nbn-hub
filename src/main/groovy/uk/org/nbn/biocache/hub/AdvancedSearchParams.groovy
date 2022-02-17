@@ -36,7 +36,7 @@ class AdvancedSearchParams implements Validateable {
     String[] basisOfRecord = []
     String identificationVerificationStatus = ""
     String identifiedBy = ""
-    String gridReferenceType =""
+    String gridReferenceType ="GB"
     String gridReference = ""
     String licenceType = ""
     String[] selectedLicence = []

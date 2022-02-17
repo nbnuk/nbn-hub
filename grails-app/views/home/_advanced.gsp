@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="uk.org.nbn.biocache.hub.HubType" %>
 <g:render template="/layouts/global"/>
 
 %{--TODO: get the layers url with the layerid (below) into a config file--}%
@@ -84,17 +85,17 @@
             <div class="form-group">
                 <label class="col-md-2 control-label">Native/non-native</label>
 
-                <div class="col-md-6">
-                    <label class="radio-inline">
+                <div class="col-md-6 radio">
+                    <label class="radio">
                         <input type="radio" name="nativeStatus" value="ALL" checked>
                         All
                     </label>
 
-                    <label class="radio-inline">
+                    <label class="radio">
                         <input type="radio" name="nativeStatus" value="NATIVE">
                         Native
                     </label>
-                    <label class="radio-inline">
+                    <label class="radio">
                         <input type="radio" name="nativeStatus" value="NONE-NATIVE">
                         None native
                     </label>
@@ -104,21 +105,21 @@
             <div class="form-group">
                 <label class="col-md-2 control-label">Habitat</label>
 
-                <div class="col-md-6">
-                    <label class="radio-inline">
+                <div class="col-md-6 radio">
+                    <label class="radio">
                         <input type="radio" name="habitatTaxon" value="ALL" checked>
                         All
                     </label>
-                    <label class="radio-inline">
+                    <label class="radio">
                         <input type="radio" name="habitatTaxon" value="TERRESTRIAL">
                         Terrestrial
                     </label>
 
-                    <label class="radio-inline">
+                    <label class="radio">
                         <input type="radio" name="habitatTaxon" value="FRESHWATER">
                         Freshwater
                     </label>
-                    <label class="radio-inline">
+                    <label class="radio">
                         <input type="radio" name="habitatTaxon" value="MARINE">
                         Marine
                     </label>
@@ -128,24 +129,24 @@
             <div class="form-group">
                 <label class="col-md-2 control-label">Basis of record</label>
 
-                <div class="col-md-6">
-                    <label class="checkbox-inline">
+                <div class="col-md-6 radio">
+                    <label class="checkbox">
                         <input name="basisOfRecord" type="checkbox" value="HumanObservation" checked>
                         Human observation
                     </label>
-                    <label class="checkbox-inline">
+                    <label class="checkbox">
                         <input name="basisOfRecord" type="checkbox" value="PreservedSpecimen" checked>
                         Preserved specimen
                     </label>
-                    <label class="checkbox-inline">
+                    <label class="checkbox">
                         <input name="basisOfRecord" type="checkbox" value="FossilSpecimen" checked>
                         Fossil specimen
                     </label>
-                    <label class="checkbox-inline">
+                    <label class="checkbox">
                         <input name="basisOfRecord" type="checkbox" value="LivingSpecimen" checked>
                         Living specimen
                     </label>
-                    <label class="checkbox-inline">
+                    <label class="checkbox">
                         <input name="basisOfRecord" type="checkbox" value="MaterialSample" checked>
                         Material sample
                     </label>
@@ -155,16 +156,16 @@
             <div class="form-group">
                 <label class="col-md-2 control-label">Identification verification status</label>
 
-                <div class="col-md-6">
-                    <label class="radio-inline">
+                <div class="col-md-6 radio">
+                    <label class="radio">
                         <input type="radio" name="identificationVerificationStatus" value="ANY" checked>
                         Any
                     </label>
-                    <label class="radio-inline">
+                    <label class="radio">
                         <input type="radio" name="identificationVerificationStatus" value="ACCEPTED">
                         Accepted
                     </label>
-                    <label class="radio-inline">
+                    <label class="radio">
                         <input type="radio" name="identificationVerificationStatus" value="UNCONFIRMED">
                         Unconfirmed
                     </label>
@@ -203,16 +204,16 @@
             <div class="form-group">
                 <label class="col-md-2 control-label">Licence type</label>
 
-                <div class="col-md-6">
-                    <label class="radio-inline">
+                <div class="col-md-6 radio">
+                    <label class="radio">
                         <input name="licenceType" type="radio" value="ALL" checked/>
                         All
                     </label>
-                    <label class="radio-inline">
+                    <label class="radio">
                         <input name="licenceType" type="radio" value="OPEN">
                         Open
                     </label>
-                    <label class="radio-inline">
+                    <label class="radio">
                         <input name="licenceType" type="radio" value="SELECTED">
                         Choose from list
                     </label>
@@ -264,9 +265,11 @@
                 <label class="col-md-2 control-label" for="gridReference">Grid reference</label>
 
                 <div class="col-md-6">
-                    <label class="radio-inline"><input name="gridReferenceType" type="radio" value="GB" checked> GB
-                    </label> <label class="radio-inline"><input name="gridReferenceType" type="radio"
-                                                                value="IRISH"> Irish</label>
+                    <g:if test="${request.HUB == HubType.MAIN || request.HUB == HubType.NI}">
+                        <label class="radio-inline"><input name="gridReferenceType" type="radio" value="GB" checked> GB
+                        </label> <label class="radio-inline"><input name="gridReferenceType" type="radio"
+                                                                    value="IRISH"> Irish</label>
+                    </g:if>
                     <input type="text" value="" id="gridReference" name="gridReference" class="form-control" size="8"
                            placeholder="Enter any grid reference e.g.SK5740" maxlength="8" placeholder="">
                 </div>
@@ -282,25 +285,28 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="col-md-2 control-label" for="vice-county">Vice county</label>
+            <g:if test="${request.HUB != HubType.NI}">
+                <div class="form-group">
+                    <label class="col-md-2 control-label" for="vice-county">Vice county</label>
 
-                <div class="col-md-6">
-                    <select class="form-control" name="viceCountyName" id="vice-county">
-                        <option value="">-- Select one --</option>
-                    </select>
+                    <div class="col-md-6">
+                        <select class="form-control" name="viceCountyName" id="vice-county">
+                            <option value="">-- Select one --</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
+            </g:if>
+            <g:if test="${request.HUB == HubType.MAIN || request.HUB == HubType.NI}">
+                <div class="form-group">
+                    <label class="col-md-2 control-label" for="vice-county-ireland">Vice county Ireland</label>
 
-            <div class="form-group">
-                <label class="col-md-2 control-label" for="vice-county-ireland">Vice county Ireland</label>
-
-                <div class="col-md-6">
-                    <select class="form-control" name="viceCountyIrelandName" id="vice-county-ireland">
-                        <option value="">-- Select one --</option>
-                    </select>
+                    <div class="col-md-6">
+                        <select class="form-control" name="viceCountyIrelandName" id="vice-county-ireland">
+                            <option value="">-- Select one --</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
+            </g:if>
 
             <div class="form-group">
                 <label class="col-md-2 control-label">Occurrence Date</label>
