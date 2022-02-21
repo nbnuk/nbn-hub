@@ -1,4 +1,3 @@
-//= require jquery.cookie.js
 
 $(document).ready(function() {
 
@@ -103,7 +102,6 @@ $(document).ready(function() {
         }
 
         $('#t2').click(function(){
-            $.removeCookie("advanced_search_form_state");
 
             //This is a fix to get the slider to render properly when the form first becomes visible
             setTimeout(function(){
@@ -205,24 +203,34 @@ $(document).ready(function() {
         }
 
         function initDataProviderUID(dataProviderUID) {
-            $("#data-provider").val(dataProviderUID);
+            if (dataProviderUID) {
+                $("#data-provider").val(dataProviderUID);
+            }
         }
 
         function initLercName(lercName) {
-            $("#lerc").val(lercName);
+            if (lercName) {
+                $("#lerc").val(lercName);
+            }
         }
 
 
         function initViceCountyName(viceCountyName) {
-            $("#vice-county").val(viceCountyName);
+            if (viceCountyName) {
+                $("#vice-county").val(viceCountyName);
+            }
         }
 
         function initViceCountyIrelandName(viceCountyIrelandName) {
-            $("#vice-county-ireland").val(viceCountyIrelandName);
+            if (viceCountyIrelandName) {
+                $("#vice-county-ireland").val(viceCountyIrelandName);
+            }
         }
 
         function initNorthernIrelandCountyBoundaryName(northernIrelandCountyBoundaryName) {
-            $("#northernireland-county-boundary").val(northernIrelandCountyBoundaryName);
+            if (northernIrelandCountyBoundaryName) {
+                $("#northernireland-county-boundary").val(northernIrelandCountyBoundaryName);
+            }
         }
 
 
@@ -250,54 +258,21 @@ $(document).ready(function() {
                 return false;
             }
 
-            var yearRange = mySlider.getValue().split(",");
-            var formState = {
-                "licenceType":$('input:radio[name=licenceType]:checked').val(),
-                "dateType":$('input:radio[name=dateType]:checked').val(),
-                "yearRange":[parseInt(yearRange[0]),parseInt(yearRange[1])],
-                "dataProviderUID":$('#data-provider').children("option:selected").val(),
-                "viceCountyName":$('#vice-county').children("option:selected").val(),
-                "viceCountyIrelandName":$('#vice-county-ireland').children("option:selected").val(),
-                "northernIrelandCountyBoundaryName":$('#northernireland-county-boundary').children("option:selected").val(),
-                "lercName":$('#lerc').children("option:selected").val(),
-            }
-
-            $.cookie("advanced_search_form_state",JSON.stringify(formState), {path:"/"});
-
             return true;
         });
 
 
         function init(){
             initYearRangeSlider();
-            var cookieValue = $.cookie("advanced_search_form_state");
-            var dataProvider = "";
-            var viceCountyName = "";
-            var viceCountyIrelandName = "";
-            var northernIrelandCountyBoundaryName = "";
-            var lercName = "";
-            if (cookieValue){
-                var formState = JSON.parse(cookieValue);
-                initLicenceType(formState.licenceType?formState.licenceType:"ALL");
 
-                initDateType(formState.dateType?formState.dateType:"SPECIFIC_DATE",
-                    formState.yearRange?formState.yearRange:[1600,(new Date()).getFullYear()]);
-                dataProvider = formState.dataProviderUID?formState.dataProviderUID:"";
-                viceCountyName = formState.viceCountyName?formState.viceCountyName:"";
-                viceCountyIrelandName = formState.viceCountyIrelandName?formState.viceCountyIrelandName:"";
-                northernIrelandCountyBoundaryName = formState.northernIrelandCountyBoundaryName?formState.northernIrelandCountyBoundaryName:"";
-                lercName = formState.lercName?formState.lercName:"";
-            }
-            else {
-                initLicenceType("ALL");
-                initDateType("ANY");
-            }
+            initLicenceType("ALL");
+            initDateType("ANY");
 
-            populateDataProviders(dataProvider);
-            populateViceCounty(viceCountyName);
-            populateViceCountyIreland(viceCountyIrelandName);
-            populateNorthernIrelandCountyBoundary(northernIrelandCountyBoundaryName);
-            populateLerc(lercName);
+            populateDataProviders();
+            populateViceCounty();
+            populateViceCountyIreland();
+            populateNorthernIrelandCountyBoundary();
+            populateLerc();
 
         }
 
