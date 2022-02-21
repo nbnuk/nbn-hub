@@ -63,6 +63,7 @@ class AdvancedSearchParams implements Validateable {
     private final String QUOTE = "\""
     private final String BOOL_OP = "AND"
     private List queryItems = [];
+    private List filterQueryItems = [];
 
     /**
      * This custom toString method outputs a valid /occurrence/search query string.
@@ -72,13 +73,13 @@ class AdvancedSearchParams implements Validateable {
     @Override
     public String toString() {
 
-        addQueryItem(buildBasisOfRecordQuery(basisOfRecord))
-        addQueryItem(buildIdentificationVerificationStatusQuery(identificationVerificationStatus));
-        addQueryItem(buildNativeStatusQuery(nativeStatus));
-        addQueryItem(buildHabitatTaxonQuery(habitatTaxon));
+        addFilterQueryItem(buildBasisOfRecordQuery(basisOfRecord))
+        addFilterQueryItem(buildIdentificationVerificationStatusQuery(identificationVerificationStatus));
+        addFilterQueryItem(buildNativeStatusQuery(nativeStatus));
+        addFilterQueryItem(buildHabitatTaxonQuery(habitatTaxon));
         addQueryItem(buildIdentifiedByQuery(identifiedBy))
         addQueryItem(buildGridReferenceQuery(gridReferenceType, gridReference))
-        addQueryItem(buildLicenceQuery(licenceType, selectedLicence))
+        addFilterQueryItem(buildLicenceQuery(licenceType, selectedLicence))
         addQueryItem(buildRecordedByQuery(recordedBy))
         addQueryItem(buildDateQuery(dateType, yearRange, year, month, day))
         addQueryItem(buildAnnotationsQuery(annotations))
@@ -131,9 +132,17 @@ class AdvancedSearchParams implements Validateable {
             log.error("URIUtil error: " + ex.getMessage(), ex)
         }
 
+        String encodedFQ = ""
+        for (String fq : filterQueryItems){
+            encodedFQ += "&fq="+URIUtil.encodeWithinQuery(fq)
+        }
+
         String finalQuery = ((taxa) ? "taxa=" + encodedTaxa + "&" : "") + ((encodedQ) ? "q=" + encodedQ : "")
+        finalQuery += encodedFQ
         log.debug("query: " + finalQuery)
+        System.out.println(finalQuery)
         queryItems.clear();
+        filterQueryItems.clear();
         return finalQuery
     }
 
@@ -337,7 +346,14 @@ class AdvancedSearchParams implements Validateable {
 
     private String buildBasisOfRecordQuery(String[] basisOfRecord){
         return (basisOfRecord?.length && basisOfRecord.length<5)?buildBooleanQuerySegment(basisOfRecord, "basis_of_record", "OR"):"";
+    }
 
+    private List buildBasisOfRecordFilterQuery(String[] basisOfRecords){
+        List fq  = new ArrayList();
+        for (String basisOfRecord : basisOfRecords){
+            fq.add("basis_of_record:"+basisOfRecord);
+        }
+        return fq;
     }
 
     private String buildRecordedByQuery(String recordedBy){
@@ -389,5 +405,10 @@ class AdvancedSearchParams implements Validateable {
         }
     }
 
+    private void addFilterQueryItem(String filterQueryString) {
+        if (filterQueryString) {
+            filterQueryItems.add(filterQueryString)
+        }
+    }
 
 }
