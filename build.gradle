@@ -16,7 +16,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "5.0.1"
+version "5.0.2"
 group "uk.org.nbn"
 
 apply plugin:"eclipse"

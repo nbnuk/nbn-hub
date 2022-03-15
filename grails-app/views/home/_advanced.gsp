@@ -17,10 +17,7 @@
 
 
 <div class="nbn">
-<a href="/test/changeHub?serverName=northernireland-records.nbnatlas.org">Northern Ireland</a> |
-    <a href="/test/changeHub?serverName=wales-records.nbnatlas.org">Wales</a> |
-    <a href="/test/changeHub?serverName=scotland-records.nbnatlas.org">Scotland</a> |
-    <a href="/test/changeHub?serverName=isleofman-records.nbnatlas.org">Isle of Man</a>
+
     <form class="form-horizontal" action="${request.contextPath}/occurrences/searchByOccurrenceID" method="POST">
 
         <fieldset>
