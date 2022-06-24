@@ -1,4 +1,4 @@
-package uk.org.nbn.biocache.hub
+package uk.org.nbn.hub
 
 
 class LoadingInterceptor {

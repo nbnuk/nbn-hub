@@ -1,6 +1,7 @@
-package uk.org.nbn.biocache.hub
+package uk.org.nbn.hub
 
 import org.apache.commons.httpclient.util.URIUtil
+import uk.org.nbn.biocache.hubs.AdvancedSearchParams
 
 class OccurrenceSearchController {
 

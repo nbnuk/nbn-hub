@@ -1,6 +1,5 @@
-package au.org.ala.hub
+package uk.org.nbn.hub
 
-import au.org.ala.hub.SecureSandboxInterceptor
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 
