@@ -1,4 +1,4 @@
-package au.org.ala.hub
+package uk.org.nbn.hub
 
 class UrlMappings {
 
