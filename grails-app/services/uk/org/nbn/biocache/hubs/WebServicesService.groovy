@@ -17,4 +17,9 @@ class WebServicesService extends au.org.ala.biocache.hubs.WebServicesService{
         def url = "${grailsApplication.config.biocache.baseUrl}/occurrences/search?${requestParams.getEncodedParams()}"
         getJsonElements(url)
     }
+
+    def JSONObject getTaxon(String guid) {
+        def url = "${grailsApplication.config.bieService.baseUrl}/species/${guid}"
+        getJsonElements(url)
+    }
 }
