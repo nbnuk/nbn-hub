@@ -2,7 +2,7 @@
 grails:
     profile: web
     codegen:
-        defaultPackage: uk.org.nbn.biocache.hubs
+        defaultPackage: uk.org.nbn.hub
     config:
         locations:
             - classpath:plugin.groovy # biocache-hubs

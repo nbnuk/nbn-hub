@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ page import="uk.org.nbn.biocache.hub.HubType" %>
+<%@ page import="uk.org.nbn.hub.HubType" %>
 <g:render template="/layouts/global"/>
 
 %{--TODO: get the layers url with the layerid (below) into a config file--}%
