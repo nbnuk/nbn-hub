@@ -14,7 +14,7 @@ $( document ).ready(function() {
 	jsFileLocation = jsFileLocation.substring(0,jsFileLocation.lastIndexOf("/"));
 	$.getScript(jsFileLocation+'/application-last.js');
 
-	$('#showMissingPropResult').on('click', function(e){
+	$('#showPassedPropResult').on('click', function(e){
 		$('.passedPropResult').toggle();
 	});
 
