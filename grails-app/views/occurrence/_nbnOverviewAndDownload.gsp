@@ -1,3 +1,5 @@
+<asset:stylesheet src="nbnOverviewAndDownload.css" />
+
 <g:if test="${grailsApplication.config.useDownloadPlugin?.toBoolean()}">
     <div id="overview" class="tab-pane">
         <g:set var="maxDownloadExceeded" value="${grailsApplication.config.maxDownloadRecords && Integer.parseInt(grailsApplication.config.maxDownloadRecords) < sr.totalRecords}"/>
