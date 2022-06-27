@@ -12,7 +12,7 @@
  * implied. See the License for the specific language governing
  * rights and limitations under the License.
  */
-package uk.org.nbn.biocache.hubs
+package uk.org.nbn.hub
 
 import grails.core.GrailsApplication
 import grails.validation.Validateable
