@@ -6,6 +6,8 @@ import org.grails.web.util.WebUtils
 
 class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
 
+    static namespace = 'alatag'
+
     /**
      * Output a row (occurrence record) in the search results "Records" tab
      *
