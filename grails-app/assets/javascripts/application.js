@@ -14,13 +14,15 @@ $( document ).ready(function() {
 	jsFileLocation = jsFileLocation.substring(0,jsFileLocation.lastIndexOf("/"));
 	$.getScript(jsFileLocation+'/application-last.js');
 
-	$('#showPassedPropResult').on('click', function(e){
-		$('.passedPropResult').toggle();
-	});
+	// //temp fix only needed for 7 days - so can be removed
+	// var userFacets = $.cookie("user_facets_new");
+	// if (userFacets) {
+	// 	$.cookie("user_facets_new", userFacets, { expires: 7 });
+	// 	$.removeCookie('user_facets_new');
+	// 	document.location.reload(true);
+	// }
+	// //end temp fix
 
- 	if ($('#taxaUploadForm')){
-		$('#taxaUploadForm input[name=field]').val('taxon_names');
-	}
 
 	 //add more options to radius drop downs, e.g like the one on exploreYourArea
 	 if ($('select#radius')){
@@ -37,17 +39,28 @@ $( document ).ready(function() {
 		 }
 	 }
 
-	 if ($('body.occurrence-record').length){
-		 customise_occurrence_show();
-	 }
+	 customise_occurrence_home_page();
+
+	 customise_occurrence_show_page();
+
+	 customise_occurrence_list_page();
 
 
-	if ($('#listHeader').length) { //unique identifier for list page.
-		customise_occurrence_list();
+
+	function customise_occurrence_home_page() {
+		if (!$(".searchPage").length) { //unique identifier for home page.
+			return;
+		}
+
+		console.log("customise_occurrence_home_page");
+		$('#taxaUploadForm input[name=field]').val('taxon_names');
 	}
 
-
-	function customise_occurrence_list(){
+	function customise_occurrence_list_page(){
+		if (!$('#listHeader').length) { //unique identifier for list page.
+			return;
+		}
+		console.log("customise_occurrence_list_page");
 		//change style of the Customise filter button
 		var customiseFilterButton = $('a[data-target="#facetConfigDialog"]');
 		if (customiseFilterButton){
@@ -74,7 +87,18 @@ $( document ).ready(function() {
 		}
 	}
 
-	function customise_occurrence_show() {
+	function customise_occurrence_show_page() {
+		if (!$('body.occurrence-record').length) { //unique identifier for show page.
+			return;
+		}
+		console.log("customise_occurrence_show_page");
+
+		$.getScript(jsFileLocation+'/show-override.js');
+
+		$('#showPassedPropResult').on('click', function(e){
+			$('.passedPropResult').toggle();
+		});
+
 		$('h1:not(.added)').hide();
 		var origHtml = $("#recordHeadingLine2").html();
 		$("#recordHeadingLine2").html('<h1 class="added"><span style="font-size: 75%">'+
