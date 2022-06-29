@@ -60,6 +60,8 @@ $( document ).ready(function() {
 		if (!$('#listHeader').length) { //unique identifier for list page.
 			return;
 		}
+		$.getScript(jsFileLocation+'/search-override.js');
+
 		console.log("customise_occurrence_list_page");
 		//change style of the Customise filter button
 		var customiseFilterButton = $('a[data-target="#facetConfigDialog"]');
