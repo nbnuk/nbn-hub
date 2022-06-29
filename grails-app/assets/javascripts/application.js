@@ -99,7 +99,7 @@ $( document ).ready(function() {
 			$('.passedPropResult').toggle();
 		});
 
-		$('h1:not(.added)').hide();
+		$('h1:not(.added)').remove();
 		var origHtml = $("#recordHeadingLine2").html();
 		$("#recordHeadingLine2").html('<h1 class="added"><span style="font-size: 75%">'+
 			'<i id="userAnnotationsNavFlagTitle" class="glyphicon glyphicon-flag" style="color:red;display:none;margin-right:4px"></i>'+
