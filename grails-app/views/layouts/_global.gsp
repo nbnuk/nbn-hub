@@ -4,7 +4,7 @@
     var BC_CONF = BC_CONF || { contextPath: "${request.contextPath}", locale: "${(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString())?:request.locale}" }
 </asset:script>
 <script type="text/javascript">
-    var NBN = {}
+    var NBN = NBN || {}
     <g:if test="${record}">
         NBN.recordIsAbsent = ${record.raw.occurrence.occurrenceStatus && StringUtils.containsIgnoreCase( record.raw.occurrence.occurrenceStatus, 'absent' )};
         NBN.showFlaggedIssues = ${showFlaggedIssues};
