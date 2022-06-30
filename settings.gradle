@@ -9,6 +9,8 @@ if (inplace) {
     project(':downloads-plugin').projectDir = new File(settingsDir,'../downloads-plugin')
     include ':biocache-hubs'
     project(':biocache-hubs').projectDir = new File(settingsDir,'../biocache-hubs')
+    //include ':ala-charts-plugin'
+    //project(':ala-charts-plugin').projectDir = new File(settingsDir,'../ala-charts-plugin')
 
 }
 

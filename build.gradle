@@ -16,7 +16,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "5.0.3"
+version "5.1.0-SNAPSHOT"
 group "uk.org.nbn"
 
 apply plugin:"eclipse"
@@ -60,7 +60,7 @@ if (inplace) {
             compile project(':downloads-plugin')
             // When not inplace used, the dependencies below are managed by biocache-hubs plugin
 //            compile project(':ala-auth-plugin')
-//            compile project(':ala-charts-plugin')
+            //compile project(':ala-charts-plugin')
 //            compile project(':images-client-plugin')
 //            compile project(':ala-bootstrap3')
 //            runtime project(':ala-ws-plugin')
@@ -107,7 +107,7 @@ dependencies {
     //compile "org.grails.plugins:ala-auth:3.0.4", noCache // NBN removed
 
     if(!inplace) {
-        compile "au.org.ala.plugins.grails:biocache-hubs:2.0.8-NBN-0-1", noCache
+        compile "au.org.ala.plugins.grails:biocache-hubs:2.0.8-NBN-FFTF-0-1-SNAPSHOT", noCache
         compile "au.org.ala.plugins.grails:downloads-plugin:2.0.6-NBN", noCache
         //runtime "au.org.ala.plugins.grails:ala-charts-plugin:xxxx", noCache
     }
