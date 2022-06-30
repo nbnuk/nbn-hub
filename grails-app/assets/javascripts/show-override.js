@@ -1,21 +1,6 @@
 
 console.log("show-override");
-/**
- * Delete a user assertion
- */
-function deleteAssertion(recordUuid, assertionUuid){
-    //alert("record uuid = " + recordUuid + ", assertion uuid = " + assertionUuid);
-    //console.log("Deleting assertion: record uuid = " + recordUuid + ", assertion uuid = " + assertionUuid);
-    $.post(OCC_REC.contextPath + '/occurrences/assertions/delete',
-        { recordUuid: recordUuid, assertionUuid: assertionUuid },
-        function(data) {
-            //console.log("delete assertion: " + data);
-            refreshUserAnnotations();
-        }
-    ).error(function () {
-        console.log("Error deleting assertion");
-    });
-}
+
 
 function deleteAssertionPrompt(event) {
     var isConfirmed = confirm('Are you sure you want to delete this flagged issue?');
