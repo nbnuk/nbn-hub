@@ -1,4 +1,4 @@
-package uk.org.nbn.hub
+package uk.org.nbn.biocache.hubs
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification
