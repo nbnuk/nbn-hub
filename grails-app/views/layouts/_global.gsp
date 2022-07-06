@@ -12,3 +12,4 @@
         NBN.userAssertions50006Label = "<alatag:message code="user_assertions.50006" default="To delete"/>";
     </g:if>
 </script>
+<script src="/assets/application.js" ></script>

@@ -9,5 +9,5 @@
  *
 // require bootstrap
 //= require hubCore
+// require application
  */
-//= require application
