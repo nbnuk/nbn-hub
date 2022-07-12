@@ -1,4 +1,4 @@
-<asset:stylesheet src="nbnOverviewAndDownload.css" />
+<asset:stylesheet src="nbn/nbnOverviewAndDownload.css" />
 
 <g:if test="${grailsApplication.config.useDownloadPlugin?.toBoolean()}">
     <div id="overview" class="tab-pane">
