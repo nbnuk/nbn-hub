@@ -52,7 +52,6 @@ $( document ).ready(function() {
 			return;
 		}
 
-		console.log("customise_occurrence_home_page");
 		$('#taxaUploadForm input[name=field]').val('taxon_names');
 	}
 
@@ -62,7 +61,6 @@ $( document ).ready(function() {
 		}
 		$.getScript(jsFileLocation+'/search-override.js');
 
-		console.log("customise_occurrence_list_page");
 		//change style of the Customise filter button
 		var customiseFilterButton = $('a[data-target="#facetConfigDialog"]');
 		if (customiseFilterButton){
@@ -76,6 +74,14 @@ $( document ).ready(function() {
 
 		//add the Overview and download tab
 		$('ul[data-tabs="tabs"]').append('<li><a id="t7" href="#overview" data-toggle="tab">Overview and download</a></li>');
+		$('#t7').on('shown.bs.tab', function(e) {
+			var tab = e.currentTarget.hash.substring(1);
+			amplify.store('search-tab-state', tab);
+			location.hash = 'tab_' + tab;
+		});
+		if (location.hash === '' && amplify.store('search-tab-state') === 'overview'){
+			$('.nav-tabs a[href="#overview"]').tab('show');
+		}
 
 		var url = new URL(document.location.href);
 		var sort = url.searchParams.get("sort");
@@ -93,7 +99,6 @@ $( document ).ready(function() {
 		if (!$('body.occurrence-record').length) { //unique identifier for show page.
 			return;
 		}
-		console.log("customise_occurrence_show_page");
 
 		$.getScript(jsFileLocation+'/show-override.js');
 
