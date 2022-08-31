@@ -110,7 +110,7 @@ $( document ).ready(function() {
 		var origHtml = $("#recordHeadingLine2").html();
 		$("#recordHeadingLine2").html('<h1 class="added"><span style="font-size: 75%">'+
 			'<i id="userAnnotationsNavFlagTitle" class="glyphicon glyphicon-flag" style="color:red;display:none;margin-right:4px"></i>'+
-			origHtml+NBN.recordIsAbsent+' | ABSENT'+'</span></h1>');
+			origHtml+(NBN.recordIsAbsent?' | ABSENT':'')+'</span></h1>');
 
 		$('#userAssertionStatusSelection').append('<option value="50006">'+NBN.userAssertions50006Label+'</option>');
 	}
