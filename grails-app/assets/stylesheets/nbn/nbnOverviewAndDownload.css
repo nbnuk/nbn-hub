@@ -1,0 +1,35 @@
+#overview > h3 {
+    margin-top: 0;
+}
+
+#overview .footer-text {
+    font-size: 12px;
+}
+
+.exclude-helpers.list-group{
+    box-shadow: none;
+    padding-left: 18px;
+    margin-bottom: 10px;
+    max-width: 600px;
+}
+
+.exclude-helpers .list-group-item{
+    height: 38px;
+    border: 0;
+    padding: 2px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.exclude-helpers .exclude{
+    width: 250px;
+}
+
+.exclude-helpers label{
+    font-weight: normal;
+}
+
+.exclude-helpers .count{
+    font-weight: bold;
+}
