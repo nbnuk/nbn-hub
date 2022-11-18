@@ -10,9 +10,7 @@ if (typeof jQuery !== 'undefined') {
 }
 
 $( document ).ready(function() {
-	var jsFileLocation = $('script[src*="/assets/application.js"]').attr('src');
-	jsFileLocation = jsFileLocation.substring(0,jsFileLocation.lastIndexOf("/"));
-	$.getScript(jsFileLocation+'/application-last.js');
+	$.getScript('/assets/application-last.js');
 
 	// //temp fix only needed for 7 days - so can be removed
 	// var userFacets = $.cookie("user_facets_new");
@@ -24,26 +22,26 @@ $( document ).ready(function() {
 	// //end temp fix
 
 
-	 //add more options to radius drop downs, e.g like the one on exploreYourArea
-	 if ($('select#radius')){
-		 var radiusSelect = $('select#radius');
-		 radiusSelect.children("option").eq(0).before($("<option></option>").val(0.1).text("0.1"));
-		 radiusSelect.children("option").eq(1).before($("<option></option>").val(0.5).text("0.5"));
-		 radiusSelect.children("option").eq(3).before($("<option></option>").val(2).text("2"));
+	//add more options to radius drop downs, e.g like the one on exploreYourArea
+	if ($('select#radius')){
+		var radiusSelect = $('select#radius');
+		radiusSelect.children("option").eq(0).before($("<option></option>").val(0.1).text("0.1"));
+		radiusSelect.children("option").eq(1).before($("<option></option>").val(0.5).text("0.5"));
+		radiusSelect.children("option").eq(3).before($("<option></option>").val(2).text("2"));
 
-		 var url = new URL(document.location.href);
-		 var radius = url.searchParams.get("radius");
-		 if (radius){
-			 $('select#radius').val(radius);
-			 //note: this selection gets overwritten in exploreYourArea.js function bookmarkedSearch
-		 }
-	 }
+		var url = new URL(document.location.href);
+		var radius = url.searchParams.get("radius");
+		if (radius){
+			$('select#radius').val(radius);
+			//note: this selection gets overwritten in exploreYourArea.js function bookmarkedSearch
+		}
+	}
 
-	 customise_occurrence_home_page();
+	customise_occurrence_home_page();
 
-	 customise_occurrence_show_page();
+	customise_occurrence_show_page();
 
-	 customise_occurrence_list_page();
+	customise_occurrence_list_page();
 
 
 
@@ -59,7 +57,7 @@ $( document ).ready(function() {
 		if (!$('#listHeader').length) { //unique identifier for list page.
 			return;
 		}
-		$.getScript(jsFileLocation+'/search-override.js');
+		$.getScript('/assets/search-override.js');
 
 		//change style of the Customise filter button
 		var customiseFilterButton = $('a[data-target="#facetConfigDialog"]');
@@ -100,7 +98,7 @@ $( document ).ready(function() {
 			return;
 		}
 
-		$.getScript(jsFileLocation+'/show-override.js');
+		$.getScript('/assets/show-override.js');
 
 		$('#showPassedPropResult').on('click', function(e){
 			$('.passedPropResult').toggle();
