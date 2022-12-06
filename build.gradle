@@ -17,7 +17,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "5.1.1-SNAPSHOT"
+version "4.0.12.4-NBN-0-0-0-SNAPSHOT"
 group "uk.org.nbn"
 
 apply plugin:"eclipse"
@@ -26,9 +26,8 @@ apply plugin:"war"
 apply plugin:"org.grails.grails-web"
 apply plugin:"org.grails.grails-gsp"
 apply plugin:"asset-pipeline"
-apply plugin:"maven-publish"
 
-//apply from: 'https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/travis_grails_publish.gradle'
+apply from: 'https://raw.githubusercontent.com/nbnuk/travis-build-configuration/master/travis_grails_publish.gradle'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -59,7 +58,7 @@ if (inplace) {
         exploded = true
         plugins {
             compile project(':biocache-hubs')
-            compile project(':downloads-plugin')
+//            compile project(':downloads-plugin')
             // When not inplace used, the dependencies below are managed by biocache-hubs plugin
 //            compile project(':ala-auth-plugin')
             //compile project(':ala-charts-plugin')
@@ -75,6 +74,7 @@ dependencies {
     def noCache = {
         exclude group: 'org.grails.plugins', module: 'cache'
         exclude group: 'org.ehcache', module: 'ehcache'
+        exclude group: 'org.grails.plugins', module: 'cache-ehcache'
     }
 
     compile "org.springframework.boot:spring-boot-starter-logging"
@@ -84,7 +84,8 @@ dependencies {
     provided "org.springframework.boot:spring-boot-starter-tomcat"
     compile "org.grails:grails-dependencies", noCache
     compile "org.grails:grails-web-boot"
-    compile "org.grails.plugins:cache"
+    compile "org.grails.plugins:cache:4.0.0"
+    compile "org.grails.plugins:cache-ehcache:3.0.0"
     compile "org.grails.plugins:scaffolding"
     compile "org.grails.plugins:hibernate5"
     compile "org.hibernate:hibernate-core:5.1.3.Final"
@@ -100,24 +101,24 @@ dependencies {
 
     // Jars
     compile "org.apache.httpcomponents:httpclient:4.5.6"
-    compile "commons-httpclient:commons-httpclient:3.1"
     compile 'xml-apis:xml-apis:1.4.01' // really?
 
-    // Plugins
-    compile 'org.grails.plugins:external-config:1.1.1'
-    //compile 'org.grails.plugins:cookie:1.4' // NBN removed
-    //compile "org.grails.plugins:ala-auth:3.0.4", noCache // NBN removed
+    // ALA Plugins
+    compile "org.grails.plugins:ala-auth:3.2.3", noCache //ala-hub has 3.1.3, but biocache-hibs had 3.2.3
+    compile "org.grails.plugins:ala-bootstrap3:3.2.3", noCache
+    compile "org.grails.plugins:ala-admin-plugin:2.2", noCache
+//    compile "au.org.ala.plugins.grails:downloads-plugin:2.2.1", noCache
+    compile "au.org.ala.plugins.grails:downloads-plugin:2.2.1-NBN-0-0-0-SNAPSHOT", noCache
+
+
 
     if(!inplace) {
-        compile "au.org.ala.plugins.grails:biocache-hubs:2.0.8-NBN-FFTF-0-1-SNAPSHOT", noCache
-        compile "au.org.ala.plugins.grails:downloads-plugin:2.0.6-NBN", noCache
+        compile "au.org.ala.plugins.grails:biocache-hubs:3.0.12.5-NBN-0-0-0-SNAPSHOT", noCache
+//        compile "au.org.ala.plugins.grails:downloads-plugin:2.2.1", noCache
+//        compile "au.org.ala.plugins.grails:downloads-plugin:2.2.1-NBN-0-0-0-SNAPSHOT", noCache
 //        compile "uk.org.nbn.plugins.grails:downloads-plugin-nbn:0.0.1-SNAPSHOT"
         //runtime "au.org.ala.plugins.grails:ala-charts-plugin:xxxx", noCache
     }
-
-    //runtime "au.org.ala.plugins.grails:biocache-hubs:2.0.3", noCache //was -SNAPSHOT
-
-    runtime "org.grails.plugins:ala-bootstrap3:3.0.6", noCache
 }
 
 bootRun {
@@ -129,36 +130,41 @@ bootRun {
 assets {
     minifyJs = true
     minifyCss = true
+    minifyOptions = [
+            languageMode: 'ES6',
+            targetLanguage: 'ES5',
+            optimizationLevel: 'SIMPLE'
+    ]
 }
 
-publishing {
-    repositories {
-        maven {
-            name 'Nexus'
-            url "https://repository.gbif.org/repository/${project.version.endsWith('-SNAPSHOT') ? 'uk-nbn-snapshots' : 'uk-nbn-releases' }"
-            credentials {
-                username = System.getenv('TRAVIS_DEPLOY_USERNAME')
-                password = System.getenv('TRAVIS_DEPLOY_PASSWORD')
-            }
-        }
-    }
-    publications {
-        mavenJar(MavenPublication) {
-            pom.withXml {
-                def pomNode = asNode()
-                pomNode.dependencyManagement.replaceNode {}
-
-                // simply remove dependencies without a version
-                // version-less dependencies are handled with dependencyManagement
-                // see https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/8 for more complete solutions
-                pomNode.dependencies.dependency.findAll {
-                    it.version.text().isEmpty()
-                }.each {
-                    it.replaceNode {}
-                }
-            }
-            from components.web
-
-        }
-    }
-}
+//publishing {
+//    repositories {
+//        maven {
+//            name 'Nexus'
+//            url "https://repository.gbif.org/repository/${project.version.endsWith('-SNAPSHOT') ? 'uk-nbn-snapshots' : 'uk-nbn-releases' }"
+//            credentials {
+//                username = System.getenv('TRAVIS_DEPLOY_USERNAME')
+//                password = System.getenv('TRAVIS_DEPLOY_PASSWORD')
+//            }
+//        }
+//    }
+//    publications {
+//        mavenJar(MavenPublication) {
+//            pom.withXml {
+//                def pomNode = asNode()
+//                pomNode.dependencyManagement.replaceNode {}
+//
+//                // simply remove dependencies without a version
+//                // version-less dependencies are handled with dependencyManagement
+//                // see https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/8 for more complete solutions
+//                pomNode.dependencies.dependency.findAll {
+//                    it.version.text().isEmpty()
+//                }.each {
+//                    it.replaceNode {}
+//                }
+//            }
+//            from components.web
+//
+//        }
+//    }
+//}
