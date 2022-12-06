@@ -1,5 +1,7 @@
 package au.org.ala.hub.hub
 
+import au.org.ala.biocache.hubs.SearchRequestParams
+
 class BootStrap {
     def grailsApplication
 
@@ -13,7 +15,13 @@ class BootStrap {
 
         //set the configured default locale
         Locale.setDefault(Locale.forLanguageTag(grailsApplication.config.defaultLocale?:'en'))
+
+        initSearchRequestParams();
     }
     def destroy = {
+    }
+
+    static def initSearchRequestParams = {
+        SearchRequestParams.metaClass.nbnRequiredFacets = [] as String[]
     }
 }
