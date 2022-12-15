@@ -136,35 +136,3 @@ assets {
             optimizationLevel: 'SIMPLE'
     ]
 }
-
-//publishing {
-//    repositories {
-//        maven {
-//            name 'Nexus'
-//            url "https://repository.gbif.org/repository/${project.version.endsWith('-SNAPSHOT') ? 'uk-nbn-snapshots' : 'uk-nbn-releases' }"
-//            credentials {
-//                username = System.getenv('TRAVIS_DEPLOY_USERNAME')
-//                password = System.getenv('TRAVIS_DEPLOY_PASSWORD')
-//            }
-//        }
-//    }
-//    publications {
-//        mavenJar(MavenPublication) {
-//            pom.withXml {
-//                def pomNode = asNode()
-//                pomNode.dependencyManagement.replaceNode {}
-//
-//                // simply remove dependencies without a version
-//                // version-less dependencies are handled with dependencyManagement
-//                // see https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/8 for more complete solutions
-//                pomNode.dependencies.dependency.findAll {
-//                    it.version.text().isEmpty()
-//                }.each {
-//                    it.replaceNode {}
-//                }
-//            }
-//            from components.web
-//
-//        }
-//    }
-//}
