@@ -16,7 +16,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "5.0.3"
+version "5.0.4-SNAPSHOT"
 group "uk.org.nbn"
 
 apply plugin:"eclipse"
@@ -50,7 +50,7 @@ bootRepackage {
 // Inplace plugin config
 
 // Set to true it needed only for development
-boolean inplace = false
+boolean inplace = true
 
 if (inplace) {
     grails {
@@ -107,8 +107,8 @@ dependencies {
     //compile "org.grails.plugins:ala-auth:3.0.4", noCache // NBN removed
 
     if(!inplace) {
-        compile "au.org.ala.plugins.grails:biocache-hubs:2.0.8-NBN-0-1", noCache
-        compile "au.org.ala.plugins.grails:downloads-plugin:2.0.6-NBN", noCache
+        compile "au.org.ala.plugins.grails:biocache-hubs:2.0.8-NBN-0-2-SNAPSHOT", noCache
+        compile "au.org.ala.plugins.grails:downloads-plugin:2.0.7-NBN-SNAPSHOT", noCache
         //runtime "au.org.ala.plugins.grails:ala-charts-plugin:xxxx", noCache
     }
 
