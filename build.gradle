@@ -36,6 +36,7 @@ repositories {
     mavenLocal()
     maven { url "https://nexus.ala.org.au/content/groups/public/" }
     maven { url "https://repository.gbif.org/repository/uk-nbn-releases/" }
+    maven { url "https://repository.gbif.org/repository/uk-nbn-snapshots/" }
     maven { url "https://repo.grails.org/grails/core" }
 }
 
@@ -50,7 +51,7 @@ bootRepackage {
 // Inplace plugin config
 
 // Set to true it needed only for development
-boolean inplace = true
+boolean inplace = false
 
 if (inplace) {
     grails {
