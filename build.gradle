@@ -16,7 +16,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "5.0.4"
+version "5.0.5"
 group "uk.org.nbn"
 
 apply plugin:"eclipse"
@@ -109,7 +109,7 @@ dependencies {
 
     if(!inplace) {
         compile "au.org.ala.plugins.grails:biocache-hubs:2.0.8-NBN-0-2", noCache
-        compile "au.org.ala.plugins.grails:downloads-plugin:2.0.7-NBN", noCache
+        compile "au.org.ala.plugins.grails:downloads-plugin:2.0.7-NBN-0-0-1", noCache
         //runtime "au.org.ala.plugins.grails:ala-charts-plugin:xxxx", noCache
     }
 
