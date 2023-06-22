@@ -72,15 +72,28 @@ $( document ).ready(function() {
 		//hide the ALA download button
 		$("#downloads").hide();
 
-		//add the Overview and download tab
-		$('ul[data-tabs="tabs"]').append('<li><a id="t7" href="#overview" data-toggle="tab">Overview and download</a></li>');
-		$('#t7').on('shown.bs.tab', function(e) {
-			var tab = e.currentTarget.hash.substring(1);
-			amplify.store('search-tab-state', tab);
-			location.hash = 'tab_' + tab;
-		});
-		if (location.hash === '' && amplify.store('search-tab-state') === 'overview'){
-			$('.nav-tabs a[href="#overview"]').tab('show');
+		if (false && NBN.isAccessControllManagerMode){
+
+			$("#mapView, #chartsView, #userChartsView, #speciesImages, #recordImages").hide();
+			// $("header").append("<div class='alert alert-warning' role='alert'>You are currently viewing the data as an Access Control administrator. <a href='/occurrences'>Click here</a> to view the data as a user.</div>");
+			$("h1").text("Access Control Filter");
+			$("#t2, #t3, #t4, #t5, #alerts").parent().hide();
+
+			$("#heading_Ungrouped, #group_Ungrouped, #heading_Identification, #group_Identification, #heading_Record, #group_Record").hide();
+			$('a[data-target="#facetConfigDialog"]').hide();
+
+		}else {
+
+			//add the Overview and download tab
+			$('ul[data-tabs="tabs"]').append('<li><a id="t7" href="#overview" data-toggle="tab">Overview and download</a></li>');
+			$('#t7').on('shown.bs.tab', function (e) {
+				var tab = e.currentTarget.hash.substring(1);
+				amplify.store('search-tab-state', tab);
+				location.hash = 'tab_' + tab;
+			});
+			if (location.hash === '' && amplify.store('search-tab-state') === 'overview') {
+				$('.nav-tabs a[href="#overview"]').tab('show');
+			}
 		}
 
 		var url = new URL(document.location.href);

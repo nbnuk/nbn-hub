@@ -2,13 +2,15 @@ rootProject.name='nbn-hub'
 
 // Inplace plugin config
 // Set to true it needed only for development
-boolean inplace = false
+boolean inplace = true
 
 if (inplace) {
     include ':downloads-plugin'
     project(':downloads-plugin').projectDir = new File(settingsDir,'../downloads-plugin')
     include ':biocache-hubs'
     project(':biocache-hubs').projectDir = new File(settingsDir,'../biocache-hubs')
+//    include ':ala-auth-plugin'
+//    project(':ala-auth-plugin').projectDir = new File(settingsDir,'../ala-auth-plugin')
     //include ':ala-charts-plugin'
     //project(':ala-charts-plugin').projectDir = new File(settingsDir,'../ala-charts-plugin')
 

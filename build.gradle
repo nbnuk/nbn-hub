@@ -51,14 +51,14 @@ bootRepackage {
 // Inplace plugin config
 
 // Set to true it needed only for development
-boolean inplace = false
+boolean inplace = true
 
 if (inplace) {
     grails {
         exploded = true
         plugins {
             compile project(':biocache-hubs')
-//            compile project(':downloads-plugin')
+            compile project(':downloads-plugin')
             // When not inplace used, the dependencies below are managed by biocache-hubs plugin
 //            compile project(':ala-auth-plugin')
             //compile project(':ala-charts-plugin')
