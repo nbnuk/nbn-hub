@@ -1,3 +1,4 @@
+<%@ page import="org.apache.commons.lang.StringUtils" contentType="text/html;charset=UTF-8" %>
 <g:applyLayout name="main">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -17,7 +18,6 @@
     <asset:javascript src="alaBs.js" />
 
     <g:layoutHead />
-
     <script type="text/javascript">
         var NBN = NBN || {}
         <g:if test="${record}">
