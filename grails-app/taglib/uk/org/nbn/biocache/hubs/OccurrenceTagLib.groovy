@@ -160,4 +160,14 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
         log.debug "queryString = ${queryString}"
         out << queryString
     }
+
+    def simpleResultCount = { attrs, body ->
+        def mb = new MarkupBuilder(out)
+
+            mb.span(id:'returnedText') {
+                strong g.formatNumber(number: "${attrs.totalRecords}", format: "#,###,###")
+                span alatag.message(code:"list.resultsreturned.span.returnedtext1", default:'results for')
+            }
+
+    }
 }
