@@ -27,8 +27,7 @@ class OccurrenceController extends au.org.ala.biocache.hubs.OccurrenceController
         //these are for the Overview tab:
         requestParams.nbnRequiredFacets = ["identification_verification_status", "occurrence_status", "basis_of_record", "license"] as String[]
 
-        def res =  super.list(requestParams)
-        res
+        return super.list(requestParams)
 
     }
 

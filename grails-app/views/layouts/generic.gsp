@@ -13,7 +13,6 @@
 
     <script type="text/javascript">
         var NBN = NBN || {}
-        NBN.isAccessControllManagerMode = true;
         <g:if test="${record}">
         NBN.recordIsAbsent = ${record.raw.occurrence.occurrenceStatus && StringUtils.containsIgnoreCase( record.raw.occurrence.occurrenceStatus, 'absent' )};
         NBN.showFlaggedIssues = ${showFlaggedIssues};
