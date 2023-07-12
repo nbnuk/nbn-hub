@@ -17,7 +17,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "4.0.12.4-NBN-0-0-0-SNAPSHOT"
+version "4.0.12.4-NBN-1-0-0-SNAPSHOT"
 group "uk.org.nbn"
 
 apply plugin:"eclipse"
@@ -51,7 +51,7 @@ bootRepackage {
 // Inplace plugin config
 
 // Set to true it needed only for development
-boolean inplace = true
+boolean inplace = false
 
 if (inplace) {
     grails {
