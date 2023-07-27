@@ -9,6 +9,7 @@ class WebServicesService extends au.org.ala.biocache.hubs.WebServicesService{
 
     @Override
     def JSONObject fullTextSearch(SpatialSearchRequestParams requestParams) {
+        populateProfile(requestParams)
         if (requestParams.nbnRequiredFacets){
             def facetsAsList = requestParams.facets as List
             def requiredFacetsAsList = requestParams.nbnRequiredFacets as List
