@@ -45,6 +45,11 @@ $( document ).ready(function() {
 
 	 customise_occurrence_list_page();
 
+	customise_download_page();
+
+	function customise_download_page() {
+		$("#mydownloads").hide()
+	}
 
 
 	function customise_occurrence_home_page() {
