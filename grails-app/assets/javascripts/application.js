@@ -98,6 +98,35 @@ $( document ).ready(function() {
 		if (!dir){
 			$('select#dir').val('desc');
 		}
+
+
+
+		fixActiveFilterLinks();
+
+	}
+
+	function fixActiveFilterLinks(){
+		//This adds fq= to the "remove active filter" links. This replicates what happened in legacy code, which is a bug actually but
+		//without it, you cannot remove the default filter fq=-occurrence_status%3A"absent"
+		var activeFilterDivs = document.querySelectorAll('.activeFilters');
+
+		for(var j = 0; j < activeFilterDivs.length; j++) {
+			var activeFilterDiv = activeFilterDivs[j];
+			if (activeFilterDiv.textContent.includes("Selected filters")) {
+				var links = activeFilterDiv.querySelectorAll('a');
+
+				for (var i = 0; i < links.length; i++) {
+					var link = links[i];
+					var href = link.getAttribute('href');
+
+					if (href.includes('?')) {
+						link.setAttribute('href', href + '&fq=');
+					} else {
+						link.setAttribute('href', href + '?fq=');
+					}
+				}
+			}
+		}
 	}
 
 	function customise_occurrence_show_page() {
