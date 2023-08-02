@@ -1,15 +1,4 @@
 
-console.log("show-override");
-
-
-function deleteAssertionPrompt(event) {
-    var isConfirmed = confirm('Are you sure you want to delete this flagged issue?');
-    if (isConfirmed === true) {
-        $('#' + event.data.qa_uuid + ' .deleteAssertionSubmitProgress').css({'display':'inline'});
-        console.log(event.data.qa_uuid);
-        deleteAssertion(event.data.rec_uuid, event.data.qa_uuid);
-    }
-}
 
 function updateDeleteEvents(enableDelete, disableDelete){
 
@@ -51,6 +40,7 @@ function updateDeleteEvents(enableDelete, disableDelete){
 }
 
 /**
+ * Override
  * Load and display the assertions for this record
  */
 function refreshUserAnnotations(){
@@ -207,3 +197,5 @@ function refreshUserAnnotations(){
         updateDeleteEvents(enableDelete, disableDelete);
     });
 }
+
+refreshUserAnnotations();
