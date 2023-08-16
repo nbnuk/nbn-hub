@@ -31,7 +31,7 @@ import org.grails.web.util.WebUtils
 class AdvancedSearchParams implements Validateable {
     GrailsApplication grailsApplication;
 
-    String[] taxonText=[];
+    String taxonText ="";
     String nameType = ""
     String[] basisOfRecord = []
     String identificationVerificationStatus = ""
@@ -92,42 +92,14 @@ class AdvancedSearchParams implements Validateable {
         addQueryItem(buildEventIDQuery(eventID))
         addQueryItem(buildCollectionCodeQuery(collectionCode))
 
-        ArrayList<String> taxas = new ArrayList<String>()
-
-        // iterate over the taxa search inputs and if lsid is set use it otherwise use taxa input
-        taxonText.each { tt ->
-            if (tt) {
-                taxas.add(stripChars(quoteText(tt)));
-            }
-        }
-
-        // if more than one taxa query, add braces so we get correct Boolean precedence
-        String[] braces = ["",""]
-        if (taxas.size() > 1) {
-            braces[0] = "("
-            braces[1] = ")"
-        }
-
-        if (taxas) {
-            log.debug "taxas = ${taxas} || nameType = ${nameType}"
-
-            if (nameType == "taxa") {
-                // special case
-                taxa = StringUtils.join(taxas*.trim(), " OR " ).replaceAll('"','') // remove quotes which break the "taxa=foo bar" query type
-            } else {
-                // build up OR'ed taxa query with braces if more than one taxon
-                queryItems.add(braces[0] + nameType + ":")
-                queryItems.add(StringUtils.join(taxas, " OR " + nameType + ":") + braces[1])
-            }
-        }
 
         String encodedQ = queryItems.join(" ${BOOL_OP} ").toString().trim()
-        String encodedTaxa = taxa.trim()
+        String encodedTaxa;
 
         try {
             // attempt to do query encoding
             encodedQ = URIUtil.encodeWithinQuery(encodedQ.replaceFirst("\\?", ""))
-            encodedTaxa = URIUtil.encodeWithinQuery(taxa.trim())
+            encodedTaxa = URIUtil.encodeWithinQuery(taxonText.trim())
         } catch (URIException ex) {
             log.error("URIUtil error: " + ex.getMessage(), ex)
         }
@@ -137,7 +109,7 @@ class AdvancedSearchParams implements Validateable {
             encodedFQ += "&fq="+URIUtil.encodeWithinQuery(fq)
         }
 
-        String finalQuery = ((taxa) ? "taxa=" + encodedTaxa + "&" : "") + ((encodedQ) ? "q=" + encodedQ : "")
+        String finalQuery = ((taxonText) ? "taxa=" + encodedTaxa + "&" : "") + ((encodedQ) ? "q=" + encodedQ : "")
         finalQuery += encodedFQ
         log.debug("query: " + finalQuery)
         System.out.println(finalQuery)
@@ -177,7 +149,7 @@ class AdvancedSearchParams implements Validateable {
      * @return
      */
     private String quoteText(String text) {
-        if (StringUtils.contains(text, " ")) {
+        if (StringUtils.contains(text, " ") && !(text.startsWith("\"") && text.endsWith("\""))) {
             text = QUOTE + text + QUOTE
         }
 
