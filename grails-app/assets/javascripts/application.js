@@ -60,7 +60,13 @@ $( document ).ready(function() {
 		$('a[href="#eventSearch"]').parent().hide();
 
 
-		$('#taxaUploadForm input[name=field]').val('taxon_names');
+		//Change the batch taxon search form
+		$("#batchModeMatched").prop("checked", true);
+		$("#batchModeMatched").val("taxon_name")
+		$("#raw_names").next("div").hide();
+		$("#taxaUploadForm input[type='submit']").css("margin-top", "1rem");
+
+
 	}
 
 	function customise_occurrence_list_page(){
