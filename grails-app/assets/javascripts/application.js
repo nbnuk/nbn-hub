@@ -57,6 +57,9 @@ $( document ).ready(function() {
 			return;
 		}
 
+		$('a[href="#eventSearch"]').parent().hide();
+
+
 		$('#taxaUploadForm input[name=field]').val('taxon_names');
 	}
 
