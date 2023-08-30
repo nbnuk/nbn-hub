@@ -156,6 +156,9 @@ $( document ).ready(function() {
 			origHtml+(NBN.recordIsAbsent?' | ABSENT':'')+'</span></h1>');
 
 		$('#userAssertionStatusSelection').append('<option value="50006">'+NBN.userAssertions50006Label+'</option>');
+
+		$('#copyRecordIdToClipboard-parent').hide();
+		$(".copyLink").hide();
 	}
 
 
