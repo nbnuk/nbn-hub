@@ -23,6 +23,8 @@ grails:
     plugins:
         twitterbootstrap:
             fixtaglib: true
+    databinding:
+        convertEmptyStringsToNull: false
 info:
     app:
         name: '@info.app.name@'
