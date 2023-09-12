@@ -159,6 +159,12 @@ $( document ).ready(function() {
 
 		$('#copyRecordIdToClipboard-parent').hide();
 		$(".copyLink").hide();
+
+		//hide: Show/Hide xx passed properties
+		$('#showPassedPropResult').hide();
+		$('.missingPropResult').hide();
+
+
 	}
 
 
