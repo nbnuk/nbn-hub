@@ -1338,7 +1338,7 @@
     </g:if>
 </alatag:occurrenceTableRow>
 <!-- State/Province -->
-<alatag:occurrenceTableRow annotate="true" section="geospatial" fieldCode="state" fieldName="State or territory">
+<alatag:occurrenceTableRow annotate="true" section="geospatial" fieldCode="state" fieldName="State/Province">
     ${fieldsMap.put("stateProvince", true)}
     <g:set var="stateValue" value="${record.processed.location.stateProvince ? record.processed.location.stateProvince : record.raw.location.stateProvince}" />
     <g:if test="${stateValue}">
