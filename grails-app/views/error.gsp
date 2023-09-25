@@ -9,6 +9,16 @@
 <h1>
     Application error
 </h1>
+
+<ul class="errors">
+    <g:if test="${exception?.cause?.target?.message?.indexOf("412")>-1}">
+        <li>Not permitted. A precondition was not met.</li>
+    </g:if>
+    <g:else>
+        <li>Error: unknown</li>
+    </g:else>
+</ul>
+
 <g:if env="development">
     <ul class="errors">
         <g:if test="${Throwable.isInstance(exception)}">

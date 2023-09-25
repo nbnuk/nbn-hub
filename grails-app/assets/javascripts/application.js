@@ -45,6 +45,11 @@ $( document ).ready(function() {
 
 	 customise_occurrence_list_page();
 
+	customise_download_page();
+
+	function customise_download_page() {
+		$("#mydownloads").hide()
+	}
 
 
 	function customise_occurrence_home_page() {
@@ -52,7 +57,16 @@ $( document ).ready(function() {
 			return;
 		}
 
-		$('#taxaUploadForm input[name=field]').val('taxon_names');
+		$('a[href="#eventSearch"]').parent().hide();
+
+
+		//Change the batch taxon search form
+		$("#batchModeMatched").prop("checked", true);
+		$("#batchModeMatched").val("taxon_name")
+		$("#raw_names").next("div").hide();
+		$("#taxaUploadForm input[type='submit']").css("margin-top", "1rem");
+
+
 	}
 
 	function customise_occurrence_list_page(){
@@ -93,6 +107,35 @@ $( document ).ready(function() {
 		if (!dir){
 			$('select#dir').val('desc');
 		}
+
+
+
+		fixActiveFilterLinks();
+
+	}
+
+	function fixActiveFilterLinks(){
+		//This adds fq= to the "remove active filter" links. This replicates what happened in legacy code, which is a bug actually but
+		//without it, you cannot remove the default filter fq=-occurrence_status%3A"absent"
+		var activeFilterDivs = document.querySelectorAll('.activeFilters');
+
+		for(var j = 0; j < activeFilterDivs.length; j++) {
+			var activeFilterDiv = activeFilterDivs[j];
+			if (activeFilterDiv.textContent.includes("Selected filters")) {
+				var links = activeFilterDiv.querySelectorAll('a');
+
+				for (var i = 0; i < links.length; i++) {
+					var link = links[i];
+					var href = link.getAttribute('href');
+
+					if (href.includes('?')) {
+						link.setAttribute('href', href + '&fq=');
+					} else {
+						link.setAttribute('href', href + '?fq=');
+					}
+				}
+			}
+		}
 	}
 
 	function customise_occurrence_show_page() {
@@ -113,6 +156,15 @@ $( document ).ready(function() {
 			origHtml+(NBN.recordIsAbsent?' | ABSENT':'')+'</span></h1>');
 
 		$('#userAssertionStatusSelection').append('<option value="50006">'+NBN.userAssertions50006Label+'</option>');
+
+		$('#copyRecordIdToClipboard-parent').hide();
+		$(".copyLink").hide();
+
+		//hide: Show/Hide xx passed properties
+		$('#showPassedPropResult').hide();
+		$('.missingPropResult').hide();
+
+
 	}
 
 

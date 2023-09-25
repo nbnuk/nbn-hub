@@ -83,7 +83,7 @@
                                     >
             </g:if>
             <g:else>
-                <a href="${g.createLink(uri: '/download')}?searchParams=${sr?.urlParameters?.encodeAsURL()}&targetUri=${(request.forwardURI)}&totalRecords=${sr.totalRecords}"
+                <a href="${g.createLink(uri: '/download')}?searchParams=${sr?.urlParameters?.encodeAsURL()}&licenceCount=${licenceCount ?: 0}&targetUri=${(request.forwardURI)}&totalRecords=${sr.totalRecords}"
                                        class="tooltips newDownload"
                                        title="Download all ${g.formatNumber(number: sr.totalRecords, format: "#,###,###")} records"
                                     >
