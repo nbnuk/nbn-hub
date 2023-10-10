@@ -95,9 +95,6 @@ $( document ).ready(function() {
 		//hide the ALA download button
 		$("#downloads").hide();
 
-		//hide map download button
-		$('a[href="#downloadMap"]').hide();
-
 
 		//add the Overview and download tab
 		$('ul[data-tabs="tabs"]').append('<li><a id="t7" href="#overview" data-toggle="tab">Overview and download</a></li>');
