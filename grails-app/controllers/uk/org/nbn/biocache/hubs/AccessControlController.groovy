@@ -13,7 +13,7 @@ class AccessControlController {
     def filterEditor(FilterEditorCommand command) {
         SearchRequestParams requestParams = new SearchRequestParams();
 
-        requestParams.qc=params.dpuid
+        requestParams.qc="data_provider_uid:"+params.dpuid
 
         Map facetMap = ["Taxon": ["taxon_name"], "Attribution": ["data_resource_uid"], "Occurrence": ["year"], "Location": ["cl256","state"], "Sensitive": ["sensitive"]]
         requestParams.facets = ["data_resource_uid", "taxon_name", "year", "cl256", "state", "sensitive"]

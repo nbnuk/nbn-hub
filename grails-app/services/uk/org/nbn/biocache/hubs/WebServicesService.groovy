@@ -35,7 +35,7 @@ class WebServicesService extends au.org.ala.biocache.hubs.WebServicesService{
 //    @Cacheable('collectoryCache')
     def JSONObject getDataProvider(String uid) {
         def url = "${grailsApplication.config.collections.baseUrl}/ws/dataProvider/${uid}"
-        getJsonElements(url)[0]
+        getJsonElements(url)
     }
 
     def JSONObject getAccessControlFilter(String filterId) {
