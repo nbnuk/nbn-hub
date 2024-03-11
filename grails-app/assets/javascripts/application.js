@@ -47,10 +47,19 @@ $( document ).ready(function() {
 
 	customise_download_page();
 
+	customise_explore_your_area_page();
+
 	function customise_download_page() {
 		$("#mydownloads").hide()
 	}
 
+	function customise_explore_your_area_page() {
+		if (document.title.indexOf("Explore Your Area") < 0) {
+			return;
+		}
+		$("#downloadData").hide();
+		$('a[href="#downloadModal"]').hide();
+	}
 
 	function customise_occurrence_home_page() {
 		if (!$(".searchPage").length) { //unique identifier for home page.
@@ -85,6 +94,7 @@ $( document ).ready(function() {
 
 		//hide the ALA download button
 		$("#downloads").hide();
+
 
 		//add the Overview and download tab
 		$('ul[data-tabs="tabs"]').append('<li><a id="t7" href="#overview" data-toggle="tab">Overview and download</a></li>');

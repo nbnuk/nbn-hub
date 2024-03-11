@@ -1,6 +1,6 @@
 /*!* ALA CSS file *!*/
 body.fluid #breadcrumb .breadcrumb-list {
-    margin-left: 15px;
+    /*margin-left: 15px;*/
 }
 
 .toggleResponsive {
@@ -89,7 +89,7 @@ body #main-content #customiseFacetsButton > .dropdown-menu, #main-content #resul
 }
 
 .breadcrumb-list {
-    margin-left: 25px;
+    /*margin-left: 25px;*/
 }
 
 

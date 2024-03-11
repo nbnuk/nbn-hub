@@ -419,7 +419,7 @@ div#download {
 }
 
 #breadcrumb ul, #breadcrumb ol {
-    margin-bottom: 2px;
+    /*margin-bottom: 2px;*/
 }
 
 #mapCanvas img, #mapcanvas img, #leafletMap img, #expertDistroMap img {
