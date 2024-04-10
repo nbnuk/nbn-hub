@@ -21,3 +21,4 @@ $ ansible-playbook -i inventories/vagrant/ala-hub-vagrant ala-hub-standalone.yml
 ```
 
 **Note:** Adjust environment specific settings accordingly.
+
