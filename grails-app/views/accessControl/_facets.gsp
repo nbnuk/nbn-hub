@@ -54,7 +54,7 @@
                             <alatag:facetLinkList facetResult="${facetResult}" queryParam="${queryParam}" fieldDisplayName="${fieldDisplayName}"/>
                         </div>
                         %{--<div class="fadeout"></div>--}%
-                        <g:if test="${facetResult.fieldResult.length() > 1}">
+                        <g:if test="${facetResult.fieldResult.length() > 0}">
                             <div class="showHide">
                                 <a href="#multipleFacets" class="multipleFacetsLink" id="multi-${facetResult.fieldName}" role="button" data-toggle="modal" data-target="#multipleFacets" data-displayname="${fieldDisplayName}"
                                    title="<g:message code="search.facets.see.more.options"/>"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> <g:message code="facets.facetfromgroup.link" default="choose more"/>...</a>
