@@ -310,6 +310,13 @@
 
         </alatag:occurrenceTableRow>
 
+<g:if test="${record.raw.publicResolutionInMeters && record.raw.publicResolutionInMeters!="0"}">
+%{--<alatag:occurrenceTableRow annotate="true" section="geospatial" fieldCode="publicResolutionInMeters" fieldName="Public Resolution">--}%
+%{--    ${record.raw.publicResolutionInMeters}m <a href='#'  data-toggle='popover' data-publicResolutionInMeters='${record.raw.publicResolutionInMeters}' data-dataProviderUid='${record.raw.dataProviderUid}' data-dataProviderName='${record.raw.dataProviderName}'><i class="glyphicon glyphicon-question-sign"></i></a>!!--}%
+%{--</alatag:occurrenceTableRow>--}%
+    <tr><td>Public resolution</td><td>${record.raw.publicResolutionInMeters}m <a href='#' class='accessControlHelpLink' data-toggle='popover' data-publicResolutionInMeters='${record.raw.publicResolutionInMeters}' data-dataProviderUid='${record.processed.attribution.dataProviderUid}' data-dataProviderName='${record.processed.attribution.dataProviderName}'><i class="glyphicon glyphicon-question-sign"></i></a></td></tr>
+</g:if>
+
     <!-- Recorded By Name -->
         <alatag:occurrenceTableRow annotate="true" section="dataset" fieldCode="recordedBy" fieldName="Recorded by">
             <g:if test="${record.raw.occurrence.recordedBy}">

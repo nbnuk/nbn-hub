@@ -177,5 +177,22 @@ $( document ).ready(function() {
 
 	}
 
+	$(".accessControlHelpLink").popover({
+		html : true,
+		trigger: "click",
+		title: function() {
+			return "Location is sensitive";
+		},
+		content: function() {
+			var dataProviderUid = $(this).data("dataprovideruid");
+			var publicResolutionInMeters = $(this).data("publicresolutioninmeters");
+			var dataProviderName = $(this).data("dataprovidername");
+			var content = "Location has been generalised to "+publicResolutionInMeters+"m. To gain access to the supplied resolution, please contact the Data Provider: "+
+				"<a href='https://registry.legacy.nbnatlas.org/public/show/" +dataProviderUid+
+				"' target='_blank' title='More details on the data provider page'>"+dataProviderName+"</a>";
+
+			return content;
+		}
+	}).click('click', function(e) { e.preventDefault(); });
 
 })

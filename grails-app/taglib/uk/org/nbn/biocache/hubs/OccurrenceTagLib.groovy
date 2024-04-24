@@ -83,6 +83,12 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
                     }
                 }
 
+                if (occurrence.publicResolutionInMeters && occurrence.publicResolutionInMeters !="0") {
+                    mkp.yieldUnescaped("&nbsp;|&nbsp;")
+                    span(class:'accessControlled', "public resolution "+occurrence.publicResolutionInMeters)
+//                    span(class:'accessControlled', "public resolution "+occurrence.publicResolutionInMeters+" <a href='#' class='accessControlHelpLink' data-toggle='popover' data-publicResolutionInMeters='${occurrence.publicResolutionInMeters}' data-dataProviderUid='${occurrence.dataProviderUid}' data-dataProviderName='${occurrence.dataProviderName}'><i class='icon-question-sign'></i></a>")
+                }
+
                 span(class:'openAssertions') {
                     def user_assert = occurrence.hasUserAssertions?:"0"
                     if (user_assert != "0") {
