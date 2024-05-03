@@ -83,9 +83,12 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
                     }
                 }
 
-                if (occurrence.publicResolutionInMeters && occurrence.publicResolutionInMeters !="0") {
+                if (!occurrence.sensitive && (occurrence.publicResolutionInMeters && occurrence.publicResolutionInMeters !="0")) {
                     mkp.yieldUnescaped("&nbsp;|&nbsp;")
-                    span(class:'accessControlled', "public resolution "+occurrence.publicResolutionInMeters)
+                    span(class:'accessControlled'){
+                        mkp.yield("public resolution "+formatMetersInner(occurrence.publicResolutionInMeters))
+                        mkp.yieldUnescaped(" <i class=\"glyphicon glyphicon-lock\" style=\"font-size: smaller; color:red;margin-right:4px\"></i>")
+                    }
 //                    span(class:'accessControlled', "public resolution "+occurrence.publicResolutionInMeters+" <a href='#' class='accessControlHelpLink' data-toggle='popover' data-publicResolutionInMeters='${occurrence.publicResolutionInMeters}' data-dataProviderUid='${occurrence.dataProviderUid}' data-dataProviderName='${occurrence.dataProviderName}'><i class='icon-question-sign'></i></a>")
                 }
 
@@ -175,5 +178,24 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
                 span alatag.message(code:"list.resultsreturned.span.returnedtext1", default:'results for')
             }
 
+    }
+
+    def formatMeters = { attrs, body ->
+        def mb = new MarkupBuilder(out)
+        mb.yield(formatMetersInner(attrs.distance))
+//        def distance = attrs.distance
+//        if (distance > 1000) {
+//            mb.yield(g.formatNumber(number: distance/1000, format: "#,###,###") + "km")
+//        } else {
+//            mb.yield(g.formatNumber(number: distance, format: "#,###,###") + "m")
+//        }
+    }
+
+    private String formatMetersInner(distance){
+        if (distance > 1000) {
+            g.formatNumber(number: distance/1000, format: "#,###,###") + "km"
+        } else {
+            g.formatNumber(number: distance, format: "#,###,###") + "m"
+        }
     }
 }

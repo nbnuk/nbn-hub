@@ -310,11 +310,14 @@
 
         </alatag:occurrenceTableRow>
 
-<g:if test="${record.raw.publicResolutionInMeters && record.raw.publicResolutionInMeters!="0"}">
+<g:if test="${!record.processed.occurrence.dataGeneralizations && (record.raw.publicResolutionInMeters && record.raw.publicResolutionInMeters!="0")}">
 %{--<alatag:occurrenceTableRow annotate="true" section="geospatial" fieldCode="publicResolutionInMeters" fieldName="Public Resolution">--}%
 %{--    ${record.raw.publicResolutionInMeters}m <a href='#'  data-toggle='popover' data-publicResolutionInMeters='${record.raw.publicResolutionInMeters}' data-dataProviderUid='${record.raw.dataProviderUid}' data-dataProviderName='${record.raw.dataProviderName}'><i class="glyphicon glyphicon-question-sign"></i></a>!!--}%
 %{--</alatag:occurrenceTableRow>--}%
-    <tr><td>Public resolution</td><td>${record.raw.publicResolutionInMeters}m <a href='#' class='accessControlHelpLink' data-toggle='popover' data-publicResolutionInMeters='${record.raw.publicResolutionInMeters}' data-dataProviderUid='${record.processed.attribution.dataProviderUid}' data-dataProviderName='${record.processed.attribution.dataProviderName}'><i class="glyphicon glyphicon-question-sign"></i></a></td></tr>
+%{--    <tr><td>Public resolution</td><td><alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/> <a href='#' class='accessControlHelpLink' data-toggle='popover' data-publicResolutionInMeters='${record.raw.publicResolutionInMeters}' data-dataProviderUid='${record.processed.attribution.dataProviderUid}' data-dataProviderName='${record.processed.attribution.dataProviderName}'><i class="glyphicon glyphicon-question-sign"></i></a></td></tr>--}%
+    <tr><td>Public resolution</td>
+    <td><i class="glyphicon glyphicon-lock" style="font-size: smaller; color:red;margin-right:4px"></i> Location has been generalised to <alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/>. To gain access to the supplied resolution, please contact the Data Provider:
+        <a href="https://registry.legacy.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a></td></tr>
 </g:if>
 
     <!-- Recorded By Name -->
