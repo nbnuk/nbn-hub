@@ -623,10 +623,13 @@
         </alatag:occurrenceTableRow>
         <!-- Sampling Protocol -->
         <alatag:occurrenceTableRow annotate="true" section="dataset" fieldCode="samplingProtocol" fieldName="Sampling protocol">
-            <g:if test="${record.raw.occurrence.samplingProtocol}">
-                ${fieldsMap.put("samplingProtocol", true)}
-                ${record.raw.occurrence.samplingProtocol}
-            </g:if>
+            ${fieldsMap.put("samplingProtocol", true)}
+            <g:each status="i" in="${record.raw.occurrence.samplingProtocol}" var="samplingProtocol">
+                <g:if test="${record.raw.occurrence.samplingProtocol.size() > 1}">
+                    ${i + 1}.&nbsp;&nbsp;
+                </g:if>
+                ${samplingProtocol} &nbsp;
+            </g:each>
         </alatag:occurrenceTableRow>
 
         <alatag:formatExtraDwC compareRecord="${compareRecord}" fieldsMap="${fieldsMap}" group="Event" exclude="${dwcExcludeFields}"/>
