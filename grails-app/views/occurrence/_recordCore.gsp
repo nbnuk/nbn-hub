@@ -163,68 +163,6 @@
             </g:if>
         </alatag:occurrenceTableRow>
 
-    <!-- New Record Date -->
-        <alatag:occurrenceTableRow annotate="true" section="dataset" fieldCode="newRecordDate" fieldName="Record Date">
-            <g:if test="${record.processed.event}">
-                <g:if test="${record.processed.event.datePrecision && StringUtils.containsIgnoreCase(record.processed.event.datePrecision, 'not supplied')}">
-                ${"Not supplied"}
-                </g:if>
-                <g:else>
-                    <g:if test="${record.processed.event.day}">${record.processed.event.year}-${record.processed.event.month}-${record.processed.event.day}</g:if>
-                    <g:elseif test="${record.processed.event.month}">${record.processed.event.year}-${record.processed.event.month}</g:elseif>
-                    <g:elseif test="${record.processed.event.year}">${record.processed.event.year}</g:elseif>
-
-                    <g:if test="${(record.processed.event.datePrecision != 'Day') && (record.processed.event.datePrecision != 'Month') && (record.processed.event.datePrecision != 'Year')}">
-                        ${ " / " }
-                        <g:if test="${record.processed.event.endDay}">${record.processed.event.endYear}-${record.processed.event.endMonth}-${record.processed.event.endDay}</g:if>
-                        <g:elseif test="${record.processed.event.endMonth}">${record.processed.event.endYear}-${record.processed.event.endMonth}</g:elseif>
-                        <g:elseif test="${record.processed.event.endYear}">${record.processed.event.endYear}</g:elseif>
-                    </g:if>
-                    (${record.processed.event.datePrecision})
-                </g:else>
-            </g:if>
-        </alatag:occurrenceTableRow>
-
-    <!-- Record Date -->
-        <g:if test="${false}">
-        <g:set var="occurrenceDateLabel">
-            <g:if test="${StringUtils.containsIgnoreCase(record.processed.occurrence.basisOfRecord, 'specimen')}"><g:message code="recordcore.occurrencedatelabel.01" default="Collecting date"/></g:if>
-            <g:else><g:message code="recordcore.occurrencedatelabel.02" default="Occurrence date"/></g:else>
-        </g:set>
-        <alatag:occurrenceTableRow annotate="true" section="dataset" fieldCode="occurrenceDate" fieldName="${occurrenceDateLabel}">
-            ${fieldsMap.put("eventDate", true)}
-            <g:if test="${!record.processed.event.eventDate && record.raw.event.eventDate && !record.raw.event.year && !record.raw.event.month && !record.raw.event.day}">
-                [<g:message code="recordcore.occurrencedatelabel.03" default="date not supplied"/>]
-            </g:if>
-            <g:if test="${record.processed.event.eventDate}">
-                <span class="isoDate">${record.processed.event.eventDate}</span>
-            </g:if>
-            <g:if test="${!record.processed.event.eventDate && (record.processed.event.year || record.processed.event.month || record.processed.event.day)}">
-                <g:message code="recordcore.occurrencedatelabel.04" default="Year"/>: ${record.processed.event.year},
-                <g:message code="recordcore.occurrencedatelabel.05" default="Month"/>: ${record.processed.event.month},
-                <g:message code="recordcore.occurrencedatelabel.06" default="Day"/>: ${record.processed.event.day}
-            </g:if>
-
-            <g:if test="${false}"> <!-- don't show in Overview -->
-            <g:if test="${record.processed.event.eventDate && record.raw.event.eventDate && record.raw.event.eventDate != record.processed.event.eventDate}">
-                <br/><span class="originalValue"><g:message code="recordcore.occurrencedatelabel.07" default="Supplied date"/> "${record.raw.event.eventDate}"</span>
-            </g:if>
-            <g:elseif test="${record.raw.event.year || record.raw.event.month || record.raw.event.day}">
-                <br/><span class="originalValue">
-                <g:message code="recordcore.occurrencedatelabel.08" default="Supplied as"/>
-                <g:if test="${record.raw.event.year}"><g:message code="recordcore.occurrencedatelabel.09" default="year"/>:${record.raw.event.year}&nbsp;</g:if>
-                <g:if test="${record.raw.event.month}"><g:message code="recordcore.occurrencedatelabel.10" default="month"/>:${record.raw.event.month}&nbsp;</g:if>
-                <g:if test="${record.raw.event.day}"><g:message code="recordcore.occurrencedatelabel.11" default="day"/>:${record.raw.event.day}&nbsp;</g:if>
-            </span>
-            </g:elseif>
-            <g:elseif test="${record.raw.event.eventDate != record.processed.event.eventDate && record.raw.event.eventDate}">
-                <br/><span class="originalValue"><g:message code="recordcore.occurrencedatelabel.12" default="Supplied date"/> "${record.raw.event.eventDate}"</span>
-            </g:elseif>
-            </g:if>
-        </alatag:occurrenceTableRow>
-        </g:if>
-
-
         <!-- Locality -->
         <alatag:occurrenceTableRow annotate="true" section="geospatial" fieldCode="locality" fieldName="Locality">
             <g:if test="${record.processed.location.locality}">
@@ -616,7 +554,26 @@
     <!-- Event -->
 <div id="occurrenceEvent">
     <h3><g:message code="recordcore.occurenceevent.title" default="Event2"/></h3>
-    <table class="occurrenceTable table table-bordered table-striped table-condensed" id="eventTable2">
+    <table class="occurrenceTable table table-bordered table-striped table-condensed" id="eventTable">
+    <!-- dataset -->
+        <alatag:occurrenceTableRow annotate="true" section="dataset" fieldCode="datasetName" fieldName="Dataset / Survey Name">
+            ${fieldsMap.put("datasetName", true)}
+            <g:each status="i" in="${record.raw.event.datasetName}" var="datasetName">
+                <g:if test="${record.raw.event.datasetName.size() > 1}">
+                    ${i + 1}.&nbsp;
+                </g:if>
+                ${datasetName} &nbsp;
+            </g:each>
+        </alatag:occurrenceTableRow>
+    <!-- event ID -->
+        <alatag:occurrenceTableRow annotate="true" section="eventID" fieldCode="eventID" fieldName="Event ID">
+            ${fieldsMap.put("eventID", true)}
+            ${record.raw.event.eventID}
+        </alatag:occurrenceTableRow>
+        <alatag:occurrenceTableRow annotate="true" section="parentEventID" fieldCode="parentEventID" fieldName="Parent Event ID">
+            ${fieldsMap.put("parentEventID", true)}
+            ${record.raw.event.parentEventID}
+        </alatag:occurrenceTableRow>
     <!-- Field Number -->
         <alatag:occurrenceTableRow annotate="true" section="dataset" fieldCode="fieldNumber" fieldName="Field number">
             ${fieldsMap.put("fieldNumber", true)}
@@ -637,7 +594,7 @@
             <g:else><g:message code="recordcore.occurrencedatelabel.02" default="Record date"/></g:else>
         </g:set>
         <alatag:occurrenceTableRow annotate="true" section="dataset" fieldCode="occurrenceDate" fieldName="${occurrenceDateLabel}">
-            <g:if test="${false}">${fieldsMap.put("eventDate", true)}</g:if>
+            <% fieldsMap.put("eventDate", true) %>
             <g:if test="${!record.processed.event.eventDate && record.raw.event.eventDate && !record.raw.event.year && !record.raw.event.month && !record.raw.event.day}">
                 [<g:message code="recordcore.occurrencedatelabel.03" default="date not supplied"/>]
             </g:if>
