@@ -1,4 +1,4 @@
-<g:if test="${isUnderCas && !isReadOnly}">
+<g:if test="${isUnderCas && !isReadOnly && record.processed.attribution.provenance != 'Draft' && (grailsApplication.config.flagAnIssue?.show?: 'false').toBoolean()}">
     <button class="btn btn-default" id="assertionButton" href="#loginOrFlag" role="button" data-toggle="modal" title="report a problem or suggest a correction for this record">
         <span id="loginOrFlagSpan" title="Flag an issue" class=""><i class="glyphicon glyphicon-flag"></i> <g:message code="show.button.assertionbutton.span" default="Flag an issue"/></span>
     </button>
@@ -11,43 +11,28 @@
 </g:if>
 %{--<div class="nav-affix" data-spy="affix" data-offset-top="236" data-offset-bottom="1080">--}%
 <div class="">
-    <ul id="navBox" class="nav nav-pills nav-stacked">
-        <li><a href="#occurrenceDataset"><g:message code="recordcore.occurencedataset.title" default="Dataset"/></a></li>
-        <li><a href="#occurrenceEvent"><g:message code="recordcore.occurenceevent.title" default="Event"/></a></li>
-        <li><a href="#occurrenceTaxonomy"><g:message code="recordcore.occurencetaxonomy.title" default="Taxonomy"/></a></li>
-        <li><a href="#occurrenceGeospatial"><g:message code="recordcore.occurencegeospatial.title" default="Geospatial"/></a></li>
-        <g:if test="${record.raw.miscProperties}">
-            <li><a href="#additionalProperties"><g:message code="recordcore.div.addtionalproperties.title" default="Additional properties"/></a></li>
-        </g:if>
-        <g:if test="${record.images}">
-            <li><a href="#images"><g:message code="show.sidebar03.title" default="Images"/></a></li>
-        </g:if>
-        <g:if test="${record.sounds}">
-            <li><a href="#soundsHeader"><g:message code="show.soundsheader.title" default="Sounds"/></a></li>
-        </g:if>
-        <li><a href="#userAnnotationsDiv" id="userAnnotationsNav" style="display:none;"><g:message code="show.userannotationsdiv.title" default="User flagged issues"/></a></li>
-        <g:if test="${record.systemAssertions && record.processed.attribution.provenance != 'Draft'}">
-            <li><a href="#dataQuality"><g:message code="show.dataquality.title" default="Data quality tests"/>
-            (${record.systemAssertions.failed?.size()?:0} <i class="fa fa-times-circle tooltips" style="color:red;" title="<g:message code="assertions.failed" default="failed"/>"></i>,
-            ${record.systemAssertions.warning?.size()?:0} <i class="fa fa-exclamation-circle tooltips" style="color:orange;" title="<g:message code="assertions.warnings" default="warning"/>"></i>,
-            ${record.systemAssertions.passed?.size()?:0} <i class="fa fa-check-circle tooltips" style="color:green;" title="<g:message code="assertions.passed" default="passed"/>"></i>,
-            ${record.systemAssertions.missing?.size()?:0} <i class="fa fa-question-circle tooltips" style="color:gray;" title="<g:message code="assertions.missing" default="missing"/>"></i>,
-            ${record.systemAssertions.unchecked?.size()?:0} <i class="fa fa-ban tooltips" style="color:gray;" title="<g:message code="assertions.unchecked" default="unchecked"/>"></i>)
-            </a></li>
-        </g:if>
-        <g:if test="${record.processed.occurrence.outlierForLayers}">
-            <li><a href="#outlierInformation"><g:message code="show.outlierinformation.title" default="Outlier information"/></a></li>
-        </g:if>
-        <g:if test="${record.processed.occurrence.duplicationStatus}">
-            <li><a href="#inferredOccurrenceDetails"><g:message code="show.inferredoccurrencedetails.title" default="Inferred associated occurrence details"/></a></li>
-        </g:if>
-        <g:if test="${contextualSampleInfo}">
-            <li><a href="#contextualSampleInfo"><g:message code="show.outlierinformation.02.title01" default="Additional political boundaries information"/></a></li>
-        </g:if>
-        <g:if test="${environmentalSampleInfo}">
-            <li><a href="#environmentalSampleInfo"><g:message code="show.outlierinformation.02.title02" default="Environmental sampling for this location"/></a></li>
-        </g:if>
-    </ul>
+    <g:if test="${record.processed.attribution.license}">
+        <div class="sidebar">
+            <p style="margin-bottom:20px;margin-top:20px;">
+                <b>
+                    ${ 'Licence: ' }
+                    <a href="https://docs.nbnatlas.org/data-licenses/" target="_blank">${ record.processed.attribution.license }</a>
+                </b>
+            </p>
+        </div>
+    </g:if>
+
+    <g:if test="${record.raw.lastModifiedTime && record.processed.lastModifiedTime}">
+        <div class="sidebar">
+            <g:set var="rawLastModifiedString" value="${record.raw.lastModifiedTime.substring(0,10)}"/>
+            <g:set var="processedLastModifiedString" value="${record.processed.lastModifiedTime.substring(0,10)}"/>
+            <p style="margin-bottom:20px;margin-top:20px;">
+                <g:message code="show.sidebar05.p01" default="Date loaded"/>: ${rawLastModifiedString}<br/>
+                <g:message code="show.sidebar05.p02" default="Date last processed"/>: ${processedLastModifiedString}<br/>
+            </p>
+        </div>
+    </g:if>
+
     <g:if test="${false && record.processed.attribution.provenance != 'Draft'}">
         <div class="sidebar">
             <div id="warnings">
@@ -123,7 +108,7 @@
                     </g:each>
                 </div>
 
-                <div id="userAssertionsContainer" <g:if test="${!record.userAssertions && !queryAssertions}">style="display:none"</g:if>>
+                <div id="userAssertionsContainer" <g:if test="${(!record.userAssertions && !queryAssertions) || !(grailsApplication.config.flagAnIssue?.show?: 'false').toBoolean()}">style="display:none"</g:if>>
                     <h3><g:message code="show.userassertionscontainer.title" default="User flagged issues"/></h3>
                     <ul id="userAssertions">
                         <!--<p class="half-padding-bottom">Users have highlighted the following possible issues:</p>-->
@@ -298,16 +283,6 @@
                     <br/>
                 </g:each>
             </div>
-        </div>
-    </g:if>
-    <g:if test="${record.raw.lastModifiedTime && record.processed.lastModifiedTime}">
-        <div class="sidebar">
-            <g:set var="rawLastModifiedString" value="${record.raw.lastModifiedTime.substring(0,10)}"/>
-            <g:set var="processedLastModifiedString" value="${record.processed.lastModifiedTime.substring(0,10)}"/>
-            <p style="margin-bottom:20px;margin-top:20px;">
-                <g:message code="show.sidebar05.p01" default="Date loaded"/>: ${rawLastModifiedString}<br/>
-                <g:message code="show.sidebar05.p02" default="Date last processed"/>: ${processedLastModifiedString}<br/>
-            </p>
         </div>
     </g:if>
 </div>

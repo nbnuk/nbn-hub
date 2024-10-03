@@ -97,7 +97,9 @@ function refreshUserAnnotations(){
             var $clone = $('#userAnnotationTemplate').clone();
             $clone.find('.issue').text(data.assertionQueries[i].assertionType);
             $clone.find('.user').text(data.assertionQueries[i].userName);
-            $clone.find('.comment').text('Comment: ' + data.assertionQueries[i].comment);
+            if (data.assertionQueries[i].hasOwnProperty('comment')) {
+                $clone.find('.comment').text('Comment: ' + data.assertionQueries[i].comment);
+            }
             $clone.find('.created').text('Date created: ' + (moment(data.assertionQueries[i].createdDate).format('YYYY-MM-DD')));
             if(data.assertionQueries[i].recordCount > 1){
                 $clone.find('.viewMore').css({display:'block'});
@@ -118,12 +120,61 @@ function refreshUserAnnotations(){
             // if the code == 50000, then we have verification - so don't display here
             if (userAssertion.code != 50000) {
                 $clone.prop('id', "userAnnotation_" + userAssertion.uuid);
-                $clone.find('.issue').text(jQuery.i18n.prop(userAssertion.name));
+                $clone.find('.issue').text(jQuery.i18n.prop(userAssertion.name)).attr('i18nkey', userAssertion.name);
                 $clone.find('.user').text(userAssertion.userDisplayName);
-                $clone.find('.comment').text('Comment: ' + userAssertion.comment);
+                if (userAssertion.hasOwnProperty('comment')) {
+                    $clone.find('.comment').text('Comment: ' + userAssertion.comment);
+                }
                 $clone.find('.userRole').text(userAssertion.userRole != null ? userAssertion.userRole : '');
                 $clone.find('.userEntity').text(userAssertion.userEntityName != null ? userAssertion.userEntityName : '');
                 $clone.find('.created').text('Date created: ' + (moment(userAssertion.created, "YYYY-MM-DDTHH:mm:ssZ").format('YYYY-MM-DD HH:mm:ss')));
+                if (userAssertion.relatedRecordId) {
+                    $clone.find('.related-record').show();
+                    // show related record id
+                    $clone.find('.related-record-id').show();
+                    $clone.find('.related-record-id-span').text(userAssertion.relatedRecordId);
+                    var href = $clone.find('.related-record-link').attr('href');
+                    $clone.find('.related-record-link').attr('href', href.replace('replace-me', userAssertion.relatedRecordId));
+                    if (userAssertion.code === 20020) {
+                        $clone.find('.related-record-span-user-duplicate').show();
+
+                        $.get( OCC_REC.contextPath + "/occurrence/exists/" + userAssertion.relatedRecordId).success(function(data) {
+                            if (!data.error) {
+                                if (data.scientificName) {
+                                    $clone.find('.related-record-name').show();
+                                    $clone.find('.related-record-name-span').text(data.scientificName);
+                                }
+
+                                if (data.stateProvince) {
+                                    $clone.find('.related-record-state').show();
+                                    $clone.find('.related-record-state-span').text(data.stateProvince);
+                                }
+
+                                if (data.decimalLongitude) {
+                                    $clone.find('.related-record-latitude').show();
+                                    $clone.find('.related-record-latitude-span').text(data.decimalLongitude);
+                                }
+
+                                if (data.decimalLatitude) {
+                                    $clone.find('.related-record-longitude').show();
+                                    $clone.find('.related-record-longitude-span').text(data.decimalLatitude);
+                                }
+
+                                if (data.eventDate) {
+                                    $clone.find('.related-record-eventdate').show();
+                                    $clone.find('.related-record-eventdate-span').text(data.eventDate);
+                                }
+                            }
+                        })
+                    } else {
+                        $clone.find('.related-record-span-default').show();
+                    }
+                }
+                if (userAssertion.relatedRecordReason) {
+                    $clone.find('.related-record-reason').show();
+                    $clone.find('.related-record-reason-span').text(jQuery.i18n.prop('related.record.reason.' + userAssertion.relatedRecordReason)).attr('i18nkey', 'related.record.reason.' + userAssertion.relatedRecordReason);
+                    $clone.find('.related-record-reason-explanation').text(jQuery.i18n.prop('related.record.reason.explanation.' + userAssertion.relatedRecordReason)).attr('i18nkey', 'related.record.reason.explanation.' + userAssertion.relatedRecordReason).show();
+                }
                 if (userAssertion.userRole != null) {
                     $clone.find('.userRole').text(', ' + userAssertion.userRole);
                 }
@@ -133,7 +184,6 @@ function refreshUserAnnotations(){
 
                 //if the current user is the author of the annotation, they can delete
                 //new: the collection admin can also delete
-                console.log(OCC_REC);
                 if((OCC_REC.userId == userAssertion.userId) || NBN.isCollectionAdmin){
                     $clone.find('.deleteAnnotation').css({display:'block'});
                     $clone.find('.deleteAnnotation').attr('id', userAssertion.uuid);
