@@ -1,4 +1,4 @@
-<g:if test="${isUnderCas && !isReadOnly && record.processed.attribution.provenance != 'Draft' && (grailsApplication.config.flagAnIssue?.show?: 'false').toBoolean()}">
+<g:if test="${isUnderCas && !isReadOnly}">
     <button class="btn btn-default" id="assertionButton" href="#loginOrFlag" role="button" data-toggle="modal" title="report a problem or suggest a correction for this record">
         <span id="loginOrFlagSpan" title="Flag an issue" class=""><i class="glyphicon glyphicon-flag"></i> <g:message code="show.button.assertionbutton.span" default="Flag an issue"/></span>
     </button>
@@ -6,52 +6,13 @@
 <g:if test="${contacts && contacts.size()}">
     <button href="#contactCuratorView" class="btn btn-default" id="showCurator" role="button" data-toggle="modal"
             title="Contact curator for more details on a record">
-        <span id="contactCuratorSpan" href="#contactCuratorView" title=""><i class="glyphicon glyphicon-envelope"></i>Contact data provider</span>
+        <span id="contactCuratorSpan" href="#contactCuratorView" title=""><i class="glyphicon glyphicon-envelope"></i> <g:message code="show.showcontactcurator.span" default="Contact curator"/></span>
     </button>
 </g:if>
 %{--<div class="nav-affix" data-spy="affix" data-offset-top="236" data-offset-bottom="1080">--}%
-<div class="" >
-    <g:if test="${record.processed.attribution.license}">
-        <div class="sidebar">
-            <p style="margin-bottom:20px;margin-top:20px;">
-                <b>
-                ${ 'Licence: ' }
-                <a href="https://docs.nbnatlas.org/data-licenses/" target="_blank">${ record.processed.attribution.license }</a>
-                </b>
-            </p>
-        </div>
-    </g:if>
-
-    <g:if test="${record.raw.lastModifiedTime && record.processed.lastModifiedTime}">
-        <div class="sidebar">
-            <g:set var="rawLastModifiedString" value="${record.raw.lastModifiedTime.substring(0,10)}"/>
-            <g:set var="processedLastModifiedString" value="${record.processed.lastModifiedTime.substring(0,10)}"/>
-            <p style="margin-bottom:20px;margin-top:20px;">
-                <g:message code="show.sidebar05.p01" default="Date loaded"/>: ${rawLastModifiedString}<br/>
-                <g:message code="show.sidebar05.p02" default="Date last processed"/>: ${processedLastModifiedString}<br/>
-            </p>
-        </div>
-    </g:if>
-
-    <g:if test="${false}">
+<div class="">
     <ul id="navBox" class="nav nav-pills nav-stacked">
-        <li><a href="#occurrenceRecord">Record</a></li>
         <li><a href="#occurrenceDataset"><g:message code="recordcore.occurencedataset.title" default="Dataset"/></a></li>
-
-        <g:if test="${record.raw.occurrence.individualCount ||
-                        record.raw.occurrence.organismQuantity ||
-                        record.raw.occurrence.organismQuantityType ||
-                        record.raw.occurrence.sampleSizeUnit ||
-                        record.raw.occurrence.sampleSizeValue}">
-            <li><a href="#occurrenceAbundance">Abundance</a></li>
-        </g:if>
-
-        <g:if test="${record.raw.occurrence.lifeStage || record.raw.occurrence.behavior || record.raw.occurrence.sex ||
-                record.raw.occurrence.organismRemarks ||
-                record.raw.occurrence.organismScope}">
-            <li><a href="#occurrenceOrganism">Organism</a></li>
-        </g:if>
-
         <li><a href="#occurrenceEvent"><g:message code="recordcore.occurenceevent.title" default="Event"/></a></li>
         <li><a href="#occurrenceTaxonomy"><g:message code="recordcore.occurencetaxonomy.title" default="Taxonomy"/></a></li>
         <li><a href="#occurrenceGeospatial"><g:message code="recordcore.occurencegeospatial.title" default="Geospatial"/></a></li>
@@ -64,7 +25,7 @@
         <g:if test="${record.sounds}">
             <li><a href="#soundsHeader"><g:message code="show.soundsheader.title" default="Sounds"/></a></li>
         </g:if>
-        <li><a href="#userAnnotationsDiv" id="userAnnotationsNav" style="display:none;"><g:message code="show.userannotationsdiv.title" default="User flagged issues"/>&nbsp;<i id="userAnnotationsNavFlag" class="glyphicon glyphicon-flag" style="color:red;display:none"></i></a></li>
+        <li><a href="#userAnnotationsDiv" id="userAnnotationsNav" style="display:none;"><g:message code="show.userannotationsdiv.title" default="User flagged issues"/></a></li>
         <g:if test="${record.systemAssertions && record.processed.attribution.provenance != 'Draft'}">
             <li><a href="#dataQuality"><g:message code="show.dataquality.title" default="Data quality tests"/>
             (${record.systemAssertions.failed?.size()?:0} <i class="fa fa-times-circle tooltips" style="color:red;" title="<g:message code="assertions.failed" default="failed"/>"></i>,
@@ -87,8 +48,6 @@
             <li><a href="#environmentalSampleInfo"><g:message code="show.outlierinformation.02.title02" default="Environmental sampling for this location"/></a></li>
         </g:if>
     </ul>
-    </g:if>
-
     <g:if test="${false && record.processed.attribution.provenance != 'Draft'}">
         <div class="sidebar">
             <div id="warnings">
@@ -164,7 +123,7 @@
                     </g:each>
                 </div>
 
-                <div id="userAssertionsContainer" <g:if test="${(!record.userAssertions && !queryAssertions) || !(grailsApplication.config.flagAnIssue?.show?: 'false').toBoolean()}">style="display:none"</g:if>>
+                <div id="userAssertionsContainer" <g:if test="${!record.userAssertions && !queryAssertions}">style="display:none"</g:if>>
                     <h3><g:message code="show.userassertionscontainer.title" default="User flagged issues"/></h3>
                     <ul id="userAssertions">
                         <!--<p class="half-padding-bottom">Users have highlighted the following possible issues:</p>-->
@@ -186,64 +145,70 @@
                 <g:message code="show.sidebar01.p" default="This record was transcribed from the label by an online volunteer. It has not yet been validated by the owner institution"/>
                 <a href="https://volunteer.ala.org.au/"><g:message code="show.sidebar01.volunteer.navigator" default="Biodiversity Volunteer Portal"/></a>.
             </p>
-
-            <button class="btn btn-default" id="viewDraftButton" >
-                <span id="viewDraftSpan" title="View Draft"><g:message code="show.button.viewdraftbutton.span" default="See draft in Biodiversity Volunteer Portal"/></span>
-            </button>
         </div>
     </g:if>
     <g:if test="${record.processed.location.decimalLatitude && record.processed.location.decimalLongitude}">
         <g:set var="latLngStr">
-            <g:if test="${clubView && record.raw.location.decimalLatitude && record.raw.location.decimalLatitude != record.processed.location.decimalLatitude}">
-                ${record.raw.location.decimalLatitude},${record.raw.location.decimalLongitude}
+            <g:if test="${clubView && record.sensitive && record.raw.location.decimalLatitude && record.raw.location.decimalLongitude}">
+                ${record.raw.location.decimalLatitude}, ${record.raw.location.decimalLongitude}
             </g:if>
             <g:else>
-                ${record.processed.location.decimalLatitude},${record.processed.location.decimalLongitude}
+                ${record.processed.location.decimalLatitude}, ${record.processed.location.decimalLongitude}
             </g:else>
         </g:set>
         <div class="sidebar">
             <asset:script type="text/javascript">
                 $(document).ready(function() {
-                    var latlng = new google.maps.LatLng(${latLngStr.trim()});
-                    var myOptions = {
-                        zoom: 5,
-                        center: latlng,
-                        scrollwheel: false,
-                        scaleControl: true,
-                        streetViewControl: false,
-                        mapTypeControl: true,
-                        mapTypeControlOptions: {
-                            style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-                            mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.HYBRID, google.maps.MapTypeId.TERRAIN ]
-                        },
-                        mapTypeId: google.maps.MapTypeId.ROADMAP
-                    };
-
-                    var map = new google.maps.Map(document.getElementById("occurrenceMap"), myOptions);
-
-                    var marker = new google.maps.Marker({
-                        position: latlng,
-                        map: map,
-                        title:"Occurrence Location"
+                    // Leaflet map
+                    var defaultBaseLayer = L.tileLayer("${grailsApplication.config.map.minimal.url}", {
+                        attribution: "${raw(grailsApplication.config.map.minimal.attr)}",
+                        subdomains: "${grailsApplication.config.map.minimal.subdomains}"
                     });
 
+                    var baseLayers = {
+                        "Minimal": defaultBaseLayer,
+                        "Road":  new L.Google('ROADMAP'),
+                        //"Terrain": new L.Google('TERRAIN'),
+                        "Satellite": new L.Google('HYBRID')
+                    };
+
+                    var latLng = L.latLng(${latLngStr.trim()});
+                    var map = L.map('occurrenceMap', {
+                        center: latLng,
+                        zoom: 5,
+                        scrollWheelZoom: false
+                    });
+
+                    L.control.layers(baseLayers).addTo(map);
+                    map.addLayer(defaultBaseLayer);
+
+                    // Fix for asset pipeline confusing Leaflet WRT to path to images
+                    L.Icon.Default.imagePath = "${assetPath(src:'/leaflet/images')}";
+
+                    // Add marker
+                    L.marker(latLng, {
+                        title: 'Occurrence location',
+                        draggable: false
+                    }).addTo(map);
+
                     <g:if test="${record.processed.location.coordinateUncertaintyInMeters}">
-                    var radius = parseInt('${record.processed.location.coordinateUncertaintyInMeters}');
-                    if (!isNaN(radius)) {
-                        // Add a Circle overlay to the map.
-                        circle = new google.maps.Circle({
-                            map: map,
-                            radius: radius, // 3000 km
-                            strokeWeight: 1,
-                            strokeColor: 'white',
-                            strokeOpacity: 0.5,
-                            fillColor: '#2C48A6',
-                            fillOpacity: 0.2
-                        });
-                        // bind circle to marker
-                        circle.bindTo('center', marker, 'position');
-                    }
+                        var radius = parseInt('${record.processed.location.coordinateUncertaintyInMeters}');
+                        if (!isNaN(radius)) {
+                            // Add a Circle overlay to the map.
+                            var circlProps = {
+                                stroke: true,
+                                weight: 2,
+                                color: 'black',
+                                opacity: 0.2,
+                                fillColor: '#888', // '#2C48A6'
+                                fillOpacity: 0.2,
+                                zIndex: -10
+                            };
+                            // console.log("circlProps", circlProps, latLng, radius);
+                            L.circle(latLng, radius, circlProps).addTo(map);
+                        }
                     </g:if>
+
                 });
             </asset:script>
             %{--<h3><g:message code="show.occurrencemap.title" default="Location of record"/></h3>--}%
@@ -267,20 +232,26 @@
                             </a>
                         </g:else>
                         <br/>
+                        <g:if test="${record.raw.miscProperties?.TITLE}">
+                            <cite><b><g:message code="show.sidebar03.image.title" default="Title"/>:</b> <alatag:sanitizeContent>${raw(record.raw.miscProperties.TITLE)}</alatag:sanitizeContent></cite><br/>
+                        </g:if>
                         <g:if test="${record.raw.occurrence.photographer || image.metadata?.creator}">
-                            <cite><g:message code="show.sidebar03.cite01" default="Photographer"/>: ${record.raw.occurrence.photographer ?: image.metadata?.creator}</cite><br/>
+                            <cite><b><g:message code="show.sidebar03.cite01" default="Photographer"/>:</b> ${image.metadata?.creator ?: record.raw.occurrence.photographer}</cite><br/>
                         </g:if>
                         <g:if test="${record.raw.occurrence.rights || image.metadata?.rights}">
-                            <cite><g:message code="show.sidebar03.cite02" default="Rights"/>: ${record.raw.occurrence.rights ?: image.metadata?.rights}</cite><br/>
+                            <cite><b><g:message code="show.sidebar03.cite02" default="Rights"/>:</b> ${image.metadata?.rights ?: record.raw.occurrence.rights}</cite><br/>
                         </g:if>
-                        <g:if test="${record.raw.occurrence.rightsholder || image.metadata?.rightsholder}">
-                            <cite><g:message code="show.sidebar03.cite03" default="Rights holder"/>: ${record.raw.occurrence.rightsholder ?: image.metadata?.rightsholder}</cite><br/>
+                        <g:if test="${record.raw.occurrence.rightsholder || image.metadata?.rightsHolder}">
+                            <cite><b><g:message code="show.sidebar03.cite03" default="Rights holder"/>:</b> ${image.metadata?.rightsHolder ?: record.raw.occurrence.rightsholder}</cite><br/>
                         </g:if>
                         <g:if test="${record.raw.miscProperties.rightsHolder}">
-                            <cite><g:message code="show.sidebar03.cite03" default="Rights holder"/>: ${record.raw.miscProperties.rightsHolder}</cite><br/>
+                            <cite><b><g:message code="show.sidebar03.cite03" default="Rights holder"/>:</b> ${record.raw.miscProperties.rightsHolder}</cite><br/>
                         </g:if>
                         <g:if test="${image.metadata?.license}">
-                            <cite><g:message code="show.sidebar03.image.license" default="License"/>: ${image.metadata?.license}</cite><br/>
+                            <cite><b><g:message code="show.sidebar03.image.license" default="License"/>:</b> ${image.metadata?.license}</cite><br/>
+                        </g:if>
+                        <g:if test="${record.raw.miscProperties?.DESCRIPTION}">
+                                <cite><b><g:message code="show.sidebar03.caption" default="Caption"/>:</b> <alatag:sanitizeContent>${raw(record.raw.miscProperties.DESCRIPTION)}</alatag:sanitizeContent></cite><br/>
                         </g:if>
                         <g:if test="${grailsApplication.config.skin.useAlaImageService.toBoolean()}">
                             <a href="${grailsApplication.config.images.metadataUrl}${image.filePath}" target="_blank"><g:message code="show.sidebardiv.occurrenceimages.navigator01" default="View image details"/></a>
@@ -296,20 +267,46 @@
     <g:if test="${record.sounds}">
         <div class="sidebar">
             <h3 id="soundsHeader" style="margin: 20px 0 0 0;"><g:message code="show.soundsheader.title" default="Sounds"/></h3>
-            <div class="row">
-                <div id="audioWrapper" class="col-md-12">
-                    <audio src="${record.sounds.get(0)?.alternativeFormats?.'audio/mpeg'}" preload="auto" />
-                    <div class="track-details">
-                        ${record.raw.classification.scientificName}
+            <div id="occurrenceSounds" style="margin-top:5px;">
+                <g:each in="${record.sounds}" var="sound">
+                    <div class="row">
+                        <div id="audioWrapper" class="col-md-12">
+                            <audio src="${sound?.alternativeFormats?.'audio/mpeg'}" preload="auto" />
+                            <div class="track-details">
+                                ${record.raw.classification.scientificName}
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <p>
+                        <g:message code="show.sidebar04.p" default="Please press the play button to hear the sound file associated with this occurrence record."/>
+                    </p>
+
+                    <g:if test="${sound?.metadata?.rights || record.raw.occurrence.rights}">
+                        <cite><b><g:message code="show.sidebar04.cite" default="Rights"/>:</b> ${sound?.metadata?.rights ?: record.raw.occurrence.rights}</cite><br/>
+                    </g:if>
+                    <g:if test="${sound?.metadata?.rightsHolder || record.raw.occurrence.rightsholder}">
+                        <cite><b><g:message code="show.sidebar03.cite03" default="Rights holder"/>:</b> ${sound?.metadata?.rightsHolder ?: record.raw.occurrence.rightsholder}</cite><br/>
+                    </g:if>
+
+                    <g:if test="${sound?.metadata?.license}">
+                        <cite><b><g:message code="show.sidebar03.sound.license" default="License"/>:</b> ${sound?.metadata?.license}</cite><br/>
+                    </g:if>
+
+                    <g:if test="${grailsApplication.config.skin.useAlaImageService.toBoolean() && sound?.alternativeFormats?.detailLink}">
+                        <a href="${sound?.alternativeFormats?.detailLink}" target="_blank"><g:message code="show.sidebardiv.occurrencesounds.navigator01" default="View sound details"/></a><br/>
+                    </g:if>
+                    <br/>
+                </g:each>
             </div>
-            <g:if test="${record.raw.occurrence.rights}">
-                <br/>
-                <cite><g:message code="show.sidebar04.cite" default="Rights"/>: ${record.raw.occurrence.rights}</cite>
-            </g:if>
-            <p>
-                <g:message code="show.sidebar04.p" default="Please press the play button to hear the sound file associated with this occurrence record."/>
+        </div>
+    </g:if>
+    <g:if test="${record.raw.lastModifiedTime && record.processed.lastModifiedTime}">
+        <div class="sidebar">
+            <g:set var="rawLastModifiedString" value="${record.raw.lastModifiedTime.substring(0,10)}"/>
+            <g:set var="processedLastModifiedString" value="${record.processed.lastModifiedTime.substring(0,10)}"/>
+            <p style="margin-bottom:20px;margin-top:20px;">
+                <g:message code="show.sidebar05.p01" default="Date loaded"/>: ${rawLastModifiedString}<br/>
+                <g:message code="show.sidebar05.p02" default="Date last processed"/>: ${processedLastModifiedString}<br/>
             </p>
         </div>
     </g:if>
@@ -323,8 +320,7 @@
                 <h3 id="loginOrFlagLabel"><g:message code="show.loginorflag.title" default="Flag an issue"/></h3>
             </div>
             <div class="modal-body">
-                <g:if test="${!userId && (grailsApplication.config.localhost?.fakeuser?:'' != 'true')}">
-
+                <g:if test="${!userId}">
                     <div style="margin: 20px 0;"><g:message code="show.loginorflag.div01.label" default="Login please:"/>
                         <a href="${grailsApplication.config.security.cas.casServerLoginUrl}?service=${serverName}${request.contextPath}/occurrences/${record.raw.rowKey}"><g:message code="show.loginorflag.div01.navigator" default="Click here"/></a>
                     </div>
@@ -335,19 +331,73 @@
                         <form id="issueForm">
                             <p style="margin-top:20px;">
                                 <label for="issue"><g:message code="show.issueform.label01" default="Issue type:"/></label>
-                                <select name="issue" id="issue">
+                                <select name="issue" id="issue" autocomplete="off">
                                     <g:each in="${errorCodes}" var="code">
                                         <option value="${code.code}"><g:message code="${code.name}" default="${code.name}"/></option>
                                     </g:each>
+                                </select>
+                            </p>
+                            <div id="related-record-p" style="display: none; margin-top:30px;">
+                                <label for="relatedRecordId" style="vertical-align:top;"><g:message code="show.issueform.label03" default="Duplicate Record ID:"/><span style="color: red;">*</span></label>
+                                <input type="text" name="relatedRecordId" id="relatedRecordId" placeholder="Paste the duplicate record id here" style="width:380px;"/>
+                                <div class="help-block">
+                                    <span style="display: none; color:red;" id="related-record-id-not-found">The record id can't be found.</span>
+                                    <span style="display: none;" id="related-record-id-loading"><i class="fa fa-gear fa-spin"></i></span>
+                                    <div style="display: none;" id="related-record-id-found">
+                                        <span style="display: none;" id="records_comparison_heading"><g:message code="record.compare_table.heading" default="You are indicating that"/>:</span>
+                                        <table style="display: none;" id='records_comparison_table' class="table table-bordered table-condensed table-striped scrollTable">
+                                            <tr>
+                                                <th width="35%"><g:message code="record.compare_table.source_record.heading" default="This record"/></th>
+                                                <th rowspan="6" id="col_duplicate_reason"></th>
+                                                <th width="35%"><g:message code="record.compare_table.target_record.heading" default="This record ID provided"/></th>
+                                            </tr>
+                                            <tr>
+                                                <td>${record?.processed?.classification?.scientificName ?: record?.raw?.classification?.scientificName ?: ''}</td>
+                                                <td id="t_scientificName"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>${record?.processed?.location?.stateProvince ?: record?.raw?.location?.stateProvince ?: ''}</td>
+                                                <td id="t_stateProvince"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>${record?.processed?.location?.decimalLongitude ?: record?.raw?.location?.decimalLongitude ?: ''}</td>
+                                                <td id="t_decimalLongitude"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>${record?.processed?.location?.decimalLatitude ?: record?.raw?.location?.decimalLatitude ?: ''}</td>
+                                                <td id="t_decimalLatitude"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>${record?.processed?.event?.eventDate ?: record?.raw?.event?.eventDate ?: ''}</td>
+                                                <td id="t_eventDate"></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="related-record-reason-p" style="display: none; margin-top:30px;">
+                                <label for="relatedRecordReason" style="vertical-align:top;"><g:message code="show.issueform.label04" default="Duplicate Reason:"/><span style="color: red;">*</span></label>
+                                <select name="relatedRecordReason" id="relatedRecordReason" autocomplete="off">
+                                    <option value=""><g:message code="related.record.reason.select" default="-- Select a reason --" /></option>
+                                    <option value="sameoccurrence"><g:message code="related.record.reason.sameoccurrence" default="Duplicate occurrence"/></option>
+                                    <option value="tissuesample"><g:message code="related.record.reason.tissuesample" default="Tissue sample"/></option>
+                                    <option value="splitspecimen"><g:message code="related.record.reason.splitspecimen" default="Split specimen"/></option>
                                 </select>
                             </p>
                             <p style="margin-top:30px;">
                                 <label for="issueComment" style="vertical-align:top;"><g:message code="show.issueform.label02" default="Comment:"/></label>
                                 <textarea name="comment" id="issueComment" style="width:380px;height:150px;" placeholder="Please add a comment here..."></textarea>
                             </p>
+
+                            <g:if test="${grailsApplication.config.alerts.myannotation.enabled.toBoolean()}">
+                                <p style="margin-top:30px;">
+                                    <label style="width:100%" id="notifyChange"><input type="checkbox" id="notifyChangeCheckbox" name="notifyChange" value="">&nbsp;<g:message code="show.issueform.notifyme" default="Notify me when records I have annotated are updated"/></label>
+                                </p>
+                            </g:if>
+
                             <p style="margin-top:20px;">
                                 <input id="issueFormSubmit" type="submit" value="<g:message code="show.issueform.button.submit" default="Submit"/>" class="btn btn-primary" />
-                                <input type="reset" value="<g:message code="show.issueform.button.cancel" default="Cancel"/>" class="btn btn-default" onClick="$('#loginOrFlag').modal('hide');"/>
+                                <input type="button" id="cancel" value="<g:message code="show.issueform.button.cancel" default="Cancel"/>" class="btn btn-default" onClick="$('#loginOrFlag').modal('hide');"/>
                                 <input type="button" id="close" value="<g:message code="show.issueform.button.close" default="Close"/>" class="btn btn-default" style="display:none;"/>
                                 <span id="submitSuccess"></span>
                             </p>
