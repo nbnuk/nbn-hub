@@ -16,6 +16,7 @@
 
     <asset:stylesheet src="alaBs.css" />
     <asset:javascript src="alaBs.js" />
+    <asset:stylesheet src="nbn/savedSearches.css" />
 
     <g:layoutHead />
     <script type="text/javascript">
