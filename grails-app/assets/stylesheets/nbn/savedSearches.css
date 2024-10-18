@@ -1,0 +1,94 @@
+#savedSearchesModal .modal-content {
+    border-radius: 10px;
+}
+
+#savedSearchesModal .modal-header {
+    border-bottom: none;
+    padding: 20px 20px 0;
+}
+
+#savedSearchesModal .modal-title {
+    font-weight: bold;
+}
+
+#savedSearchesModal .modal-body {
+    padding: 20px;
+}
+
+#savedSearchesModal .modal-footer {
+    border-top: none;
+    padding: 0 20px 20px;
+}
+
+#savedSearchesModal .saved-search-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+#savedSearchesModal .saved-search-item:last-child {
+    border-bottom: none;
+}
+
+#savedSearchesModal .saved-search-item h4 {
+    font-weight: bold;
+}
+
+#savedSearchesModal .btn-link {
+    color: #6c757d;
+    padding: 0;
+    margin-left: 15px;
+}
+
+#savedSearchesModal .btn-link:hover {
+    color: #007bff;
+}
+
+#savedSearchesModal #createSavedSearch {
+    border-radius: 5px;
+    padding: 10px;
+}
+
+#savedSearchesModal .modal-header {
+    border-bottom: none;
+    padding: 20px 20px 0;
+}
+
+#savedSearchesModal .modal-title {
+    font-weight: bold;
+}
+
+#savedSearchesModal .saved-search-item {
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+#savedSearchesModal .saved-search-item:last-child {
+    margin-bottom: 0;
+}
+
+#savedSearchesModal .saved-search-item h4 {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#savedSearchesModal .saved-search-item small {
+    display: block;
+    margin-bottom: 10px;
+}
+
+#savedSearchesModal .btn-group {
+    margin-top: 10px;
+}
+
+#savedSearchesModal .btn-link {
+    color: #6c757d;
+    padding: 5px;
+    margin-left: 5px;
+}
+
+#savedSearchesModal .btn-link:hover {
+    color: #007bff;
+    text-decoration: none;
+}
