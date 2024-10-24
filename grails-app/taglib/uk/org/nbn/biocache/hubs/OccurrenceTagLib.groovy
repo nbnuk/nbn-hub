@@ -93,7 +93,7 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
                 }
 
                 span(class:'openAssertions') {
-                    def user_assert = occurrence.hasUserAssertions?:"0"
+                    def user_assert = occurrence.hasUserAssertions? occurrence.userAssertions : "0"
                     if (user_assert != "0") {
                         log.info("user_assert for:" + occurrence.toString())
                     }
