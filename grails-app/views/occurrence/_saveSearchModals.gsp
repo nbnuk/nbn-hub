@@ -30,8 +30,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveSearch">Save Search</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveSearch">Save</button>
             </div>
         </div>
     </div>
@@ -53,10 +53,10 @@
                 </ul>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-dark btn-block" id="createSavedSearch">
-                    <i class="fa fa-plus"></i> Create Saved Search
-                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="manageSavedSearches"><i class="fa fa-tags"></i> Manage Saved Searches</button>
             </div>
+        </div>
         </div>
     </div>
 </div>
@@ -69,7 +69,7 @@ if (customiseFilterButton) {
         href: '#',
         class: 'btn btn-primary nbn-saved-searches-btn',
         style: 'margin-left: 10px;',
-        html: '<i class="fa fa-bookmark-o"></i> <span>Saved Searches</span>',
+        html: '<i class="fa fa-tags"></i> <span>Saved Searches</span>',
         click: function (e) {
             e.preventDefault();
             $('#savedSearchesModal').modal('show');
@@ -78,29 +78,19 @@ if (customiseFilterButton) {
     customiseFilterButton.after(savedSearchesButton);
 }
 
-
-var savedSearches = [
-    { id: 1, name: "Recent Search", query: "category:articles date:>2023-01-01" },
-    { id: 2, name: "Popular Search", query: "category:products rating:>4" },
-    { id: 3, name: "Common Search", query: "category:products rating:>4" },
-    { id: 4, name: "Uncommon Search", query: "category:products rating:>4" }
-];
-
-
-
-var createSearchButton = $('<a>', {
+var saveSearchButton = $('<a>', {
     href: '#',
     'data-toggle': "modal",
     'class': 'btn btn-primary nbn-saved-searches-btn',
     style: 'margin-left: 10px;',
-    html: '<i class="fa fa-search-plus"></i> <span>Create Search</span>',
+    html: '<i class="fa fa-tag"></i> <span>Save Search</span>',
     click: function (e) {
         e.preventDefault();
         $('#createSavedSearchModal').modal('show');
     }
 });
 
-$('#download-button-area .btn:first').before(createSearchButton);
+$('#download-button-area .btn:first').before(saveSearchButton);
 
 // Function to set the current URL in the searchUrl field
 function setCurrentUrl() {
@@ -121,19 +111,26 @@ $('#createSavedSearchModal').on('click', '#saveSearch', function () {
     if (searchName && searchUrl) {
         console.log('Saving new search:', { name: searchName, description: searchDescription, searchUrl: searchUrl });
 
-        // Add the new search to the savedSearches array
-        var newSearch = {
-            id: savedSearches.length + 1,
-            name: searchName,
-            query: searchUrl // Now using the searchUrl as the query
-        };
-        savedSearches.push(newSearch);
-
-        // Refresh the list in the main modal
-        // TODO refreshSavedSearchesList();
-
-        // Show success message
-        $('#saveSuccessMessage').fadeIn().delay(2000).fadeOut();
+        // Call the save method of SavedSearchController
+        $.ajax({
+            url: "${createLink(controller: 'savedSearch', action: 'save')}",
+            method: 'POST',
+            data: {
+                userId: '${session.userId}', // Assuming you have the userId in the session
+                name: searchName,
+                description: searchDescription,
+                searchRequestQueryUI: searchUrl
+            },
+            success: function(response) {
+                debugger
+                console.log(`Search saved successfully: ${response}`);
+                $('#saveSuccessMessage').fadeIn().delay(2000).fadeOut();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error saving search:', error);
+                $('#saveErrorMessage').fadeIn().delay(2000).fadeOut();
+            }
+        });
 
         // Reset the form
         $('#createSavedSearchForm')[0].reset();
@@ -149,4 +146,78 @@ $('#createSavedSearchModal').on('click', '#saveSearch', function () {
     }
 });
 
+function fetchAndDisplaySavedSearches() {
+    $.ajax({
+        url: "${createLink(controller: 'savedSearch', action: 'list')}",
+        method: 'GET',
+        success: function(response) {
+            var savedSearchesList = $('#savedSearchesList');
+            savedSearchesList.empty(); // Clear existing content
+
+            if (response && response.length > 0) {
+                var grid = $('<div class="saved-searches-grid"></div>');
+
+                response.forEach(function(search) {
+                    var cell = $('<div class="saved-search-cell"></div>');
+
+                    var name = $('<div class="search-name"></div>').text(search.description || 'Unnamed Search');
+                    var query = $('<div class="search-query"></div>').text(search.searchRequestQueryUI	 || 'No query available');
+                    var runButton = $('<button class="btn btn-sm btn-primary run-search">Run</button>').click(function() {
+                        window.location.href = search.query;
+                    });
+
+                    cell.append(name, query, runButton);
+                    grid.append(cell);
+                });
+
+                savedSearchesList.append(grid);
+            } else {
+                savedSearchesList.append('<p>No saved searches found.</p>');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching saved searches:', error);
+            $('#savedSearchesList').html('<p class="text-danger">Error loading saved searches.</p>');
+        }
+    });
+}
+
+// Call fetchAndDisplaySavedSearches when the modal is shown
+$('#savedSearchesModal').on('show.bs.modal', function () {
+    fetchAndDisplaySavedSearches();
+});
+
+
 </asset:script>
+
+<style>
+.saved-searches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    padding: 15px;
+}
+
+.saved-search-cell {
+    border: 1px solid #ccc;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.search-name {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.search-query {
+    margin-bottom: 10px;
+    word-break: break-all;
+}
+
+.run-search {
+    align-self: flex-start;
+}
+</style>

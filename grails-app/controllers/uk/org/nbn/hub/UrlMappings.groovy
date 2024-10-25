@@ -15,6 +15,8 @@ class UrlMappings {
         "/occurrences/searchByEventID"(controller: 'occurrenceSearch', action: 'searchByEventID')
         "/occurrences/searchByCollectionCode"(controller: 'occurrenceSearch', action: 'searchByCollectionCode')
         "/occurrences/searchByOther"(controller: 'occurrenceSearch', action: 'searchByOther')
+        "/savedSearch/list"(controller: 'savedSearch', action: 'list')
+        "/savedSearch/save"(controller: 'savedSearch', action: 'save')
         "/accessControl/filterEditor/$dpuid/$filterUserId/$filterId?"(controller: 'accessControl', action: 'filterEditor')
         "500"(view:'/error')
         "404"(view:'/notFound')
