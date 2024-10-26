@@ -1,6 +1,7 @@
 package uk.org.nbn.hub
 
 import grails.converters.JSON
+import uk.org.nbn.biocache.hubs.WebServicesService
 
 /**
  * Controller for managing saved searches.
@@ -36,7 +37,8 @@ class SavedSearchController {
             response.status = 404
             render([error: 'userId must be supplied to get Saved Searches'] as JSON)
         } else {
-            render webServicesService.getSaveSearches(userId) as JSON
+            def savedSearches = webServicesService.getSaveSearches(userId)
+            render savedSearches as JSON
         }
     }
 

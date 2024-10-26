@@ -55,8 +55,8 @@ class WebServicesService extends au.org.ala.biocache.hubs.WebServicesService{
         postFormData(grailsApplication.config.alerts.baseUrl + "/api/savedSearch/save", postBody, grailsApplication.config.biocache.apiKey as String)
     }
 
-    def getSaveSearches(userId){
-        def url = "${grailsApplication.config.alerts.baseUrl}//api/savedSearch/list/${userId}"
-        getJsonElements(url)
+    def getSaveSearches(String userId) {
+        def url = "${grailsApplication.config.alerts.baseUrl}" + "/api/savedSearch/list/" + userId
+        getJsonElements(url, "${grailsApplication.config.alerts.apiKey}")
     }
 }
