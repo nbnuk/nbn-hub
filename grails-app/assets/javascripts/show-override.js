@@ -1,44 +1,4 @@
 
-
-function updateDeleteEvents(enableDelete, disableDelete){
-
-    for(var i = 0; i < enableDelete.length; i++){
-        console.log(i);
-        $('#userAnnotation_' + enableDelete[i] + ' .deleteAnnotation').off("click");
-        $('#userAnnotation_' + enableDelete[i] + ' .deleteAnnotation').click({rec_uuid: OCC_REC.recordUuid, qa_uuid: enableDelete[i]}, deleteAssertionPrompt);
-
-        /*
-        $('#userAnnotation_' + enableDelete[i] + ' .deleteAnnotation').on("click", function (e) {
-            e.preventDefault();
-            console.log(e.data);
-            var isConfirmed = confirm('Are you sure you want to delete this flagged issue?');
-            if (isConfirmed === true) {
-                $('#' + enableDelete[i] + ' .deleteAssertionSubmitProgress').css({'display':'inline'});
-                console.log(OCC_REC);
-                console.log(enableDelete[i]);
-                console.log(i);
-                console.log(enableDelete);
-                deleteAssertion(OCC_REC.recordUuid, enableDelete[i]);
-            }
-        });
-        */
-        updateVerificationEvents(enableDelete[i]);
-    }
-
-    for(var i = 0; i < disableDelete.length; i++){
-        $('#userAnnotation_' + disableDelete[i] + ' .deleteAnnotationButton').attr('disabled', 'disabled');
-        $('#userAnnotation_' + disableDelete[i] + ' .deleteAnnotationButton').attr('title', 'Unable to delete, as this assertion has a verification');
-
-
-        $('#userAnnotation_' + disableDelete[i] + ' .deleteAnnotation').off("click");
-        $('#userAnnotation_' + disableDelete[i] + ' .deleteAnnotation').on("click", function (e) {
-            e.preventDefault();
-        });
-        updateVerificationEvents(disableDelete[i]);
-    }
-
-}
-
 /**
  * Override
  * Load and display the assertions for this record
@@ -49,7 +9,6 @@ function refreshUserAnnotations(){
         $('#userAnnotationsDiv').hide('fast');
         return;
     }
-    //console.log(OCC_REC.contextPath + "/assertions/" + OCC_REC.recordUuid);
     $.get( OCC_REC.contextPath + "/assertions/" + OCC_REC.recordUuid, function(data) {
 
         var flagRecordAsDodgy = false; //if it has any assertions with codes 50005 (unconfirmed) or 50001 (open, i.e. record is incorrect but not fixed yet) then set to true
@@ -62,7 +21,7 @@ function refreshUserAnnotations(){
                 flags.push(userAssertion.uuid);
             }
         });
-        console.log(flags);
+        //console.log(flags);
         $.each(data.userAssertions, function( index, userAssertion ) {
             if ((userAssertion.qaStatus == 50002 || userAssertion.qaStatus == 50003 || userAssertion.qaStatus == 50000) && (userAssertion.relatedUuid > "")) {
                 for (i = 0; i < flags.length; i++) {
@@ -89,9 +48,6 @@ function refreshUserAnnotations(){
             }
         }
         $('#userAnnotationsList').empty();
-
-        var userAssertionStatus = jQuery.i18n.prop("user_assertions." + data.userAssertionStatus);
-        $("#userAssertionStatus").text(userAssertionStatus);
 
         for(var i=0; i < data.assertionQueries.length; i++){
             var $clone = $('#userAnnotationTemplate').clone();
@@ -215,7 +171,7 @@ function refreshUserAnnotations(){
             var $clone = $('#userVerificationTemplate').clone();
             $clone.prop('id', "userVerificationAnnotation_" + sortedVerifiedAssertion[i].uuid);
             var qaStatusMessage = jQuery.i18n.prop("user_assertions." + sortedVerifiedAssertion[i].qaStatus);
-            $clone.find('.qaStatus').text(qaStatusMessage);
+            $clone.find('.qaStatus').text(qaStatusMessage).attr('i18nkey', "user_assertions." + sortedVerifiedAssertion[i].qaStatus);
             $clone.find('.comment').text(sortedVerifiedAssertion[i].comment);
             $clone.find('.userDisplayName').text(sortedVerifiedAssertion[i].userDisplayName);
             $clone.find('.created').text((moment(sortedVerifiedAssertion[i].created, "YYYY-MM-DDTHH:mm:ssZ").format('YYYY-MM-DD HH:mm:ss')));
