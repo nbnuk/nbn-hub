@@ -83,7 +83,7 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
                     }
                 }
 
-                if (!occurrence.sensitive && (occurrence.publicResolutionInMeters && occurrence.publicResolutionInMeters !="0")) {
+                if (occurrence.publicResolutionInMeters && occurrence.publicResolutionInMeters !="0") {
                     mkp.yieldUnescaped("&nbsp;|&nbsp;")
                     span(class:'accessControlled'){
                         mkp.yield("public resolution "+formatMetersInner(occurrence.publicResolutionInMeters))
