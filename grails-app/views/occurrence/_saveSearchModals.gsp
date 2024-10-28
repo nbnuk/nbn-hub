@@ -1,3 +1,5 @@
+<asset:stylesheet src="saveSearchModals.css"/>
+
 <div class="modal fade" id="createSavedSearchModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -42,33 +44,47 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
-                <h4 class="modal-title" id="customiseFacetsLabel">
+                <h4 class="modal-title">
                     Saved Searches
-                    <span id="customiseFacetsHint">(scroll to see full list)</span>
+                    <span>(scroll to see full list)</span>
                 </h4>
             </div>
             <div class="modal-body">
-                <ul class="list-unstyled" id="savedSearchesList">
-
-                </ul>
+                <div class="table-container">
+                    <table class="table table-hover" id="savedSearchesTable">
+                        <thead class="table-header">
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Query</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <div class="table-body-container">
+                        <table class="table table-hover" id="savedSearchesTableBody">
+                            <tbody id="savedSearchesList">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="manageSavedSearches"><i class="fa fa-tags"></i> Manage Saved Searches</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <a href="${createLink(controller: 'savedSearch', action: 'mySavedSearches')}" class="btn btn-primary">
+                    <i class="fa fa-tags"></i> Manage Saved Searches
+                </a>
             </div>
-        </div>
         </div>
     </div>
 </div>
 
 <asset:script type="text/javascript">
-
 var customiseFilterButton = $('a[data-target="#facetConfigDialog"]');
 if (customiseFilterButton) {
     var savedSearchesButton = $('<a>', {
         href: '#',
         class: 'btn btn-primary nbn-saved-searches-btn',
-        style: 'margin-left: 10px;',
         html: '<i class="fa fa-tags"></i> <span>Saved Searches</span>',
         click: function (e) {
             e.preventDefault();
@@ -82,7 +98,6 @@ var saveSearchButton = $('<a>', {
     href: '#',
     'data-toggle': "modal",
     'class': 'btn btn-primary nbn-saved-searches-btn',
-    style: 'margin-left: 10px;',
     html: '<i class="fa fa-tag"></i> <span>Save Search</span>',
     click: function (e) {
         e.preventDefault();
@@ -155,29 +170,31 @@ function fetchAndDisplaySavedSearches() {
             savedSearchesList.empty(); // Clear existing content
 
             if (response && response.length > 0) {
-                var grid = $('<div class="saved-searches-grid"></div>');
-
                 response.forEach(function(search) {
-                    var cell = $('<div class="saved-search-cell"></div>');
+                    var row = $('<tr></tr>');
 
-                    var name = $('<div class="search-name"></div>').text(search.description || 'Unnamed Search');
-                    var query = $('<div class="search-query"></div>').text(search.searchRequestQueryUI	 || 'No query available');
-                    var runButton = $('<button class="btn btn-sm btn-primary run-search">Run</button>').click(function() {
-                        window.location.href = search.query;
+                    row.append($('<td></td>').text(search.name));
+                    row.append($('<td></td>').text(search.description || ''));
+                    row.append($('<td></td>').text(search.searchRequestQueryUI));
+
+                    var actionsCell = $('<td></td>');
+                    var runButton = $('<button class="btn btn-sm btn-primary">Run</button>').click(function() {
+                        window.location.href = search.searchRequestQueryUI;
                     });
+                    actionsCell.append(runButton);
 
-                    cell.append(name, query, runButton);
-                    grid.append(cell);
+                    row.append(actionsCell);
+                    savedSearchesList.append(row);
                 });
-
-                savedSearchesList.append(grid);
             } else {
-                savedSearchesList.append('<p>No saved searches found.</p>');
+                var emptyRow = $('<tr><td colspan="4" class="text-center">No saved searches found.</td></tr>');
+                savedSearchesList.append(emptyRow);
             }
         },
         error: function(xhr, status, error) {
             console.error('Error fetching saved searches:', error);
-            $('#savedSearchesList').html('<p class="text-danger">Error loading saved searches.</p>');
+            var errorRow = $('<tr><td colspan="4" class="text-center text-danger">Error loading saved searches.</td></tr>');
+            $('#savedSearchesList').html(errorRow);
         }
     });
 }
@@ -219,5 +236,25 @@ $('#savedSearchesModal').on('show.bs.modal', function () {
 
 .run-search {
     align-self: flex-start;
+}
+
+#savedSearchesTable {
+    margin-bottom: 0;
+}
+
+#savedSearchesTable th {
+    background-color: #f5f5f5;
+}
+
+#savedSearchesModal .modal-body {
+    padding: 0;
+}
+
+#savedSearchesModal .table {
+    margin-bottom: 0;
+}
+
+#savedSearchesModal .btn-sm {
+    padding: 2px 8px;
 }
 </style>
