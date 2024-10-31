@@ -60,20 +60,13 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
+                        <tbody id="savedSearchesList">
+                        </tbody>
                     </table>
-                    <div class="table-body-container">
-                        <table class="table table-hover" id="savedSearchesTableBody">
-                            <tbody id="savedSearchesList">
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <a href="${createLink(controller: 'savedSearch', action: 'mySavedSearches')}" class="btn btn-primary">
-                    <i class="fa fa-tags"></i> Manage Saved Searches
-                </a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
@@ -82,16 +75,17 @@
 <asset:script type="text/javascript">
 var customiseFilterButton = $('a[data-target="#facetConfigDialog"]');
 if (customiseFilterButton) {
-    var savedSearchesButton = $('<a>', {
+    var viewSearchesButton = $('<a>', {
         href: '#',
         class: 'btn btn-primary nbn-saved-searches-btn',
-        html: '<i class="fa fa-tags"></i> <span>Saved Searches</span>',
+        html: '<i class="fa fa-tags"></i> <span>View Searches</span>',
+        title: 'View your Saved Searches',
         click: function (e) {
             e.preventDefault();
             $('#savedSearchesModal').modal('show');
         }
     });
-    customiseFilterButton.after(savedSearchesButton);
+    customiseFilterButton.after(viewSearchesButton);
 }
 
 var saveSearchButton = $('<a>', {
@@ -99,6 +93,7 @@ var saveSearchButton = $('<a>', {
     'data-toggle': "modal",
     'class': 'btn btn-primary nbn-saved-searches-btn',
     html: '<i class="fa fa-tag"></i> <span>Save Search</span>',
+    title: 'Save your current Search',
     click: function (e) {
         e.preventDefault();
         $('#createSavedSearchModal').modal('show');
@@ -124,37 +119,42 @@ $('#createSavedSearchModal').on('click', '#saveSearch', function () {
     var searchUrl = $('#searchUrl').val();
 
     if (searchName && searchUrl) {
-        console.log('Saving new search:', { name: searchName, description: searchDescription, searchUrl: searchUrl });
-
         // Call the save method of SavedSearchController
         $.ajax({
             url: "${createLink(controller: 'savedSearch', action: 'save')}",
             method: 'POST',
             data: {
-                userId: '${session.userId}', // Assuming you have the userId in the session
+                userId: '${session.userId}',
                 name: searchName,
                 description: searchDescription,
                 searchRequestQueryUI: searchUrl
             },
             success: function(response) {
-                debugger
-                console.log(`Search saved successfully: ${response}`);
-                $('#saveSuccessMessage').fadeIn().delay(2000).fadeOut();
+                // Close the create modal
+                $('#createSavedSearchModal').modal('hide');
+
+                // Show success message in a more visible location (append to body)
+                var successMessage = $('<div class="alert alert-success" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;">' +
+                    'Search saved successfully!' +
+                    '</div>');
+                $('body').append(successMessage);
+
+                // Fade out and remove the success message after 2 seconds
+                successMessage.fadeOut(2000, function() {
+                    $(this).remove();
+                });
+
+                // Reset the form
+                $('#createSavedSearchForm')[0].reset();
+
+                // Set the current URL again for next time
+                setCurrentUrl();
             },
             error: function(xhr, status, error) {
                 console.error('Error saving search:', error);
                 $('#saveErrorMessage').fadeIn().delay(2000).fadeOut();
             }
         });
-
-        // Reset the form
-        $('#createSavedSearchForm')[0].reset();
-
-        // Set the current URL again
-        setCurrentUrl();
-
-        // Focus on the search name field for the next entry
-        $('#searchName').focus();
     } else {
         // Show error message
         $('#saveErrorMessage').fadeIn().delay(2000).fadeOut();
@@ -173,16 +173,32 @@ function fetchAndDisplaySavedSearches() {
                 response.forEach(function(search) {
                     var row = $('<tr></tr>');
 
-                    row.append($('<td></td>').text(search.name));
-                    row.append($('<td></td>').text(search.description || ''));
-                    row.append($('<td></td>').text(search.searchRequestQueryUI));
+                    // Create read-only textareas for each cell
+                    row.append($('<td></td>').append(
+                        $('<textarea class="cell-textarea" readonly></textarea>').val(search.name)
+                    ));
+                    row.append($('<td></td>').append(
+                        $('<textarea class="cell-textarea" readonly></textarea>').val(search.description || '')
+                    ));
+                    row.append($('<td></td>').append(
+                        $('<textarea class="cell-textarea query-textarea" readonly></textarea>').val(search.searchRequestQueryUI)
+                    ));
 
                     var actionsCell = $('<td></td>');
-                    var runButton = $('<button class="btn btn-sm btn-primary">Run</button>').click(function() {
+                    var loadButton = $('<button>', {
+                        'class': 'btn btn-sm btn-primary',
+                        'data-toggle': 'tooltip',
+                        'data-placement': 'top',
+                        'data-original-title': 'Loading this search will overwrite any current search!',
+                        text: 'Load'
+                    }).click(function() {
                         window.location.href = search.searchRequestQueryUI;
                     });
-                    actionsCell.append(runButton);
 
+                    // Initialize the tooltip
+                    loadButton.tooltip();
+
+                    actionsCell.append(loadButton);
                     row.append(actionsCell);
                     savedSearchesList.append(row);
                 });
@@ -256,5 +272,62 @@ $('#savedSearchesModal').on('show.bs.modal', function () {
 
 #savedSearchesModal .btn-sm {
     padding: 2px 8px;
+}
+
+.cell-textarea {
+    width: 100%;
+    min-height: 60px;
+    resize: vertical;
+    border: none;
+    background: transparent;
+    padding: 5px;
+    margin: 0;
+    vertical-align: top;
+}
+
+.query-textarea {
+    min-height: 80px;
+    border: none;
+    background: transparent;
+}
+
+#savedSearchesTableBody td {
+    vertical-align: top;
+    padding: 8px;
+    border: none;
+}
+
+/* Remove focus outline but keep it accessible */
+.cell-textarea:focus {
+    outline: none;
+}
+
+/* Make the table header stick to the top */
+.table-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #f5f5f5;
+}
+
+/* Ensure consistent cell widths */
+#savedSearchesTable th:nth-child(1),
+#savedSearchesTableBody td:nth-child(1) {
+    width: 20%;
+}
+
+#savedSearchesTable th:nth-child(2),
+#savedSearchesTableBody td:nth-child(2) {
+    width: 25%;
+}
+
+#savedSearchesTable th:nth-child(3),
+#savedSearchesTableBody td:nth-child(3) {
+    width: 45%;
+}
+
+#savedSearchesTable th:nth-child(4),
+#savedSearchesTableBody td:nth-child(4) {
+    width: 10%;
 }
 </style>
