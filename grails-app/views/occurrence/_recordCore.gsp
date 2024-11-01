@@ -249,6 +249,19 @@
                 ${(clubView) ? 'NOTE: current user has "club view" and thus coordinates are not generalise.' : ''}
                 ${ ' Please contact data provider for more information.' }
             </g:elseif>
+
+            <g:if test="${(record.raw.publicResolutionInMeters && record.raw.publicResolutionInMeters!="0")}">
+                <g:if test="${record.processed.occurrence.dataGeneralizations}">
+                    <i class="glyphicon glyphicon-lock" style="font-size: smaller; color:red;margin-right:4px"></i> Record is also access controlled and subject to a public resolution of <alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/>. To gain access to the supplied resolution, please contact the Data Provider:
+                    <a href="https://registry.legacy.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
+                </g:if>
+                <g:else>
+                <i class="glyphicon glyphicon-lock" style="font-size: smaller; color:red;margin-right:4px"></i> Record is subject to access control and generalised to a public resolution of <alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/>. To gain access to the supplied resolution, please contact the Data Provider:
+                <a href="https://registry.legacy.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
+                </g:else>
+            </g:if>
+
+
         </alatag:occurrenceTableRow>
 
         <!-- Location -->
@@ -310,15 +323,6 @@
 
         </alatag:occurrenceTableRow>
 
-<g:if test="${!record.processed.occurrence.dataGeneralizations && (record.raw.publicResolutionInMeters && record.raw.publicResolutionInMeters!="0")}">
-%{--<alatag:occurrenceTableRow annotate="true" section="geospatial" fieldCode="publicResolutionInMeters" fieldName="Public Resolution">--}%
-%{--    ${record.raw.publicResolutionInMeters}m <a href='#'  data-toggle='popover' data-publicResolutionInMeters='${record.raw.publicResolutionInMeters}' data-dataProviderUid='${record.raw.dataProviderUid}' data-dataProviderName='${record.raw.dataProviderName}'><i class="glyphicon glyphicon-question-sign"></i></a>!!--}%
-%{--</alatag:occurrenceTableRow>--}%
-%{--    <tr><td>Public resolution</td><td><alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/> <a href='#' class='accessControlHelpLink' data-toggle='popover' data-publicResolutionInMeters='${record.raw.publicResolutionInMeters}' data-dataProviderUid='${record.processed.attribution.dataProviderUid}' data-dataProviderName='${record.processed.attribution.dataProviderName}'><i class="glyphicon glyphicon-question-sign"></i></a></td></tr>--}%
-    <tr><td>Public resolution</td>
-    <td><i class="glyphicon glyphicon-lock" style="font-size: smaller; color:red;margin-right:4px"></i> Location has been generalised to <alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/>. To gain access to the supplied resolution, please contact the Data Provider:
-        <a href="https://registry.legacy.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a></td></tr>
-</g:if>
 
     <!-- Recorded By Name -->
         <alatag:occurrenceTableRow annotate="true" section="dataset" fieldCode="recordedBy" fieldName="Recorded by">
@@ -1528,7 +1532,27 @@
         <g:message code="recordcore.cg.label" default="Due to sensitivity concerns, the coordinates of this record have been generalised"/>: &quot;<span class="dataGeneralizations">${record.processed.occurrence.dataGeneralizations}</span>&quot;.
         ${(clubView) ? 'NOTE: current user has "club view" and thus coordinates are not generalise.' : ''}
     </g:elseif>
+
+    <g:if test="${(record.raw.publicResolutionInMeters && record.raw.publicResolutionInMeters!="0")}">
+        <g:if test="${record.processed.occurrence.dataGeneralizations}">
+            <i class="glyphicon glyphicon-lock" style="font-size: smaller; color:red;margin-right:4px"></i>The record is also access controlled and subject to a public resolution of <alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/>. To gain access to the supplied resolution, please contact the Data Provider:
+                <a href="https://registry.legacy.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
+        </g:if>
+        <g:else>
+            <i class="glyphicon glyphicon-lock" style="font-size: smaller; color:red;margin-right:4px"></i> This record is subject to access control and generalised to a public resolution of <alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/>. To gain access to the supplied resolution, please contact the Data Provider:
+            <a href="https://registry.legacy.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
+        </g:else>
+    </g:if>
 </alatag:occurrenceTableRow>
+
+<!-- Public resolution -->
+    <g:if test="${(record.raw.publicResolutionInMeters && record.raw.publicResolutionInMeters!="0")}">
+        <alatag:occurrenceTableRow annotate="false" section="geospatial" fieldCode="publicResolutionInMetres" fieldName="Public resolution in meters">
+            ${fieldsMap.put("publicResolutionInMetres", true)}
+            ${record.raw.publicResolutionInMeters}
+        </alatag:occurrenceTableRow>
+    </g:if>
+
 <!-- Information Withheld -->
 <alatag:occurrenceTableRow annotate="false" section="geospatial" fieldCode="informationWithheld" fieldName="Information withheld">
     ${fieldsMap.put("informationWithheld", true)}
