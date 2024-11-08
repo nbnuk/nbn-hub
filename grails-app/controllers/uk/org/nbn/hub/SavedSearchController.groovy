@@ -1,6 +1,7 @@
 package uk.org.nbn.hub
 
 import grails.converters.JSON
+import org.apache.http.HttpStatus
 import uk.org.nbn.biocache.hubs.WebServicesService
 
 /**
@@ -13,9 +14,10 @@ class SavedSearchController {
 
     def save(){
         String userId = authService?.getUserId()
+
         if (userId == null) {
-            response.status = 404
-            render([error: 'userId must be supplied to create Saved Searches'] as JSON)
+            log.debug("userId is null")
+            return response.sendError(HttpStatus.SC_UNAUTHORIZED)
         } else {
             def name = params.name
             def description = params.description
@@ -34,11 +36,16 @@ class SavedSearchController {
 
         String userId = authService?.getUserId()
         if (userId == null) {
-            response.status = 404
-            render([error: 'userId must be supplied to get Saved Searches'] as JSON)
+            log.debug("userId is null")
+            return response.sendError(HttpStatus.SC_UNAUTHORIZED)
         } else {
-            def savedSearches = webServicesService.getSaveSearches(userId)
-            render savedSearches as JSON
+            try {
+                def savedSearches = webServicesService.getSaveSearches(userId)
+                render savedSearches as JSON
+            } catch (Exception e) {
+                log.error("Error getting saved searches", e)
+                return response.sendError(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+            }
         }
     }
 
