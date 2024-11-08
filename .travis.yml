@@ -9,7 +9,7 @@ branches:
   - develop
   - master-nbn
   - access_controls
-  - access_controls-saved-search
+  - access-controls-saved-search
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
