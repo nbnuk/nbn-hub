@@ -1,6 +1,7 @@
 package uk.org.nbn.hub
 
 import grails.converters.JSON
+import org.apache.http.HttpStatus
 import uk.org.nbn.biocache.hubs.WebServicesService
 
 /**
@@ -13,15 +14,39 @@ class SavedSearchController {
 
     def save(){
         String userId = authService?.getUserId()
+
         if (userId == null) {
-            response.status = 404
-            render([error: 'userId must be supplied to create Saved Searches'] as JSON)
+            log.debug("userId is null")
+            return response.sendError(HttpStatus.SC_UNAUTHORIZED)
         } else {
             def name = params.name
             def description = params.description
-            def searchRequestQueryUI = params.searchRequestQueryUI
+            def searchRequestQueryUI = cleanUpURL(params.searchRequestQueryUI)
             render webServicesService.createSaveSearch(userId, name, description, searchRequestQueryUI) as JSON
         }
+    }
+
+    private cleanUpURL(url){
+        if (!url) {
+            return url
+        }
+
+        def resultUrl = url;
+
+        resultUrl = resultUrl.replace('?nbn_loading=true&', '?')
+        resultUrl = resultUrl.replace('?nbn_loading=true', '')
+        resultUrl = resultUrl.replace('&nbn_loading=true', '')
+
+        //add fq if missing
+        if (resultUrl && !resultUrl.contains('?fq=') && !resultUrl.contains('&fq=')) {
+            // Determine whether to add `?` or `&` based on the URL
+            if (url.contains('?')) {
+                resultUrl = resultUrl += '&fq='
+            } else {
+                resultUrl = resultUrl += '?fq='
+            }
+        }
+        return resultUrl;
     }
 
     /**
@@ -34,8 +59,8 @@ class SavedSearchController {
 
         String userId = authService?.getUserId()
         if (userId == null) {
-            response.status = 404
-            render([error: 'userId must be supplied to get Saved Searches'] as JSON)
+            log.debug("userId is null")
+            return response.sendError(HttpStatus.SC_UNAUTHORIZED)
         } else {
             def savedSearches = webServicesService.getSaveSearches(userId)
             render savedSearches as JSON

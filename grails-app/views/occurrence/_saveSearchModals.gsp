@@ -6,30 +6,35 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
                 <h4 class="modal-title" id="customiseFacetsLabel">
-                    Create Saved Search
+                    Save Search
                 </h4>
             </div>
             <div class="modal-body">
-                <div id="saveSuccessMessage" class="alert alert-success" style="display: none;">
-                    Search saved successfully!
-                </div>
-                <div id="saveErrorMessage" class="alert alert-danger" style="display: none;">
-                    Please enter a Search name and URL
-                </div>
-                <form id="createSavedSearchForm">
-                    <div class="form-group">
-                        <label for="searchName">Search Name</label>
-                        <input type="text" class="form-control" id="searchName" required>
+                <g:if test="${!userId}">
+                    <div id="saveSearchListPleaseLoginMessage" style="margin: 20px 20px;">Please login:
+                        <a href="${grailsApplication.config.security.cas.casServerLoginUrl}?service=${grailsApplication.config.serverName}${request.contextPath}${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"><g:message code="show.loginorflag.div01.navigator" default="Click here"/></a>
                     </div>
-                    <div class="form-group">
-                        <label for="searchDescription">Description (optional)</label>
-                        <textarea class="form-control" id="searchDescription" rows="3"></textarea>
+                </g:if>
+                <g:else>
+
+                    <div id="saveSearchErrorMessage" class="alert alert-danger" style="opacity: 0">
                     </div>
-                    <div class="form-group">
-                        <label for="searchUrl">Search URL</label>
-                        <textarea class="form-control" id="searchUrl" rows="5"></textarea>
-                    </div>
-                </form>
+
+                    <form id="createSavedSearchForm">
+                        <div class="form-group">
+                            <label for="searchName">Search Name</label>
+                            <input type="text" class="form-control" id="searchName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="searchDescription">Description (optional)</label>
+                            <textarea class="form-control" id="searchDescription" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="searchUrl">Search URL</label>
+                            <textarea class="form-control" id="searchUrl" rows="5"></textarea>
+                        </div>
+                    </form>
+                </g:else>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -50,20 +55,29 @@
                 </h4>
             </div>
             <div class="modal-body">
-                <div class="table-container">
-                    <table class="table table-hover" id="savedSearchesTable">
-                        <thead class="table-header">
-                            <tr>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Query</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="savedSearchesList">
-                        </tbody>
-                    </table>
-                </div>
+                <g:if test="${!userId}">
+                    <div id="saveSearchListPleaseLoginMessage" style="margin: 20px 20px;">Please login:
+                        <a href="${grailsApplication.config.security.cas.casServerLoginUrl}?service=${grailsApplication.config.serverName}${request.contextPath}${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"><g:message code="show.loginorflag.div01.navigator" default="Click here"/></a>
+                    </div>
+                </g:if>
+                <g:else>
+%{--                    <div style="text-align:right; margin:15px"><a class="btn btn-primary" href="${grailsApplication.config.alerts.baseUrl}/savedSearch/mySavedSearches" >--}%
+%{--                        <i class="fa fa-cog"></i> Manage Saved Searches</a></div>--}%
+                      <div class="table-container">
+                        <table class="table table-hover" id="savedSearchesTable">
+                            <thead class="table-header">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Query</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="savedSearchesList">
+                            </tbody>
+                        </table>
+                    </div>
+                </g:else>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -76,36 +90,50 @@
 var customiseFilterButton = $('a[data-target="#facetConfigDialog"]');
 if (customiseFilterButton) {
     var viewSearchesButton = $('<a>', {
-        href: '#',
+        href: '#savedSearchesModal',
+        'data-toggle': "modal",
         class: 'btn btn-primary nbn-saved-searches-btn',
         html: '<i class="fa fa-tags"></i> <span>View Searches</span>',
-        title: 'View your Saved Searches',
-        click: function (e) {
-            e.preventDefault();
-            $('#savedSearchesModal').modal('show');
-        }
+        title: 'View your Saved Searches'
     });
     customiseFilterButton.after(viewSearchesButton);
 }
 
 var saveSearchButton = $('<a>', {
-    href: '#',
+    href: '#createSavedSearchModal',
     'data-toggle': "modal",
     'class': 'btn btn-primary nbn-saved-searches-btn',
-    html: '<i class="fa fa-tag"></i> <span>Save Search</span>',
-    title: 'Save your current Search',
-    click: function (e) {
-        e.preventDefault();
-        $('#createSavedSearchModal').modal('show');
-    }
+    html: '<i class="fa fa-save"></i> <span>Save Search</span>',
+    title: 'Save your current Search'
 });
 
 $('#download-button-area .btn:first').before(saveSearchButton);
 
 // Function to set the current URL in the searchUrl field
 function setCurrentUrl() {
-    $('#searchUrl').val(window.location.href);
+    $('#searchUrl').val(cleanUpURL(window.location.href));
 }
+
+function cleanUpURL(url) {
+    let resultUrl = url;
+
+    // Replace specific patterns
+    resultUrl = resultUrl.replace('?nbn_loading=true&', '?');
+    resultUrl = resultUrl.replace('?nbn_loading=true', '');
+    resultUrl = resultUrl.replace('&nbn_loading=true', '');
+
+    // Add 'fq' if missing
+    if (resultUrl && !resultUrl.includes('?fq=') && !resultUrl.includes('&fq=')) {
+        if (resultUrl.includes('?')) {
+            resultUrl += '&fq=';
+        } else {
+            resultUrl += '?fq=';
+        }
+    }
+
+    return resultUrl;
+}
+
 
 // Call this function when the modal is shown
 $('#createSavedSearchModal').on('show.bs.modal', function () {
@@ -124,7 +152,6 @@ $('#createSavedSearchModal').on('click', '#saveSearch', function () {
             url: "${createLink(controller: 'savedSearch', action: 'save')}",
             method: 'POST',
             data: {
-                userId: '${session.userId}',
                 name: searchName,
                 description: searchDescription,
                 searchRequestQueryUI: searchUrl
@@ -140,7 +167,7 @@ $('#createSavedSearchModal').on('click', '#saveSearch', function () {
                 $('body').append(successMessage);
 
                 // Fade out and remove the success message after 2 seconds
-                successMessage.fadeOut(2000, function() {
+                successMessage.delay(2000).fadeOut(500, function() {
                     $(this).remove();
                 });
 
@@ -151,15 +178,31 @@ $('#createSavedSearchModal').on('click', '#saveSearch', function () {
                 setCurrentUrl();
             },
             error: function(xhr, status, error) {
-                console.error('Error saving search:', error);
-                $('#saveErrorMessage').fadeIn().delay(2000).fadeOut();
+                const response = JSON.parse(xhr.responseText);
+                if (response.status === 401) {
+                    $('#saveSearchErrorMessage').text("Sorry, you need to login again"); //this will rarely happen, so just show a simple message (easiest)
+                    fadeinout('#saveSearchErrorMessage');
+                }
+                else {
+                    const errorMessage = response.message || "An error occurred";
+                    console.error('Error saving search:', errorMessage);
+                    $('#saveSearchErrorMessage').text(errorMessage);
+                    fadeinout('#saveSearchErrorMessage');
+                }
             }
         });
     } else {
         // Show error message
-        $('#saveErrorMessage').fadeIn().delay(2000).fadeOut();
+        $('#saveSearchErrorMessage').text("You must provide both a name and a URL to save a search.");
+        fadeinout('#saveSearchErrorMessage');
     }
 });
+
+function fadeinout(divId) {
+    $(divId).animate({ opacity: 1 }, 500)
+    .delay(3000)
+    .animate({ opacity: 0 }, 1000)
+}
 
 function fetchAndDisplaySavedSearches() {
     $.ajax({
@@ -206,10 +249,20 @@ function fetchAndDisplaySavedSearches() {
                 var emptyRow = $('<tr><td colspan="4" class="text-center">No saved searches found.</td></tr>');
                 savedSearchesList.append(emptyRow);
             }
+
         },
         error: function(xhr, status, error) {
-            console.error('Error fetching saved searches:', error);
-            var errorRow = $('<tr><td colspan="4" class="text-center text-danger">Error loading saved searches.</td></tr>');
+            let response = null;
+            try {
+                response = JSON.parse(xhr.responseText); //server can return html error page
+            } catch (e) {
+                 response = null;
+            }
+            let errorMessage = response && response.status === 401
+                ? "Sorry, you need to login again"
+                : (response && response.message) || "An error occurred";
+
+            var errorRow = $('<tr><td colspan="4" class="text-center text-danger">' + errorMessage + '</td></tr>');
             $('#savedSearchesList').html(errorRow);
         }
     });
