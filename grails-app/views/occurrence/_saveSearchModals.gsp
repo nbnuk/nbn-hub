@@ -90,36 +90,50 @@
 var customiseFilterButton = $('a[data-target="#facetConfigDialog"]');
 if (customiseFilterButton) {
     var viewSearchesButton = $('<a>', {
-        href: '#',
+        href: '#savedSearchesModal',
+        'data-toggle': "modal",
         class: 'btn btn-primary nbn-saved-searches-btn',
         html: '<i class="fa fa-tags"></i> <span>View Searches</span>',
-        title: 'View your Saved Searches',
-        click: function (e) {
-            e.preventDefault();
-            $('#savedSearchesModal').modal('show');
-        }
+        title: 'View your Saved Searches'
     });
     customiseFilterButton.after(viewSearchesButton);
 }
 
 var saveSearchButton = $('<a>', {
-    href: '#',
+    href: '#createSavedSearchModal',
     'data-toggle': "modal",
     'class': 'btn btn-primary nbn-saved-searches-btn',
     html: '<i class="fa fa-save"></i> <span>Save Search</span>',
-    title: 'Save your current Search',
-    click: function (e) {
-        e.preventDefault();
-        $('#createSavedSearchModal').modal('show');
-    }
+    title: 'Save your current Search'
 });
 
 $('#download-button-area .btn:first').before(saveSearchButton);
 
 // Function to set the current URL in the searchUrl field
 function setCurrentUrl() {
-    $('#searchUrl').val(window.location.href);
+    $('#searchUrl').val(cleanUpURL(window.location.href));
 }
+
+function cleanUpURL(url) {
+    let resultUrl = url;
+
+    // Replace specific patterns
+    resultUrl = resultUrl.replace('?nbn_loading=true&', '?');
+    resultUrl = resultUrl.replace('?nbn_loading=true', '');
+    resultUrl = resultUrl.replace('&nbn_loading=true', '');
+
+    // Add 'fq' if missing
+    if (resultUrl && !resultUrl.includes('?fq=') && !resultUrl.includes('&fq=')) {
+        if (resultUrl.includes('?')) {
+            resultUrl += '&fq=';
+        } else {
+            resultUrl += '?fq=';
+        }
+    }
+
+    return resultUrl;
+}
+
 
 // Call this function when the modal is shown
 $('#createSavedSearchModal').on('show.bs.modal', function () {
