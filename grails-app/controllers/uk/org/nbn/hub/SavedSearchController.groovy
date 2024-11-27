@@ -21,9 +21,32 @@ class SavedSearchController {
         } else {
             def name = params.name
             def description = params.description
-            def searchRequestQueryUI = params.searchRequestQueryUI
+            def searchRequestQueryUI = cleanUpURL(params.searchRequestQueryUI)
             render webServicesService.createSaveSearch(userId, name, description, searchRequestQueryUI) as JSON
         }
+    }
+
+    private cleanUpURL(url){
+        if (!url) {
+            return url
+        }
+
+        def resultUrl = url;
+
+        resultUrl = resultUrl.replace('?nbn_loading=true&', '?')
+        resultUrl = resultUrl.replace('?nbn_loading=true', '')
+        resultUrl = resultUrl.replace('&nbn_loading=true', '')
+
+        //add fq if missing
+        if (resultUrl && !resultUrl.contains('?fq=') && !resultUrl.contains('&fq=')) {
+            // Determine whether to add `?` or `&` based on the URL
+            if (url.contains('?')) {
+                resultUrl = resultUrl += '&fq='
+            } else {
+                resultUrl = resultUrl += '?fq='
+            }
+        }
+        return resultUrl;
     }
 
     /**
