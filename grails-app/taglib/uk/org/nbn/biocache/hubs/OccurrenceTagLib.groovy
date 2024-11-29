@@ -191,11 +191,12 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
 //        }
     }
 
-    private String formatMetersInner(distance){
-        if (distance > 1000) {
-            g.formatNumber(number: distance/1000, format: "#,###,###") + "km"
+    private String formatMetersInner(distance) {
+        if (distance >= 1000) {
+            g.formatNumber(number: distance / 1000, format: "#,###,###") + "km"
         } else {
             g.formatNumber(number: distance, format: "#,###,###") + "m"
         }
     }
+
 }
