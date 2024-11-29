@@ -19,16 +19,6 @@
     padding: 15px 20px;
 }
 
-#savedSearchesModal .modal-title {
-    font-size: 1.8rem;
-    color: #2c3e50;
-}
-
-#savedSearchesModal .modal-title span {
-    font-size: 1.2rem;
-    color: #6c757d;
-    font-weight: normal;
-}
 
 /* Table Styling */
 .table-container {
@@ -44,14 +34,6 @@
     background-color: white;
 }
 
-#savedSearchesTable th {
-    background-color: #f8f9fa;
-    padding: 12px 15px;
-    font-weight: 600;
-    color: #495057;
-    border-bottom: 2px solid #dee2e6;
-    font-size: 1.4rem;
-}
 
 /* Cell Styling */
 .cell-textarea {
@@ -59,31 +41,21 @@
     min-height: 40px;
     max-height: 120px;
     padding: 12px;
-    font-size: 1.3rem;
-    line-height: 1.6;
-    border: 1px solid transparent;
+     border: 1px solid transparent;
     border-radius: 4px;
     transition: all 0.2s ease;
-    color: #333;
 }
 
 .cell-textarea:hover {
     background-color: #f8f9fa;
 }
 
-.query-textarea {
-    font-family: monospace;
-    font-size: 1.2rem;
-    background-color: #fafafa;
-    padding: 12px;
-}
 
 /* Button Styling */
 .btn-action {
     padding: 8px 16px;
     margin: 0 4px;
     border-radius: 4px;
-    font-size: 1.1rem;
 }
 
 .btn-primary {
@@ -107,28 +79,13 @@
     }
 }
 
-/* Tooltip Styling */
-.tooltip {
-    font-size: 1.1rem;
-}
-
-.tooltip-inner {
-    max-width: 300px;
-    padding: 10px 15px;
-    background-color: #2c3e50;
-    border-radius: 4px;
-}
-
 /* Empty State Styling */
 .empty-state {
     padding: 50px;
     text-align: center;
-    color: #6c757d;
-    font-size: 1.3rem;
 }
 
 .empty-state i {
-    font-size: 2.5rem;
     margin-bottom: 15px;
 }
 
@@ -182,15 +139,4 @@
 
 .nbn-saved-searches-btn {
     margin-left: 10px;
-}
-
-/* Name field specific styling */
-#savedSearchesTable td:nth-child(1) .cell-textarea {
-    font-size: 1.4rem;
-    font-weight: 500;
-}
-
-/* Description field specific styling */
-#savedSearchesTable td:nth-child(2) .cell-textarea {
-    font-size: 1.3rem;
 }
