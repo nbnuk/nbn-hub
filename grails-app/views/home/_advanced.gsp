@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ page import="uk.org.nbn.hub.HubType" %>
+<%@ page import="uk.org.nbn.hub.AdvancedSearchParams; uk.org.nbn.hub.HubType" %>
 <g:render template="/layouts/global"/>
 
 %{--TODO: get the layers url with the layerid (below) into a config file--}%
@@ -80,6 +80,18 @@
                 <div class="col-md-6">
                     <input type="text" value="" id="taxonID" name="taxonID" class="form-control" size="60"
                            placeholder="e.g. NHMSYS0000376154">
+                </div>
+            </div>
+
+            <% def occurrenceStatuses =  [AdvancedSearchParams.ALL_OPTION] + AdvancedSearchParams.OCCURRENCE_STATUS_OPTIONS %>
+            <div class="form-group">
+                <label class="col-md-2 control-label">Occurrence Status</label>
+                <div class="col-md-6 radio">
+                    <% occurrenceStatuses.eachWithIndex { status, index -> %>
+                    <label class="radio">
+                        <g:radio name="occurrenceStatus" value="${status}" checked="${status.equalsIgnoreCase("present")}" /> ${status}
+                    </label>
+                    <% } %>
                 </div>
             </div>
 

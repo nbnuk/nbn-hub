@@ -57,7 +57,7 @@ class AdvancedSearchParams implements Validateable {
     String habitatTaxon = ""
     String eventID = ""
     String collectionCode = ""
-
+    String occurrenceStatus = ""
 
     private String taxa = ""
     private final String QUOTE = "\""
@@ -65,6 +65,8 @@ class AdvancedSearchParams implements Validateable {
     private List queryItems = [];
     private List filterQueryItems = [];
 
+    public static final ALL_OPTION = "All"
+    public static final OCCURRENCE_STATUS_OPTIONS = ["Present", "Absent"]
     /**
      * This custom toString method outputs a valid /occurrence/search query string.
      *
@@ -91,7 +93,7 @@ class AdvancedSearchParams implements Validateable {
         addQueryItem(buildTaxonIDQuery(taxonID))
         addQueryItem(buildEventIDQuery(eventID))
         addQueryItem(buildCollectionCodeQuery(collectionCode))
-
+        addFilterQueryItem(buildOccurrenceStatusQuery(occurrenceStatus))
 
         String encodedQ = queryItems.join(" ${BOOL_OP} ").toString().trim()
         String encodedTaxa;
@@ -368,7 +370,18 @@ class AdvancedSearchParams implements Validateable {
         return collectionCode?"collection_code:\""+collectionCode+"\"":"";
     }
 
+    private String buildOccurrenceStatusQuery(String occurrenceStatus) {
+        String query="";
 
+        if (occurrenceStatus?.equalsIgnoreCase(ALL_OPTION)){
+            query = "occurrence_status:*"
+        }
+        else if(OCCURRENCE_STATUS_OPTIONS*.toLowerCase().contains(occurrenceStatus?.toLowerCase())){
+            query = "occurrence_status:${occurrenceStatus.toLowerCase()}"
+        }
+
+        return query;
+    }
 
 
     private void addQueryItem(String queryString) {
