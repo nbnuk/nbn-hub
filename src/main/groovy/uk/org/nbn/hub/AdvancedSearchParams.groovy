@@ -276,6 +276,9 @@ class AdvancedSearchParams implements Validateable {
     private String buildGridReferenceGB(gridReference) {
         String query = "";
         switch (gridReference.length()) {
+            case 2:
+                query = "grid_ref_100000:" + gridReference;
+                break;
             case 4:
                 query = "grid_ref_10000:" + gridReference;
                 break;
@@ -298,6 +301,9 @@ class AdvancedSearchParams implements Validateable {
     private String buildGridReferenceIrish(gridReference) {
         String query = "";
         switch (gridReference.length()) {
+            case 1:
+                query = "grid_ref_100000:" + gridReference;
+                break;
             case 3:
                 query = "grid_ref_10000:" + gridReference;
                 break;
