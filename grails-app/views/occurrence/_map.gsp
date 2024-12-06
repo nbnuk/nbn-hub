@@ -432,22 +432,30 @@
         });
 
         // Copy URL button handler
-        $('#copyWmsParameters').click(function() {
-            var wmsParams = $('#wmsParams');
-            wmsParams.select();
-            document.execCommand('copy');
+        $('#copyWmsParameters').click(function () {
+            const wmsParams = $('#wmsParams').val(); // Get the value of the textarea
+            const button = $(this);
+            const originalText = button.text();
 
-            // Show temporary success message
-            var button = $(this);
-            var originalText = button.text();
-            button.text('<g:message code="map.wms.btn.copied" default="Copied!"/>');
-            setTimeout(function() {
-                button.text(originalText);
-            }, 2000);
-        });
+            // Use Clipboard API to copy text
+            navigator.clipboard.writeText(wmsParams)
+                .then(() => {
+                    // Show temporary success message
+                    button.text('<g:message code="map.wms.btn.copied" default="Copied!"/>');
+                    setTimeout(() => {
+                        button.text(originalText);
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    alert('Failed to copy text. Please try again.');
+                });
 
-        // Add WMS update listeners after other controls are initialized
-        addWmsUpdateListeners();
+            });
+
+
+
+
 
         // Update WMS modal when it's opened
         $('#wmsModal').on('show.bs.modal', function() {
@@ -1215,27 +1223,25 @@
             var wmsParams = currentLayer.wmsParams;
             var baseUrl = MAP_VAR.mappingUrl + "/mapping/wms/reflect";
 
-            // Format WMS parameters in tabular format
-            var formattedParams = Object.keys(wmsParams).map(function(key) {
-                // Pad parameter name to 20 chars for alignment
-                var paddedKey = (key.toUpperCase() + ':').padEnd(20, ' ');
-                return paddedKey + wmsParams[key];
-            }).sort().join('\n');
-
-
-            // Remove any existing dynamic keys from formattedParams
-            formattedParams = formattedParams.split('\n').filter(line =>
-                !line.startsWith('SIZE:') &&
-                !line.startsWith('STYLE:') &&
-                !line.startsWith('OUTLINE:') &&
-                !line.startsWith('COLOUR:')
-            ).join('\n');
+            // Format WMS parameters in tabular format & remove any existing dynamic keys
+            let formattedParams = Object.keys(wmsParams)
+                .map(key => (key.toUpperCase() + ':').padEnd(20, ' ') + wmsParams[key])
+                .filter(line =>
+                    !line.startsWith('SIZE:') &&
+                    !line.startsWith('STYLE:') &&
+                    !line.startsWith('OUTLINE:') &&
+                    !line.startsWith('COLOUR:')
+                )
+                .sort()
+                .join('\n')
 
             // Add dynamic values to WMS parameters (current map tool values)
-            formattedParams += '\n' + 'SIZE:'.padEnd(20, ' ') + $('#sizeslider-val').html();
-            formattedParams += '\n' + 'STYLE:'.padEnd(20, ' ') + "opacity:" + $('#opacityslider-val').html(); // for grid data
-            formattedParams += '\n' + 'OUTLINE:'.padEnd(20, ' ') + $('#outlineDots').is(':checked');
-            formattedParams += '\n' + 'COLOUR:'.padEnd(20, ' ') + $('#pcolour').val().replace('#','').toUpperCase();
+            formattedParams += [
+                ['SIZE:', $('#sizeslider-val').html()],
+                ['STYLE:', 'opacity:' + $('#opacityslider-val').html()], // for grid data
+                ['OUTLINE:', $('#outlineDots').is(':checked')],
+                ['COLOUR:', $('#pcolour').val().replace('#','').toUpperCase()]
+            ].map(([key, value]) => '\n' + key.padEnd(20, ' ') + value).join('');
 
             // query is stored in MAP_VAR.query and fq is stored in MAP_VAR.removeFqs ?
             formattedParams += '\n' + 'q:'.padEnd(20, ' ') + MAP_VAR.query;
@@ -1253,33 +1259,6 @@
         }
     }
 
-    // Add event listeners to map controls that trigger WMS updates
-    function addWmsUpdateListeners() {
-        // Size slider
-        $('#sizeslider').on('slideStop', function() {
-            updateWmsModalContent();
-        });
-
-        // Opacity slider
-        $('#opacityslider').on('slideStop', function() {
-            updateWmsModalContent();
-        });
-
-        // Outline dots checkbox
-        $('#outlineDots').on('change', function() {
-            updateWmsModalContent();
-        });
-
-        // Colour by select
-        $('#colourBySelect').on('change', function() {
-            updateWmsModalContent();
-        });
-
-        // Layer facet checkboxes (delegated event)
-        $(document).on('change', '.layerFacet', function() {
-            updateWmsModalContent();
-        });
-    }
 </asset:script>
 <div class="hide">
     <div class="popupRecordTemplate">
