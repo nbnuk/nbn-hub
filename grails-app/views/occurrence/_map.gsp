@@ -1243,8 +1243,8 @@
                 ['COLOUR:', $('#pcolour').val().replace('#','').toUpperCase()]
             ].map(([key, value]) => '\n' + key.padEnd(20, ' ') + value).join('');
 
-            // query is stored in MAP_VAR.query and fq is stored in MAP_VAR.removeFqs ?
-            formattedParams += '\n' + 'q:'.padEnd(20, ' ') + MAP_VAR.query;
+            // Add query and filter query parameters
+            formattedParams += '\n' + 'q:'.padEnd(20, ' ') + "${searchString?.startsWith('?q=') ? searchString[3..-1] : searchString}"
             formattedParams += '\n' + 'fq:'.padEnd(20, ' ') + "-occurrence_status:absent";
 
             // Construct full URL
