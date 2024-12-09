@@ -10,8 +10,7 @@
     </g:if>
     <a href="#downloadMap" role="button" data-toggle="modal" class="btn btn-default btn-sm tooltips" title="Download image file (single colour mode)">
         <i class="fa fa-download"></i>&nbsp&nbsp;<g:message code="map.downloadmaps.btn.label" default="Download map"/></a>
-    <a href="#wmsModal" role="button" data-toggle="modal" class="btn btn-default btn-sm tooltips" title="Generate WMS Query URL">
-        <i class="fa fa-map"></i>&nbsp&nbsp;<g:message code="map.wms.btn.label" default="WMS"/></a>
+    <alatag:wmsButton targetSelector=".fa-download"/>
     <g:if test="${params.wkt}">
         <a href="#downloadWKT" role="button" class="btn btn-default btn-sm tooltips" title="Download WKT file" onclick="downloadPolygon(); return false;">
             <i class="glyphicon glyphicon-stop"></i>&nbsp&nbsp;<g:message code="map.downloadwkt.btn.label" default="Download WKT"/></a>
@@ -103,43 +102,7 @@
     <a href="#"><g:message code="map.recordpopup" default="View records at this point"/></a>
 </div>
 
-<div id="wmsModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h3><g:message code="map.wms.title" default="Current WMS Layer Details"/></h3>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label><g:message code="map.wms.baseurl.label" default="Base WMS URL"/></label>
-                    <input class="form-control" id="wmsBaseUrl" readonly/>
-                </div>
 
-                <div class="form-group">
-                    <label><g:message code="map.wms.params.label" default="WMS Parameters"/></label>
-                    <textarea class="form-control" id="wmsParams" rows="8" readonly style="font-family: monospace; white-space: pre;"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label><g:message code="map.wms.fullurl.label" default="Full WMS Request URL"/></label>
-                    <textarea class="form-control" id="wmsFullUrl" rows="3" readonly></textarea>
-                    <small class="text-muted">
-                        <g:message code="map.wms.help" default="This shows the actual WMS request being used by the map. Parameters will update as you change the map display options."/>
-                    </small>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">
-                    <g:message code="map.wms.btn.close" default="Close"/>
-                </button>
-                <button type="button" class="btn btn-primary" id="copyWmsParameters">
-                    <g:message code="map.wms.btn.copy" default="Copy WMS Parameters"/>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <asset:script type="text/javascript">
 
@@ -452,15 +415,6 @@
                 });
 
             });
-
-
-
-
-
-        // Update WMS modal when it's opened
-        $('#wmsModal').on('show.bs.modal', function() {
-            updateWmsModalContent();
-        });
     }
 
     // helper to remove tooltips from map
@@ -1216,48 +1170,6 @@
       return false;
     }
 
-    function updateWmsModalContent() {
-        // Get current WMS layer parameters
-        var currentLayer = MAP_VAR.currentLayers[0];
-        if (currentLayer) {
-            var wmsParams = currentLayer.wmsParams;
-            var baseUrl = MAP_VAR.mappingUrl + "/mapping/wms/reflect";
-
-            // Format WMS parameters in tabular format & remove any existing dynamic keys
-            let formattedParams = Object.keys(wmsParams)
-                .map(key => (key.toUpperCase() + ':').padEnd(20, ' ') + wmsParams[key])
-                .filter(line =>
-                    !line.startsWith('SIZE:') &&
-                    !line.startsWith('STYLE:') &&
-                    !line.startsWith('OUTLINE:') &&
-                    !line.startsWith('COLOUR:')
-                )
-                .sort()
-                .join('\n')
-
-            // Add dynamic values to WMS parameters (current map tool values)
-            formattedParams += [
-                ['SIZE:', $('#sizeslider-val').html()],
-                ['STYLE:', 'opacity:' + $('#opacityslider-val').html()], // for grid data
-                ['OUTLINE:', $('#outlineDots').is(':checked')],
-                ['COLOUR:', $('#pcolour').val().replace('#','').toUpperCase()]
-            ].map(([key, value]) => '\n' + key.padEnd(20, ' ') + value).join('');
-
-            // Add query and filter query parameters
-            formattedParams += '\n' + 'q:'.padEnd(20, ' ') + "${searchString?.startsWith('?q=') ? searchString[3..-1] : searchString}"
-            formattedParams += '\n' + 'fq:'.padEnd(20, ' ') + "-occurrence_status:absent";
-
-            // Construct full URL
-            var fullUrl = baseUrl + '?' + Object.keys(wmsParams).map(function(key) {
-                return key + '=' + wmsParams[key];
-            }).join('&');
-
-            // Update modal fields
-            $('#wmsBaseUrl').val(baseUrl);
-            $('#wmsParams').val(formattedParams);
-            $('#wmsFullUrl').val(fullUrl);
-        }
-    }
 
 </asset:script>
 <div class="hide">

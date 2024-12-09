@@ -199,4 +199,99 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
         }
     }
 
+    def wmsButton = { attrs ->
+        def targetSelector = attrs.targetSelector ?: 'body' // Default to body if no selector provided
+
+        // Output modal HTML directly to the page
+        out << g.render(template: '/occurrence/wmsModal')
+
+        def js = """
+            \$(document).ready(function() {
+                \$('${targetSelector}').parent().after(
+                    \$('<a>').attr({
+                        'href': '#wmsModal',
+                        'role': 'button',
+                        'data-toggle': 'modal',
+                        'class': 'btn btn-default btn-sm tooltips',
+                        'title': '${g.message(code: "map.wms.btn.title", default: "Generate WMS Query URL")}'
+                    }).html('<i class="fa fa-map"></i>&nbsp;&nbsp;${g.message(code: "map.wms.btn.label", default: "WMS")}')
+                );
+
+                initWmsButtonFunctionality();
+            });
+
+            function initWmsButtonFunctionality() {
+                \$('#wmsModal').on('show.bs.modal', function() {
+                    updateWmsModalContent();
+                });
+
+                \$('#copyWmsParameters').click(function() {
+                    const wmsParams = \$('#wmsParams').val();
+                    const button = \$(this);
+                    const originalText = button.text();
+
+                    // Create temporary textarea
+                    const textarea = document.createElement('textarea');
+                    textarea.value = wmsParams;
+                    textarea.setAttribute('readonly', '');
+                    textarea.style.position = 'absolute';
+                    textarea.style.left = '-9999px';
+                    document.body.appendChild(textarea);
+
+                    // Select and copy the text
+                    textarea.select();
+                    try {
+                        document.execCommand('copy');
+                        button.text('${g.message(code: "map.wms.btn.copied", default: "Copied!")}');
+                        setTimeout(() => {
+                            button.text(originalText);
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                        alert('Failed to copy text. Please try again.');
+                    }
+
+                    // Cleanup
+                    document.body.removeChild(textarea);
+                });
+            }
+
+            function updateWmsModalContent() {
+                var currentLayer = MAP_VAR.currentLayers[0];
+                if (currentLayer) {
+                    var wmsParams = currentLayer.wmsParams;
+                    var baseUrl = MAP_VAR.mappingUrl + MAP_VAR.query;
+
+                    let formattedParams = Object.keys(wmsParams)
+                        .map(key => (key.toUpperCase() + ':').padEnd(20, ' ') + wmsParams[key])
+                        .filter(line =>
+                            !line.startsWith('SIZE:') &&
+                            !line.startsWith('STYLE:') &&
+                            !line.startsWith('OUTLINE:') &&
+                            !line.startsWith('COLOUR:')
+                        )
+                        .sort()
+                        .join('\\n');
+
+                    formattedParams += [
+                        ['SIZE:', \$('#sizeslider-val').html()],
+                        ['STYLE:', 'opacity:' + \$('#opacityslider-val').html()],
+                        ['OUTLINE:', \$('#outlineDots').is(':checked')],
+                        ['COLOUR:', \$('#pcolour').val().replace('#','').toUpperCase()]
+                    ].map(([key, value]) => '\\n' + key.padEnd(20, ' ') + value).join('') ;
+
+                    var fullUrl = baseUrl + '&' + Object.keys(wmsParams).map(function(key) {
+                        return key + '=' + wmsParams[key];
+                    }).join('&');
+
+                    \$('#wmsBaseUrl').val(baseUrl);
+                    \$('#wmsParams').val(formattedParams);
+                    \$('#wmsFullUrl').val(fullUrl);
+                }
+            }
+        """
+
+        out << g.javascript(null, js)
+    }
+
 }
