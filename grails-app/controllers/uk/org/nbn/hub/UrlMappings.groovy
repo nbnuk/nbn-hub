@@ -11,10 +11,10 @@ class UrlMappings {
 
 
         "/"(controller: 'home')
-        "/occurrences/searchByOccurrenceID"(controller: 'occurrenceSearch', action: 'searchByOccurrenceID')
+        "/advancedSearch/searchByOccurrenceID"(controller: 'occurrenceSearch', action: 'searchByOccurrenceID')
         "/occurrences/searchByEventID"(controller: 'occurrenceSearch', action: 'searchByEventID')
         "/occurrences/searchByCollectionCode"(controller: 'occurrenceSearch', action: 'searchByCollectionCode')
-        "/occurrences/searchByOther"(controller: 'occurrenceSearch', action: 'searchByOther')
+        "/advancedSearch/searchByOther"(controller: 'occurrenceSearch', action: 'searchByOther')
         "/accessControl/filterEditor/$dpuid/$filterUserId/$filterId?"(controller: 'accessControl', action: 'filterEditor')
         "500"(view:'/error')
         "404"(view:'/notFound')

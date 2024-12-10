@@ -18,7 +18,7 @@
 
 <div class="nbn">
 
-    <form class="form-horizontal" action="${request.contextPath}/occurrences/searchByOccurrenceID" method="POST">
+    <form class="form-horizontal" action="${request.contextPath}/advancedSearch/searchByOccurrenceID" method="POST">
 
         <fieldset>
             <legend>Search by Occurrence ID</legend>
@@ -39,7 +39,7 @@
     </form>
 
     <form class="form-horizontal" name="advancedSearchForm" id="advancedSearchForm"
-          action="${request.contextPath}/occurrences/searchByOther" method="POST" id="advancedSearchForm">
+          action="${request.contextPath}/advancedSearch/searchByOther" method="POST" id="advancedSearchForm">
         <input type="hidden" name="nameType"
                value="${grailsApplication.config.advancedTaxaField ?: 'matched_name_children'}"/>
 
