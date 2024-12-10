@@ -1,0 +1,142 @@
+.nbn-saved-searches-btn {
+    margin-left: 10px;
+}
+
+/* Modal Styling */
+#savedSearchesModal .modal-dialog {
+    width: 90%;
+    max-width: 1200px;
+}
+
+#savedSearchesModal .modal-content {
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#savedSearchesModal .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    padding: 15px 20px;
+}
+
+
+/* Table Styling */
+.table-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin: 15px;
+}
+
+#savedSearchesTable {
+    margin-bottom: 0;
+    background-color: white;
+}
+
+
+/* Cell Styling */
+.cell-textarea {
+    width: 100%;
+    min-height: 40px;
+    max-height: 120px;
+    padding: 12px;
+     border: 1px solid transparent;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.cell-textarea:hover {
+    background-color: #f8f9fa;
+}
+
+
+/* Button Styling */
+.btn-action {
+    padding: 8px 16px;
+    margin: 0 4px;
+    border-radius: 4px;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    border-color: #2980b9;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #savedSearchesModal .modal-dialog {
+        width: 95%;
+        margin: 10px auto;
+    }
+
+    .cell-textarea {
+        min-height: 60px;
+    }
+}
+
+/* Empty State Styling */
+.empty-state {
+    padding: 50px;
+    text-align: center;
+}
+
+.empty-state i {
+    margin-bottom: 15px;
+}
+
+/* Column Widths */
+#savedSearchesTable th:nth-child(1),
+#savedSearchesTable td:nth-child(1) {
+    width: 20%;
+}
+
+#savedSearchesTable th:nth-child(2),
+#savedSearchesTable td:nth-child(2) {
+    width: 25%;
+}
+
+#savedSearchesTable th:nth-child(3),
+#savedSearchesTable td:nth-child(3) {
+    width: 45%;
+}
+
+#savedSearchesTable th:nth-child(4),
+#savedSearchesTable td:nth-child(4) {
+    width: 10%;
+    text-align: center;
+}
+
+/* Scrollbar Styling */
+.table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Modal Footer */
+#savedSearchesModal .modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+}
+
+.nbn-saved-searches-btn {
+    margin-left: 10px;
+}
