@@ -97,12 +97,9 @@
     </div>
 </div>
 
-
 <div id="recordPopup" style="display:none;">
     <a href="#"><g:message code="map.recordpopup" default="View records at this point"/></a>
 </div>
-
-
 
 <asset:script type="text/javascript">
 
@@ -393,28 +390,6 @@
                 once = false;
             }
         });
-
-        // Copy URL button handler
-        $('#copyWmsParameters').click(function () {
-            const wmsParams = $('#wmsParams').val(); // Get the value of the textarea
-            const button = $(this);
-            const originalText = button.text();
-
-            // Use Clipboard API to copy text
-            navigator.clipboard.writeText(wmsParams)
-                .then(() => {
-                    // Show temporary success message
-                    button.text('<g:message code="map.wms.btn.copied" default="Copied!"/>');
-                    setTimeout(() => {
-                        button.text(originalText);
-                    }, 2000);
-                })
-                .catch(err => {
-                    console.error('Failed to copy text: ', err);
-                    alert('Failed to copy text. Please try again.');
-                });
-
-            });
     }
 
     // helper to remove tooltips from map
