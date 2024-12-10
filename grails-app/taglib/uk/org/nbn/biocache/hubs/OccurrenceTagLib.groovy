@@ -225,23 +225,28 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
                     updateWmsModalContent();
                 });
 
-                \$('#copyWmsParameters').click(function() {
+                \$('#copyWmsParameters').click(async function() {
                     const wmsParams = \$('#wmsParams').val();
                     const button = \$(this);
                     const originalText = button.text();
 
-                    // Create temporary textarea
-                    const textarea = document.createElement('textarea');
-                    textarea.value = wmsParams;
-                    textarea.setAttribute('readonly', '');
-                    textarea.style.position = 'absolute';
-                    textarea.style.left = '-9999px';
-                    document.body.appendChild(textarea);
-
-                    // Select and copy the text
-                    textarea.select();
                     try {
-                        document.execCommand('copy');
+                        // Try the modern clipboard API first
+                        if (navigator.clipboard && window.isSecureContext) {
+                            await navigator.clipboard.writeText(wmsParams);
+                        } else {
+                            // Fallback for older browsers
+                            const textarea = document.createElement('textarea');
+                            textarea.value = wmsParams;
+                            textarea.style.position = 'fixed';
+                            textarea.style.opacity = '0';
+                            document.body.appendChild(textarea);
+                            textarea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textarea);
+                        }
+
+                        // Show success message
                         button.text('${g.message(code: "map.wms.btn.copied", default: "Copied!")}');
                         setTimeout(() => {
                             button.text(originalText);
@@ -250,9 +255,6 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
                         console.error('Failed to copy text: ', err);
                         alert('Failed to copy text. Please try again.');
                     }
-
-                    // Cleanup
-                    document.body.removeChild(textarea);
                 });
             }
 
@@ -262,27 +264,40 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
                     var wmsParams = currentLayer.wmsParams;
                     var baseUrl = MAP_VAR.mappingUrl + MAP_VAR.query;
 
+                    // Parse existing ENV parameters
+                    let envParams = {};
+                    if (wmsParams.ENV) {
+                        wmsParams.ENV.split(';').forEach(param => {
+                            if (param) {
+                                let parts = param.split(':');
+                                if (parts.length === 2) {
+                                    envParams[parts[0]] = parts[1];
+                                }
+                            }
+                        });
+                    }
+
+                    // Update/add new ENV parameters
+                    envParams.size = \$('#sizeslider-val').html();
+                    envParams.opacity = \$('#opacityslider-val').html();
+                    envParams.outline = \$('#outlineDots').is(':checked');
+                    envParams.colour = \$('#pcolour').val().replace('#','').toUpperCase();
+
+                    // Convert back to ENV string format
+                    wmsParams.ENV = Object.entries(envParams)
+                        .map(entry => entry[0] + ':' + entry[1])
+                        .join(';');
+
                     let formattedParams = Object.keys(wmsParams)
                         .map(key => (key.toUpperCase() + ':').padEnd(20, ' ') + wmsParams[key])
-                        .filter(line =>
-                            !line.startsWith('SIZE:') &&
-                            !line.startsWith('STYLE:') &&
-                            !line.startsWith('OUTLINE:') &&
-                            !line.startsWith('COLOUR:')
-                        )
                         .sort()
                         .join('\\n');
 
-                    formattedParams += [
-                        ['SIZE:', \$('#sizeslider-val').html()],
-                        ['STYLE:', 'opacity:' + \$('#opacityslider-val').html()],
-                        ['OUTLINE:', \$('#outlineDots').is(':checked')],
-                        ['COLOUR:', \$('#pcolour').val().replace('#','').toUpperCase()]
-                    ].map(([key, value]) => '\\n' + key.padEnd(20, ' ') + value).join('') ;
-
-                    var fullUrl = baseUrl + '&' + Object.keys(wmsParams).map(function(key) {
-                        return key + '=' + wmsParams[key];
-                    }).join('&');
+                    var fullUrl = baseUrl + '&' + Object.keys(wmsParams)
+                        .map(function(key) {
+                            return key + '=' + encodeURIComponent(wmsParams[key]);
+                        })
+                        .join('&');
 
                     \$('#wmsBaseUrl').val(baseUrl);
                     \$('#wmsParams').val(formattedParams);
