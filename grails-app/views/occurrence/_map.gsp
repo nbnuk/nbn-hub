@@ -1144,8 +1144,6 @@
       delete link;
       return false;
     }
-
-
 </asset:script>
 <div class="hide">
     <div class="popupRecordTemplate">
