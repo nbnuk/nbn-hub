@@ -22,7 +22,7 @@
 
                     <form id="createSavedSearchForm">
                         <div class="form-group">
-                            <label for="searchName">Search Name</label>
+                            <label for="searchName">Name*</label>
                             <input type="text" class="form-control" id="searchName" required>
                         </div>
                         <div class="form-group">
@@ -30,7 +30,7 @@
                             <textarea class="form-control" id="searchDescription" rows="3"></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="searchUrl">Search URL</label>
+                            <label for="searchUrl">Search URL*</label>
                             <textarea class="form-control" id="searchUrl" rows="5"></textarea>
                         </div>
                     </form>

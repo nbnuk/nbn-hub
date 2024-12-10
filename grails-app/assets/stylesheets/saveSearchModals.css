@@ -1,6 +1,4 @@
-.nbn-saved-searches-btn {
-    margin-left: 10px;
-}
+
 
 /* Modal Styling */
 #savedSearchesModal .modal-dialog {
@@ -137,6 +135,7 @@
     background-color: #f8f9fa;
 }
 
-.nbn-saved-searches-btn {
-    margin-left: 10px;
+#searchInfoRow a.btn{
+    margin-top: 5px;
+    margin-right: 5px;
 }
