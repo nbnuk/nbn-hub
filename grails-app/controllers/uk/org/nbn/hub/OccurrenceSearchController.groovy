@@ -10,14 +10,6 @@ class OccurrenceSearchController {
         return redirect(controller: 'occurrences', action: 'search', params: [q:"occurrence_id:"+occurrenceID])
     }
 
-    def searchByEventID(String eventID) {
-        return redirect(controller: 'occurrences', action: 'search', params: [q:"event_id:"+eventID])
-    }
-
-    def searchByCollectionCode(String collectionCode) {
-        return redirect(controller: 'occurrences', action: 'search', params: [q:"collection_code:"+collectionCode])
-    }
-
     def searchByOther(AdvancedSearchParams requestParams) {
         Map paramMap = requestParams.toParamMap();
        // paramMap.put("sort","score")

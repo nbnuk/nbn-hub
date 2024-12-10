@@ -11,10 +11,8 @@ class UrlMappings {
 
 
         "/"(controller: 'home')
-        "/occurrences/searchByOccurrenceID"(controller: 'occurrenceSearch', action: 'searchByOccurrenceID')
-        "/occurrences/searchByEventID"(controller: 'occurrenceSearch', action: 'searchByEventID')
-        "/occurrences/searchByCollectionCode"(controller: 'occurrenceSearch', action: 'searchByCollectionCode')
-        "/occurrences/searchByOther"(controller: 'occurrenceSearch', action: 'searchByOther')
+        "/advancedSearch/searchByOccurrenceID"(controller: 'occurrenceSearch', action: 'searchByOccurrenceID')
+        "/advancedSearch/searchByOther"(controller: 'occurrenceSearch', action: 'searchByOther')
         "/savedSearch/list"(controller: 'savedSearch', action: 'list')
         "/savedSearch/save"(controller: 'savedSearch', action: 'save', method: 'POST')
         "/accessControl/filterEditor/$dpuid/$filterUserId/$filterId?"(controller: 'accessControl', action: 'filterEditor')
