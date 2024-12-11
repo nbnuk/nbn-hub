@@ -74,3 +74,21 @@
     flex: 1;
     text-align: center;
 }
+
+.tab-content {
+    padding-top: 20px;
+}
+
+.nav-tabs {
+    margin-bottom: 0;
+}
+
+#geoJsonTab textarea {
+    margin-top: 15px;
+}
+
+#geoJsonContent {
+    min-height: 300px;
+    font-size: 13px;
+    resize: vertical;
+}
