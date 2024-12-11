@@ -3,7 +3,32 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h3><g:message code="map.wms.title" default="Current WMS Layer Details"/></h3>
+                <h3 style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="help-panel-toggle">
+                        Current WMS Layer Details
+                        <span class="beta-tag">BETA</span>
+                    </div>
+                    <div class="help-panel-toggle" data-toggle="collapse" data-target="#helpPanel">
+                        Help and Feedback Request <i class="fa fa-chevron-down"></i>
+                    </div>
+                </h3>
+                <div id="helpPanel" class="collapse">
+                    <div class="help-panel-content">
+                        <h4>About this feature</h4>
+                        <p>This WMS feature is intended to make it easier for you to use the NBN Atlas map in your GIS application.</p>
+
+                        <h4>We value your feedback</h4>
+                        <p>We'd very much like feedback on how useful this is to you and how it can be improved.</p>
+                        <div class="feedback-options">
+                            <a href="mailto:support@nbnatlas.org" class="btn btn-primary feedback-btn">
+                                <i class="fa fa-envelope"></i> Email Support
+                            </a>
+                            <a href="https://forums.nbn.org.uk/viewforum.php?id=46" class="btn btn-primary feedback-btn" target="_blank" rel="noopener">
+                                <i class="fa fa-comments"></i> Support Forum
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-body">
                 <div class="form-group">

@@ -1,0 +1,76 @@
+/* Add to your existing CSS file */
+.beta-tag {
+    background-color: #ff4444;
+    color: white;
+    padding: 2px 8px;
+    font-size: 14px;
+    border-radius: 3px;
+    margin-left: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+    position: relative;
+    top: -2px;
+}
+
+.help-panel-toggle {
+    display: inline-block;
+    color: #666;
+    cursor: pointer;
+    font-size: 18px !important;
+    font-weight: normal;
+}
+
+.help-panel-toggle:hover {
+    color: #333;
+}
+
+.help-panel-content {
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+.help-panel-content h4 {
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.feedback-btn {
+    margin-top: 10px;
+}
+
+.help-panel-toggle .fa {
+    transition: transform 0.2s;
+}
+
+.help-panel-toggle[aria-expanded="true"] .fa {
+    transform: rotate(180deg);
+}
+
+#wmsModal .modal-header h3 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0;
+    width: 100%;
+    font-size: 18px !important;
+}
+
+#wmsModal .modal-header {
+    font-size: 18px !important;
+}
+
+.feedback-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.feedback-options .feedback-btn {
+    flex: 1;
+    text-align: center;
+}

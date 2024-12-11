@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <asset:stylesheet src="map.css"/>
+<asset:stylesheet src="wms-button.css"/>
+
 <div style="margin-bottom: 10px">
     <g:if test="${grailsApplication.config.skin.useAlaSpatialPortal?.toBoolean()}">
         <g:set var='spatialPortalLink' value="${sr.urlParameters}"/>

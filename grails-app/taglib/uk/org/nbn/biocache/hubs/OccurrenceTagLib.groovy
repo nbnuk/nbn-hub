@@ -220,6 +220,10 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
                 initWmsButtonFunctionality();
             });
 
+            \$('.help-panel-toggle').on('click', function() {
+                \$(this).find('.fa').toggleClass('fa-rotate-180');
+            });
+
             function initWmsButtonFunctionality() {
                 \$('#wmsModal').on('show.bs.modal', function() {
                     updateWmsModalContent();
