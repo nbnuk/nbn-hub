@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <asset:stylesheet src="map.css"/>
+<asset:stylesheet src="wms-button.css"/>
+
 <div style="margin-bottom: 10px">
     <g:if test="${grailsApplication.config.skin.useAlaSpatialPortal?.toBoolean()}">
         <g:set var='spatialPortalLink' value="${sr.urlParameters}"/>
@@ -10,6 +12,7 @@
     </g:if>
     <a href="#downloadMap" role="button" data-toggle="modal" class="btn btn-default btn-sm tooltips" title="Download image file (single colour mode)">
         <i class="fa fa-download"></i>&nbsp&nbsp;<g:message code="map.downloadmaps.btn.label" default="Download map"/></a>
+    <alatag:wmsButton targetSelector=".fa-download"/>
     <g:if test="${params.wkt}">
         <a href="#downloadWKT" role="button" class="btn btn-default btn-sm tooltips" title="Download WKT file" onclick="downloadPolygon(); return false;">
             <i class="glyphicon glyphicon-stop"></i>&nbsp&nbsp;<g:message code="map.downloadwkt.btn.label" default="Download WKT"/></a>
@@ -96,11 +99,9 @@
     </div>
 </div>
 
-
 <div id="recordPopup" style="display:none;">
     <a href="#"><g:message code="map.recordpopup" default="View records at this point"/></a>
 </div>
-
 
 <asset:script type="text/javascript">
 
@@ -1296,8 +1297,6 @@
         </div>
     </div>
 </div>
-
-
 
 <script type="text/javascript">
 
