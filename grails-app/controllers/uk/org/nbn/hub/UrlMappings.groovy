@@ -9,7 +9,7 @@ class UrlMappings {
             }
         }
 
-
+        "/demo"(view:"/demo")
         "/"(controller: 'home')
         "/advancedSearch/searchByOccurrenceID"(controller: 'occurrenceSearch', action: 'searchByOccurrenceID')
         "/advancedSearch/searchByOther"(controller: 'occurrenceSearch', action: 'searchByOther')

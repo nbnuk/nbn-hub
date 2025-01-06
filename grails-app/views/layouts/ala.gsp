@@ -1,5 +1,5 @@
 <%@ page import="org.apache.commons.lang.StringUtils" contentType="text/html;charset=UTF-8" %>
-<g:applyLayout name="main">
+%{--<g:applyLayout name="main">--}%
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <alatag:addApplicationMetaTags/>
@@ -16,6 +16,9 @@
 
     <asset:stylesheet src="alaBs.css" />
     <asset:javascript src="alaBs.js" />
+
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/response-targets.js"></script>
 
     <g:layoutHead />
     <script type="text/javascript">
@@ -50,4 +53,4 @@
 </div>
 
 </body>
-</g:applyLayout>
+%{--</g:a plyLayout>--}%

@@ -128,3 +128,5 @@ environments:
         security:
             cas:
                 appServerName: "https://auth.ala.org.au"
+savedsearch:
+    serverURL: "http://localhost:8080"
