@@ -401,6 +401,16 @@
             </g:else>
         </alatag:occurrenceTableRow>
 
+    <!-- Bibliographic Citation -->
+    <alatag:occurrenceTableRow annotate="false" section="dataset" fieldCode="bibliographicCitation" fieldName="Bibliographic Citation">
+        ${fieldsMap.put("bibliographicCitation", true)}
+        ${fieldsMap.put("bibliographicCitationUrl", true)}
+        <alatag:bibliographicCitation
+            citation="${record.raw.occurrence.bibliographicCitation}"
+            citationUrl="${record.raw.occurrence.bibliographicCitationUrl}"
+            dataResourceUid="${record.raw.attribution.dataResourceUid}"/>
+    </alatag:occurrenceTableRow>
+
     <!-- Collection Code -->
         <alatag:occurrenceTableRow annotate="false" section="dataset" fieldNameIsMsgCode="true" fieldCode="collectionCode" fieldName="Collection">
             <g:if test="${record.raw.occurrence.collectionCode}">
