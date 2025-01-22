@@ -8,6 +8,8 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
 
     static namespace = 'alatag'
 
+    def webServicesService
+
     /**
      * Output a row (occurrence record) in the search results "Records" tab
      *
@@ -206,6 +208,44 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
 
             // Output modal HTML directly to the page
             out << g.render(template: '/occurrence/wmsModal', model: [targetSelector: targetSelector])
+        }
+    }
+
+    /**
+     * Formats and displays a bibliographic citation with optional URL link.
+     * If citation is not provided but dataResourceUid is, it will attempt to fetch the citation from the data resource.
+     *
+     * @attr citation OPTIONAL the bibliographic citation text
+     * @attr citationUrl OPTIONAL the URL to link the citation to
+     * @attr dataResourceUid OPTIONAL the UID to fetch citation from if not directly provided
+     */
+    def bibliographicCitation = { attrs ->
+        def mb = new MarkupBuilder(out)
+        def citation = attrs.citation
+        def citationUrl = attrs.citationUrl
+        def dataResourceUid = attrs.dataResourceUid
+
+        // If no citation but we have a dataResourceUid, try to fetch it
+        if (!citation && dataResourceUid) {
+            def dataResource = webServicesService.getDataresource(dataResourceUid)
+            if (dataResource) {
+                citation = dataResource.citation
+                citationUrl = dataResource.alaPublicUrl
+            } else {
+                citation = "Not found"
+            }
+        }
+
+        if (citation) {
+            if (citationUrl) {
+                mb.a(href: citationUrl, target: "_blank") {
+                    mkp.yieldUnescaped(citation)
+                }
+            } else {
+                mb.span {
+                    mkp.yieldUnescaped(citation)
+                }
+            }
         }
     }
 
