@@ -62,8 +62,13 @@ class SavedSearchController {
             log.debug("userId is null")
             return response.sendError(HttpStatus.SC_UNAUTHORIZED)
         } else {
+            try {
             def savedSearches = webServicesService.getSaveSearches(userId)
             render savedSearches as JSON
+            } catch (Exception e) {
+                log.error("Error getting saved searches", e)
+                return response.sendError(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+            }
         }
     }
 

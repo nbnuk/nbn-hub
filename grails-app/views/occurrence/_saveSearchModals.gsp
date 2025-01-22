@@ -5,9 +5,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
-                <h4 class="modal-title" id="customiseFacetsLabel">
+                <h3>
                     Save Search
-                </h4>
+                </h3>
             </div>
             <div class="modal-body">
                 <g:if test="${!userId}">
@@ -22,7 +22,7 @@
 
                     <form id="createSavedSearchForm">
                         <div class="form-group">
-                            <label for="searchName">Search Name</label>
+                            <label for="searchName">Name*</label>
                             <input type="text" class="form-control" id="searchName" required>
                         </div>
                         <div class="form-group">
@@ -30,7 +30,7 @@
                             <textarea class="form-control" id="searchDescription" rows="3"></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="searchUrl">Search URL</label>
+                            <label for="searchUrl">Search URL*</label>
                             <textarea class="form-control" id="searchUrl" rows="5"></textarea>
                         </div>
                     </form>
@@ -49,10 +49,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
-                <h4 class="modal-title">
+                <h3>
                     Saved Searches
                     <span>(scroll to see full list)</span>
-                </h4>
+                </h3>
             </div>
             <div class="modal-body">
                 <g:if test="${!userId}">
@@ -61,15 +61,15 @@
                     </div>
                 </g:if>
                 <g:else>
-%{--                    <div style="text-align:right; margin:15px"><a class="btn btn-primary" href="${grailsApplication.config.alerts.baseUrl}/savedSearch/mySavedSearches" >--}%
-%{--                        <i class="fa fa-cog"></i> Manage Saved Searches</a></div>--}%
+                    <div style="text-align:right; margin:15px"><a class="btn btn-primary" title="Manage Saved Searches" href="${grailsApplication.config.alerts.baseUrl}/savedSearch/mySavedSearches" >
+                        <i class="fa fa-cog"></i> Manage Saved Searches</a></div>
                       <div class="table-container">
                         <table class="table table-hover" id="savedSearchesTable">
                             <thead class="table-header">
                                 <tr>
                                     <th>Name</th>
                                     <th>Description</th>
-                                    <th>Query</th>
+                                    <th>Search URL</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -80,7 +80,7 @@
                 </g:else>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -229,24 +229,28 @@ function fetchAndDisplaySavedSearches() {
 
                     var actionsCell = $('<td></td>');
                     var loadButton = $('<button>', {
-                        'class': 'btn btn-sm btn-primary',
-                        'data-toggle': 'tooltip',
-                        'data-placement': 'top',
-                        'data-original-title': 'Loading this search will overwrite any current search!',
+                        'class': 'btn btn-primary',
+                        'title': 'This will overwrite your current search',
                         text: 'Load'
                     }).click(function() {
                         window.location.href = search.searchRequestQueryUI;
                     });
 
                     // Initialize the tooltip
-                    loadButton.tooltip();
+                    // loadButton.tooltip();
+                    loadButton.qtip({
+                        content: {
+                            text: 'This will overwrite your current search'
+                        }
+                    });
+
 
                     actionsCell.append(loadButton);
                     row.append(actionsCell);
                     savedSearchesList.append(row);
                 });
             } else {
-                var emptyRow = $('<tr><td colspan="4" class="text-center">No saved searches found.</td></tr>');
+                var emptyRow = $('<tr><td colspan="4" class="text-center">You have no saved searches yet.</td></tr>');
                 savedSearchesList.append(emptyRow);
             }
 
