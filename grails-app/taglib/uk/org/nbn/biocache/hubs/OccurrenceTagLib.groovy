@@ -202,10 +202,13 @@ class OccurrenceTagLib extends au.org.ala.biocache.hubs.OccurrenceTagLib{
     }
 
     def wmsButton = { attrs ->
-        def targetSelector = attrs.targetSelector ?: 'body' // Default to body if no selector provided
 
-        // Output modal HTML directly to the page
-        out << g.render(template: '/occurrence/wmsModal', model: [targetSelector: targetSelector])
+        if(grailsApplication.config.feature.wmsbutton.enabled?.toString()?.toBoolean()) {
+            def targetSelector = attrs.targetSelector ?: 'body' // Default to body if no selector provided
+
+            // Output modal HTML directly to the page
+            out << g.render(template: '/occurrence/wmsModal', model: [targetSelector: targetSelector])
+        }
     }
 
     /**
