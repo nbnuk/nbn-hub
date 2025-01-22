@@ -45,17 +45,17 @@
                     <div role="tabpanel" class="tab-pane active" id="wmsTab">
                         <div class="form-group">
                             <label>Base WMS URL</label>
-                            <input class="form-control" id="wmsBaseUrl" readonly/>
+                            <input class="form-control" id="wmsBaseUrl"/>
                         </div>
 
                         <div class="form-group">
                             <label>WMS Parameters</label>
-                            <textarea class="form-control" id="wmsParams" rows="8" readonly style="font-family: monospace; white-space: pre;"></textarea>
+                            <textarea class="form-control" id="wmsParams" rows="8" style="font-family: monospace; white-space: pre;"></textarea>
                         </div>
 
                         <div class="form-group">
                             <label>Full WMS Request URL</label>
-                            <textarea class="form-control" id="wmsFullUrl" rows="3" readonly></textarea>
+                            <textarea class="form-control" id="wmsFullUrl" rows="3" ></textarea>
                             <small class="text-muted">This shows the actual WMS request being used by the map. Parameters will update as you change the map display options.</small>
                         </div>
                     </div>
