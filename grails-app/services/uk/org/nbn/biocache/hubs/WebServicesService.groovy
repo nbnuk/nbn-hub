@@ -59,4 +59,10 @@ class WebServicesService extends au.org.ala.biocache.hubs.WebServicesService{
         def url = "${grailsApplication.config.alerts.baseUrl}" + "/api/savedSearch/list/" + userId
         getJsonElements(url, "${grailsApplication.config.alerts.apiKey}")
     }
+
+    // @Cacheable('collectoryCache')
+    def JSONObject getDataresource(String id) {
+        def url = "${grailsApplication.config.collections.baseUrl}/ws/dataResource/" + id
+        getJsonElements(url)
+    }
 }
