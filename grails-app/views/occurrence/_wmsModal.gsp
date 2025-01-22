@@ -247,7 +247,8 @@ function updateWmsModalContent() {
     var currentLayer = MAP_VAR.currentLayers[0];
     if (currentLayer) {
         var wmsParams = currentLayer.wmsParams;
-        var baseUrl = MAP_VAR.mappingUrl + MAP_VAR.query;
+        // Added /ogc/ows to the mappingUrl to match the WMS GetCapabilities request URL
+        var baseUrl = MAP_VAR.mappingUrl + "/ogc/ows" + MAP_VAR.query;
 
         // Parse existing ENV parameters
         let envParams = {};
