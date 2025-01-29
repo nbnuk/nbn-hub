@@ -18,7 +18,7 @@ plugins {
 }
 
 
-version "6.0.12.4-NBN-1-1-1"
+version "6.0.12.4-NBN-1-1-2"
 group "uk.org.nbn"
 
 apply plugin:"eclipse"
