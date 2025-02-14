@@ -250,7 +250,7 @@ function fetchAndDisplaySavedSearches() {
                     savedSearchesList.append(row);
                 });
             } else {
-                var emptyRow = $('<tr><td colspan="4" class="text-center">No saved searches found.</td></tr>');
+                var emptyRow = $('<tr><td colspan="4" class="text-center">You have no saved searches yet.</td></tr>');
                 savedSearchesList.append(emptyRow);
             }
 
