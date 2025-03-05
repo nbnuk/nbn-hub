@@ -5,19 +5,31 @@ class CrossDomainProxyController {
     def authService
 
     def allowedUrls = [
-            "${grailsApplication.config.savedsearch.serverURL}/component/listModal",
-            "${grailsApplication.config.savedsearch.serverURL}/component/createModal",
-            "${grailsApplication.config.savedsearch.serverURL}/hx/component/save",
-            "${grailsApplication.config.savedsearch.serverURL}/hx/component/listInner",
-            "${grailsApplication.config.savedsearch.serverURL}/hx/component/createInner"
+            "${grailsApplication.config.savedsearch.serverURL}/component/listModal".toString(),
+            "${grailsApplication.config.savedsearch.serverURL}/component/createModal".toString(),
+            "${grailsApplication.config.savedsearch.serverURL}/component/save".toString(),
+            "${grailsApplication.config.savedsearch.serverURL}/component/list".toString(),
+            "${grailsApplication.config.savedsearch.serverURL}/component/createForm.toString()"
     ]
 
     def index() {
-        if (!allowedUrls.contains(params.url)) {
+
+        String baseUrl = params.url?.tokenize('?')[0]?.trim()
+
+        println(params)
+        println(allowedUrls)
+
+        for (String url in allowedUrls) {
+            println("allowedUrl :"+url+":")
+        }
+        println("baseUrl :"+baseUrl+":")
+        println("allowed? "+allowedUrls.contains(baseUrl))
+        if (!allowedUrls.contains(baseUrl)) {
+            println("Forbidden")
             render status: 403, text: "Forbidden"
             return
         }
-
+        println("proceed")
         if (request.getMethod() == "GET") {
             return _get()
         }
@@ -29,16 +41,16 @@ class CrossDomainProxyController {
         return
     }
 
-    def _get() {
+    def _get() {println("!!!!!!!!!!!!GET")
         def userId = authService.getUserId()
         def apiKey = grailsApplication.config.biocache.apiKey
-        def targetUrl = new URL(params.url + "?userId=$userId")
+        def targetUrl = new URL(params.url + "&userId=${userId}")
         def connection = targetUrl.openConnection()
         connection.setRequestProperty("Authorization", apiKey)
         connection.connect()
-
+println(2)
         def responseText = connection.responseCode == 200 ? connection.inputStream.text : connection.errorStream?.text ?: "Unknown error"
-
+println(responseText)
         render status: connection.responseCode, text: responseText
 
     }
