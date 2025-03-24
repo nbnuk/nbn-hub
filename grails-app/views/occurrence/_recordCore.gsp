@@ -719,12 +719,13 @@
             </g:if>
         </alatag:occurrenceTableRow>
 
-        <g:if test="${record.processed.classification.nameMatchMetric}">
+        <g:if test="${record.processed.classification.matchType}">
             <!-- Taxonomic issues -->
-            <alatag:occurrenceTableRow annotate="true" section="taxonomy" fieldCode="nameMatchMetric" fieldName="Name match metric">
-                <g:message code="${record.processed.classification.nameMatchMetric}" default="${record.processed.classification.nameMatchMetric}"/>
+            <alatag:occurrenceTableRow annotate="true" section="taxonomy" fieldCode="matchType" fieldName="Match type">
+                ${fieldsMap.put("matchType", true)}
+                <g:message code="${record.processed.classification.matchType}" default="${record.processed.classification.matchType}"/>
                 <br/>
-                <g:message code="nameMatch.${record.processed.classification.nameMatchMetric}" default=""/>
+                <g:message code="nameMatch.${record.processed.classification.matchType}" default=""/>
             </alatag:occurrenceTableRow>
         </g:if>
 
@@ -1283,12 +1284,13 @@
         </g:each>
     </alatag:occurrenceTableRow>
 </g:if>
-<g:if test="${record.processed.classification.nameMatchMetric}">
+<g:if test="${record.processed.classification.matchType}">
     <!-- Taxonomic issues -->
-    <alatag:occurrenceTableRow annotate="true" section="taxonomy" fieldCode="nameMatchMetric" fieldName="Name match metric">
-        <g:message code="${record.processed.classification.nameMatchMetric}" default="${record.processed.classification.nameMatchMetric}"/>
+    <alatag:occurrenceTableRow annotate="true" section="taxonomy" fieldCode="matchType" fieldName="Match type">
+        ${fieldsMap.put("matchType", true)}
+        <g:message code="${record.processed.classification.matchType}" default="${record.processed.classification.matchType}"/>
         <br/>
-        <g:message code="nameMatch.${record.processed.classification.nameMatchMetric}" default=""/>
+        <g:message code="nameMatch.${record.processed.classification.matchType}" default=""/>
     </alatag:occurrenceTableRow>
 </g:if>
 <!-- output any tags not covered already (excluding those in dwcExcludeFields) -->
