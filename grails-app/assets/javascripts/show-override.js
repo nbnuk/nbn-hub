@@ -220,4 +220,4 @@ function reformatListValueString(selector,seperator) {
 }
 
 refreshUserAnnotations();
-reformatListValueString('#habitatsTaxon .value', '|');
+reformatListValueString('#habitatsTaxon .value', ', ');
