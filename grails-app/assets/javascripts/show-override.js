@@ -204,4 +204,20 @@ function refreshUserAnnotations(){
     });
 }
 
+/**
+ * re-formats an unquoted json like array string e.g.[a,b]
+ */
+function reformatListValueString(selector,seperator) {
+    var value = $(selector).text().trim();
+    if(!value) return;
+
+    var match = value.match(/^\[\s*(.*?)\s*\]$/);
+    if (match) {
+        var listContent = match[1]; // Extract content inside brackets
+        var items = listContent.split(/\s*,\s*/); // Split by commas, ignoring spaces
+        $(selector).text(items.join(seperator));
+    }
+}
+
 refreshUserAnnotations();
+reformatListValueString('#habitatsTaxon .value', '|');
