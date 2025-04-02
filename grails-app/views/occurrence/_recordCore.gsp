@@ -191,12 +191,12 @@
             <g:if test="${(record.raw.publicResolutionInMeters && record.raw.publicResolutionInMeters!="0")}">
                 <g:if test="${record.processed.occurrence.dataGeneralizations}">
                     <p><br><br><i class="glyphicon glyphicon-lock" style="font-size: smaller; color:red;margin-right:4px"></i> Record is also access controlled and subject to a public resolution of <alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/>. To gain access to the supplied resolution, please contact the Data Provider:
-                    <a href="https://registry.legacy.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
+                    <a href="https://registry.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
                     </p>
                 </g:if>
                 <g:else>
                 <i class="glyphicon glyphicon-lock" style="font-size: smaller; color:red;margin-right:4px"></i> Record is subject to access control and generalised to a public resolution of <alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/>. To gain access to the supplied resolution, please contact the Data Provider:
-                <a href="https://registry.legacy.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
+                <a href="https://registry.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
                 </g:else>
             </g:if>
 
@@ -1509,11 +1509,11 @@
     <g:if test="${(record.raw.publicResolutionInMeters && record.raw.publicResolutionInMeters!="0")}">
         <g:if test="${record.processed.occurrence.dataGeneralizations}">
             <i class="glyphicon glyphicon-lock" style="font-size: smaller; color:red;margin-right:4px"></i>The record is also access controlled and subject to a public resolution of <alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/>. To gain access to the supplied resolution, please contact the Data Provider:
-                <a href="https://registry.legacy.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
+                <a href="https://registry.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
         </g:if>
         <g:else>
             <i class="glyphicon glyphicon-lock" style="font-size: smaller; color:red;margin-right:4px"></i> This record is subject to access control and generalised to a public resolution of <alatag:formatMeters distance="${record.raw.publicResolutionInMeters.toInteger()}"/>. To gain access to the supplied resolution, please contact the Data Provider:
-            <a href="https://registry.legacy.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
+            <a href="https://registry.nbnatlas.org/public/show/${record.processed.attribution.dataProviderUid}" target="_blank" title="Contact the data provider to see supplied location">${record.processed.attribution.dataProviderName}</a>
         </g:else>
     </g:if>
 </alatag:occurrenceTableRow>
