@@ -571,15 +571,15 @@
     <h3><g:message code="recordcore.occurenceevent.title" default="Event2"/></h3>
     <table class="occurrenceTable table table-bordered table-striped table-condensed" id="eventTable">
     <!-- dataset -->
-        <alatag:occurrenceTableRow annotate="true" section="dataset" fieldCode="datasetName" fieldName="Dataset / Survey Name">
-            ${fieldsMap.put("datasetName", true)}
-            <g:each status="i" in="${record.raw.event.datasetName}" var="datasetName">
-                <g:if test="${record.raw.event.datasetName.size() > 1}">
-                    ${i + 1}.&nbsp;
-                </g:if>
-                ${datasetName} &nbsp;
-            </g:each>
-        </alatag:occurrenceTableRow>
+%{--        <alatag:occurrenceTableRow annotate="true" section="dataset" fieldCode="datasetName" fieldName="Dataset / Survey Name">--}%
+%{--            ${fieldsMap.put("datasetName", true)}--}%
+%{--            <g:each status="i" in="${record.raw.event.datasetName}" var="datasetName">--}%
+%{--                <g:if test="${record.raw.event.datasetName.size() > 1}">--}%
+%{--                    ${i + 1}.&nbsp;--}%
+%{--                </g:if>--}%
+%{--                ${datasetName} &nbsp;--}%
+%{--            </g:each>--}%
+%{--        </alatag:occurrenceTableRow>--}%
     <!-- event ID -->
         <alatag:occurrenceTableRow annotate="true" section="eventID" fieldCode="eventID" fieldName="Event ID">
             ${fieldsMap.put("eventID", true)}
@@ -938,15 +938,20 @@
                 </g:elseif>
             </alatag:occurrenceTableRow>
         </g:if>
-        <g:if test="${record.processed.classification.taxonomicIssue}">
-            <!-- Taxonomic issues -->
+
+            <!-- Taxonomic issues-->
             <alatag:occurrenceTableRow annotate="true" section="taxonomy" fieldCode="taxonomicIssue" fieldName="Taxonomic issues">
+                <g:if test="${record.processed.classification.taxonomicIssue}">
             %{--<alatag:formatJsonArray text="${record.processed.classification.taxonomicIssue}"/>--}%
                 <g:each var="issue" in="${record.processed.classification.taxonomicIssue}">
                     <g:message code="${issue}"/>
                 </g:each>
+                </g:if>
+                <g:else>
+                    <g:message code="noIssue"/>
+                </g:else>
             </alatag:occurrenceTableRow>
-        </g:if>
+
 
         <g:if test="${record.raw.identification.identificationRemarks}">
             <alatag:occurrenceTableRow annotate="true" section="dataset" fieldCode="identificationRemarks" fieldNameIsMsgCode="true" fieldName="Identification remarks">
