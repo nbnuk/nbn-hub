@@ -225,7 +225,7 @@
                 ${record.raw.location.decimalLatitude}
             </g:if>
             <g:elseif test="${record.raw.location.decimalLatitude && record.raw.location.decimalLatitude != record.processed.location.decimalLatitude}">
-                ${record.processed.location.decimalLatitude}<br/><span class="originalValue">Supplied as: "${record.raw.location.decimalLatitude}"</span>
+                ${record.processed.location.decimalLatitude}
             </g:elseif>
             <g:elseif test="${record.processed.location.decimalLatitude}">
                 ${record.processed.location.decimalLatitude}
@@ -243,7 +243,7 @@
                 ${record.raw.location.decimalLongitude}
             </g:if>
             <g:elseif test="${record.raw.location.decimalLongitude && record.raw.location.decimalLongitude != record.processed.location.decimalLongitude}">
-                ${record.processed.location.decimalLongitude}<br/><span class="originalValue">Supplied as: "${record.raw.location.decimalLongitude}"</span>
+                ${record.processed.location.decimalLongitude}
             </g:elseif>
             <g:elseif test="${record.processed.location.decimalLongitude}">
                 ${record.processed.location.decimalLongitude}
