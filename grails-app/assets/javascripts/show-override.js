@@ -221,3 +221,5 @@ function reformatListValueString(selector,seperator) {
 
 refreshUserAnnotations();
 reformatListValueString('#habitatsTaxon .value', ', ');
+reformatListValueString('#identifiedBy .value', ', ');
+reformatListValueString('#otherCatalogueNumbers .value', ', ');
