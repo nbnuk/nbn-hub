@@ -58,6 +58,7 @@ class AdvancedSearchParams implements Validateable {
     String eventID = ""
     String collectionCode = ""
     String occurrenceStatus = ""
+    String disableQualityFilter = ""
 
     private String taxa = ""
     private final String QUOTE = "\""
@@ -113,6 +114,7 @@ class AdvancedSearchParams implements Validateable {
 
         String finalQuery = ((taxonText) ? "taxa=" + encodedTaxa + "&" : "") + ((encodedQ) ? "q=" + encodedQ : "")
         finalQuery += encodedFQ
+        finalQuery += (disableQualityFilter ? "&disableQualityFilter="+URIUtil.encodeWithinQuery(disableQualityFilter) : "")
         log.debug("query: " + finalQuery)
         System.out.println(finalQuery)
         queryItems.clear();
