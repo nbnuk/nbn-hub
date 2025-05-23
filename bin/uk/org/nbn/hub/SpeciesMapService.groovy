@@ -9,7 +9,7 @@ import org.grails.web.json.JSONObject
 class SpeciesMapService {
 
     def grailsApplication
-    def webServicesService
+    def webService
 
     /**
      * Get species information from BIE service using TVK
@@ -19,15 +19,12 @@ class SpeciesMapService {
     def getSpeciesInfo(String tvk) {
         log.debug("Retrieving species info for TVK: ${tvk}")
 
-        // Check if mock data should be used
-        if (grailsApplication.config.getProperty('use.mock.data', Boolean, true)) {
-            log.info("Using mock data mode for species info")
-            return getMockSpeciesInfo(tvk)
-        }
-
         try {
-            // Use the existing method from WebServicesService
-            def jsonResponse = webServicesService.getTaxon(tvk)
+            // First, try to get the species by TVK directly
+            def bieUrl = "${grailsApplication.config.bieService.baseUrl}/species/${tvk.encodeAsURL()}"
+            log.debug("Calling BIE service: ${bieUrl}")
+
+            def jsonResponse = webService.getJson(bieUrl)
 
             if (jsonResponse && !jsonResponse.isEmpty()) {
                 return [
@@ -60,8 +57,7 @@ class SpeciesMapService {
 
         } catch (Exception e) {
             log.error("Error retrieving species info for TVK ${tvk}: ${e.message}", e)
-            // Return mock data for demo purposes when external services are unavailable
-            return getMockSpeciesInfo(tvk)
+            return null
         }
     }
 
@@ -73,23 +69,23 @@ class SpeciesMapService {
     def getOccurrenceData(String acceptedTvk) {
         log.debug("Retrieving occurrence data for TVK: ${acceptedTvk}")
 
-        // Check if mock data should be used
-        if (grailsApplication.config.getProperty('use.mock.data', Boolean, true)) {
-            log.info("Using mock data mode for occurrence data")
-            return getMockOccurrenceData(acceptedTvk)
-        }
-
         try {
-            // Use the biocache-hubs SearchRequestParams to build the query
-            def requestParams = new au.org.ala.biocache.hubs.SearchRequestParams()
-            requestParams.q = "lsid:${acceptedTvk}"
-            requestParams.facets = ["basis_of_record"]
-            requestParams.pageSize = 500  // Limit for map display
-            requestParams.fl = "id,decimalLatitude,decimalLongitude,eventDate,basisOfRecord,dataResourceUid,dataResourceName,recordedBy,locality,stateProvince,coordinateUncertaintyInMeters,year,month,day,scientificName,vernacularName,family,order,classs,phylum,kingdom"
-            requestParams.sort = "eventDate"
-            requestParams.dir = "desc"
+            // Build search parameters for biocache
+            def searchParams = [
+                q: "lsid:${acceptedTvk}",
+                facets: "basis_of_record",
+                pageSize: 500,  // Limit for map display
+                fl: "id,latitude,longitude,eventDate,basisOfRecord,dataResourceUid,dataResourceName,recordedBy,locality,stateProvince,coordinateUncertaintyInMeters,year,month,day,scientificName,commonName,family,order,class,phylum,kingdom",
+                sort: "eventDate",
+                dir: "desc"
+            ]
 
-            def jsonResponse = webServicesService.apiTextSearch(requestParams)
+            def queryString = searchParams.collect { k, v -> "${k}=${v.toString().encodeAsURL()}" }.join('&')
+            def biocacheUrl = "${grailsApplication.config.biocache.baseUrl}/occurrences/search?${queryString}"
+
+            log.debug("Calling Biocache service: ${biocacheUrl}")
+
+            def jsonResponse = webService.getJson(biocacheUrl)
 
             if (jsonResponse && jsonResponse.occurrences) {
                 return jsonResponse.occurrences.findAll { occurrence ->
@@ -128,91 +124,8 @@ class SpeciesMapService {
 
         } catch (Exception e) {
             log.error("Error retrieving occurrence data for TVK ${acceptedTvk}: ${e.message}", e)
-            // Return mock data for demo purposes when external services are unavailable
-            return getMockOccurrenceData(acceptedTvk)
+            return []
         }
-    }
-
-    /**
-     * Mock species info for testing when external services are unavailable
-     */
-    private def getMockSpeciesInfo(String tvk) {
-        log.info("Using mock species data for TVK: ${tvk}")
-        return [
-            tvk: tvk,
-            acceptedTvk: tvk,
-            scientificName: "Passer domesticus",
-            commonName: "House Sparrow",
-            rank: "species",
-            guid: "mock-guid-${tvk}",
-            kingdom: "Animalia",
-            phylum: "Chordata",
-            classs: "Aves",
-            order: "Passeriformes",
-            family: "Passeridae",
-            genus: "Passer",
-            speciesGroup: ["Birds"],
-            datasetName: "Mock Dataset",
-            parentGuid: "mock-parent-guid",
-            acceptedConceptName: "Passer domesticus",
-            nameAuthority: "Mock Authority",
-            taxonomicStatus: "accepted",
-            conservationStatus: "Least Concern",
-            imageUrl: null,
-            thumbnailUrl: null
-        ]
-    }
-
-    /**
-     * Mock occurrence data for testing when external services are unavailable
-     */
-    private def getMockOccurrenceData(String tvk) {
-        log.info("Using mock occurrence data for TVK: ${tvk}")
-
-        // Generate some sample occurrence points across the UK
-        def mockOccurrences = []
-
-        // Sample locations across the UK
-        def locations = [
-            [lat: 51.5074, lng: -0.1278, locality: "London"],  // London
-            [lat: 53.4808, lng: -2.2426, locality: "Manchester"],  // Manchester
-            [lat: 55.9533, lng: -3.1883, locality: "Edinburgh"],  // Edinburgh
-            [lat: 51.4816, lng: -3.1791, locality: "Cardiff"],  // Cardiff
-            [lat: 54.5973, lng: -5.9301, locality: "Belfast"],  // Belfast
-            [lat: 52.4862, lng: -1.8904, locality: "Birmingham"],  // Birmingham
-            [lat: 53.8008, lng: -1.5491, locality: "Leeds"],  // Leeds
-            [lat: 53.4084, lng: -2.9916, locality: "Liverpool"],  // Liverpool
-            [lat: 50.3755, lng: -4.1427, locality: "Plymouth"],  // Plymouth
-            [lat: 57.1497, lng: -2.0943, locality: "Aberdeen"]   // Aberdeen
-        ]
-
-        locations.eachWithIndex { location, index ->
-            mockOccurrences << [
-                id: "mock-occurrence-${index + 1}",
-                latitude: location.lat + (Math.random() - 0.5) * 0.1, // Add small random offset
-                longitude: location.lng + (Math.random() - 0.5) * 0.1,
-                eventDate: "2023-0${(index % 9) + 1}-15",
-                year: 2023,
-                month: (index % 12) + 1,
-                day: 15,
-                basisOfRecord: index % 2 == 0 ? "HumanObservation" : "PreservedSpecimen",
-                dataResourceUid: "mock-dr-${index + 1}",
-                dataResourceName: "Mock Dataset ${index + 1}",
-                recordedBy: "Mock Observer ${index + 1}",
-                locality: location.locality,
-                stateProvince: location.locality,
-                coordinateUncertaintyInMeters: 100,
-                scientificName: "Passer domesticus",
-                commonName: "House Sparrow",
-                family: "Passeridae",
-                order: "Passeriformes",
-                classs: "Aves",
-                phylum: "Chordata",
-                kingdom: "Animalia"
-            ]
-        }
-
-        return mockOccurrences
     }
 
     /**

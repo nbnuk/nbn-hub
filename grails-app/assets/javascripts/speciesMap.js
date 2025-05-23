@@ -62,14 +62,20 @@ function addOccurrenceMarkers(occurrences) {
     console.log('Adding ' + occurrences.length + ' occurrence markers');
 
     occurrences.forEach(function(occurrence, index) {
-        if (occurrence.decimalLatitude && occurrence.decimalLongitude) {
-            var lat = parseFloat(occurrence.decimalLatitude);
-            var lng = parseFloat(occurrence.decimalLongitude);
+        // Check for both possible property names for coordinates
+        var lat = occurrence.latitude || occurrence.decimalLatitude;
+        var lng = occurrence.longitude || occurrence.decimalLongitude;
+
+        if (lat && lng) {
+            lat = parseFloat(lat);
+            lng = parseFloat(lng);
 
             // Create marker
             var marker = L.marker([lat, lng])
                 .bindPopup(createOccurrencePopup(occurrence))
                 .addTo(markersLayer);
+        } else {
+            console.warn('Occurrence missing coordinates:', occurrence);
         }
     });
 }
@@ -99,9 +105,23 @@ function createOccurrencePopup(occurrence) {
         popup += '<p><strong>Locality:</strong> ' + occurrence.locality + '</p>';
     }
 
-    popup += '<p><strong>Coordinates:</strong> ' +
-             parseFloat(occurrence.decimalLatitude).toFixed(6) + ', ' +
-             parseFloat(occurrence.decimalLongitude).toFixed(6) + '</p>';
+    if (occurrence.recordedBy) {
+        popup += '<p><strong>Recorded by:</strong> ' + occurrence.recordedBy + '</p>';
+    }
+
+    if (occurrence.basisOfRecord) {
+        popup += '<p><strong>Basis of Record:</strong> ' + occurrence.basisOfRecord + '</p>';
+    }
+
+    // Use flexible coordinate property names
+    var lat = occurrence.latitude || occurrence.decimalLatitude;
+    var lng = occurrence.longitude || occurrence.decimalLongitude;
+
+    if (lat && lng) {
+        popup += '<p><strong>Coordinates:</strong> ' +
+                 parseFloat(lat).toFixed(6) + ', ' +
+                 parseFloat(lng).toFixed(6) + '</p>';
+    }
 
     if (occurrence.coordinateUncertaintyInMeters) {
         popup += '<p><strong>Uncertainty:</strong> ' + occurrence.coordinateUncertaintyInMeters + 'm</p>';

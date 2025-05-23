@@ -120,12 +120,38 @@
             attribution: 'Map tiles by CartoDB'
         };
 
+        console.log('Species map data loaded:', SPECIES_MAP_CONFIG);
+        console.log('Number of occurrences:', SPECIES_MAP_CONFIG.occurrences ? SPECIES_MAP_CONFIG.occurrences.length : 0);
+
         $(document).ready(function() {
+            console.log('Document ready, checking for map initialization...');
+            console.log('Leaflet available:', typeof L !== 'undefined');
+            console.log('initializeSpeciesMap function available:', typeof initializeSpeciesMap !== 'undefined');
+
             if (typeof initializeSpeciesMap === 'function') {
+                console.log('Initializing species map...');
                 initializeSpeciesMap(SPECIES_MAP_CONFIG);
             } else {
                 console.error('Species map initialization function not found');
-                $('#mapLoading').html('<div class="alert alert-danger">Map loading failed</div>');
+                $('#mapLoading').html('<div class="alert alert-danger">Map loading failed - initializeSpeciesMap function not found</div>');
+
+                // Try to load the function and initialize after a delay
+                setTimeout(function() {
+                    console.log('Retrying map initialization...');
+                    if (typeof initializeSpeciesMap === 'function') {
+                        console.log('Found function on retry, initializing...');
+                        initializeSpeciesMap(SPECIES_MAP_CONFIG);
+                    } else {
+                        console.error('Still no initializeSpeciesMap function after retry');
+                        // Show data for debugging
+                        $('#mapLoading').html('<div class="alert alert-info">' +
+                            '<h5>Debug Information:</h5>' +
+                            '<p>Leaflet available: ' + (typeof L !== 'undefined') + '</p>' +
+                            '<p>Number of occurrences: ' + (SPECIES_MAP_CONFIG.occurrences ? SPECIES_MAP_CONFIG.occurrences.length : 0) + '</p>' +
+                            '<p>Map config: ' + JSON.stringify(SPECIES_MAP_CONFIG.mapConfig) + '</p>' +
+                            '</div>');
+                    }
+                }, 2000);
             }
         });
     </script>
