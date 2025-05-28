@@ -1,5 +1,6 @@
 package uk.org.nbn.hub
 
+import au.org.ala.biocache.hubs.SearchRequestParams
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.grails.web.json.JSONArray
@@ -75,10 +76,12 @@ class EasyMapService {
     /**
      * Get occurrence data from Biocache service for a given TVK
      * @param acceptedTvk The accepted TVK to search for
+     * @param datasetKeys Optional comma-separated list of dataset keys to filter by
      * @return List of occurrence records
      */
-    def getOccurrenceData(String acceptedTvk) {
-        log.debug("Retrieving occurrence data for TVK: ${acceptedTvk}")
+    def getOccurrenceData(String acceptedTvk, String datasetKeys = null) {
+        log.debug("Retrieving occurrence data for TVK: ${acceptedTvk}" +
+                 (datasetKeys ? " with dataset filter: ${datasetKeys}" : ""))
 
         // Check if mock data should be used
         if (grailsApplication.config.getProperty('use.mock.data', Boolean, true)) {
@@ -90,11 +93,14 @@ class EasyMapService {
             // Use the biocache-hubs SearchRequestParams to build the query
             def requestParams = new au.org.ala.biocache.hubs.SearchRequestParams()
             requestParams.q = "lsid:${acceptedTvk}"
-            // requestParams.facets = ["basis_of_record"]
             requestParams.pageSize = 500  // Limit for map display
-            // Note: NBN Atlas doesn't work well with fl parameter, so we get all fields
-            // requestParams.sort = "eventDate"
-            // requestParams.dir = "desc"
+
+            // Add dataset filter if provided
+            if (datasetKeys) {
+                def filterQueries = buildDatasetFilterQueries(datasetKeys)
+                requestParams.fq = filterQueries
+                log.debug("Applied dataset filter queries: ${filterQueries}")
+            }
 
             def jsonResponse = webServicesService.apiTextSearch(requestParams)
 
@@ -137,6 +143,28 @@ class EasyMapService {
             log.error("Error retrieving occurrence data for TVK ${acceptedTvk}: ${e.message}", e)
             // Return mock data for demo purposes when external services are unavailable
             return getMockOccurrenceData(acceptedTvk)
+        }
+    }
+
+    /**
+     * Build filter queries for dataset keys
+     * @param datasetKeys Comma-separated list of dataset keys
+     * @return List of filter query strings
+     */
+    private List<String> buildDatasetFilterQueries(String datasetKeys) {
+        if (!datasetKeys) {
+            return []
+        }
+
+        def keys = datasetKeys.split(',').collect { it.trim() }
+
+        if (keys.size() == 1) {
+            // Single dataset filter
+            return ["data_resource_uid:${keys[0]}"]
+        } else {
+            // Multiple datasets - use OR query
+            def orQuery = keys.collect { "data_resource_uid:${it}" }.join(' OR ')
+            return ["(${orQuery})"]
         }
     }
 

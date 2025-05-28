@@ -28,6 +28,7 @@ class EasyMapController {
      * @param retina Optional - Retina display multiplier (1 or 2, default: 1)
      * @param cachedays Optional - Cache duration in days (default: 30, 0 to bypass cache)
      * @param format Optional - Response format ('html' or 'json', default: 'html')
+     * @param ds Optional - Dataset key(s) obtainable from the NBN Gateway (e.g., 'dr123', 'ds456' or comma-separated list 'dr123,ds456,dr789')
      */
     def easyMap() {
         log.debug("EasyMap request received with params: ${params}")
@@ -38,6 +39,7 @@ class EasyMapController {
         def retina = params.retina ? Integer.valueOf(params.retina as String) : 1
         def cachedays = params.cachedays ? Integer.valueOf(params.cachedays as String) : 30
         def format = params.format as String ?: 'html'
+        def datasetKeys = params.ds as String
 
         if (!tvk || !isValidTVK(tvk)) {
             log.warn("Invalid TVK format provided: ${tvk}")
@@ -46,6 +48,19 @@ class EasyMapController {
                 render([result: "ERROR", message: "Invalid TVK format: ${tvk}", data: null] as JSON)
             } else {
                 render(view: 'error', model: [message: "Invalid TVK format: ${tvk}", tvk: tvk])
+            }
+            return
+        }
+
+        // Validate dataset keys if provided
+        if (datasetKeys && !isValidDatasetKeys(datasetKeys)) {
+            log.warn("Invalid dataset key format provided: ${datasetKeys}")
+            response.status = 400
+            def errorMessage = "Invalid dataset key format: ${datasetKeys}. Expected format: dr123, ds456, or dst789 (comma-separated for multiple keys)"
+            if (format == 'json') {
+                render([result: "ERROR", message: errorMessage, data: null] as JSON)
+            } else {
+                render(view: 'error', model: [message: errorMessage, tvk: tvk])
             }
             return
         }
@@ -63,17 +78,19 @@ class EasyMapController {
                 return
             }
 
-            def occurrenceData = easyMapService.getOccurrenceData(speciesInfo.acceptedTvk ?: tvk)
+            def occurrenceData = easyMapService.getOccurrenceData(speciesInfo.acceptedTvk ?: tvk, datasetKeys)
             def mapConfig = easyMapService.prepareMapConfig(occurrenceData)
 
             def mapData = [
                 tvk: tvk,
                 speciesInfo: speciesInfo,
                 occurrences: occurrenceData,
-                mapConfig: mapConfig
+                mapConfig: mapConfig,
+                datasetFilter: datasetKeys
             ]
 
-            log.info("Successfully prepared EasyMap for ${speciesInfo.scientificName}")
+            log.info("Successfully prepared EasyMap for ${speciesInfo.scientificName}" +
+                    (datasetKeys ? " with dataset filter: ${datasetKeys}" : ""))
 
             if (format == 'json') {
                 // Return JSON response
@@ -154,6 +171,30 @@ class EasyMapController {
 
     private boolean isValidTVK(String tvk) {
         if (!tvk) return false
-        return tvk.matches(/^[A-Z0-9]{10,}$/) || tvk.startsWith('NBNSYS')
+        // TVK should be at least 10 characters but not excessively long (max 30 characters)
+        // and contain only alphanumeric characters
+        return tvk.matches(/^[A-Z0-9]{10,30}$/) || tvk.startsWith('NBNSYS')
+    }
+
+    /**
+     * Validate dataset key format
+     * Accepts single key (e.g., 'ds123', 'dr123') or comma-separated list (e.g., 'ds123,dr456')
+     * @param datasetKeys The dataset key(s) to validate
+     * @return true if valid format, false otherwise
+     */
+    private boolean isValidDatasetKeys(String datasetKeys) {
+        if (!datasetKeys) return true // Optional parameter
+
+        // Split by comma and validate each key
+        def keys = datasetKeys.split(',').collect { it.trim() }
+        return keys.every { key ->
+            // Dataset keys typically follow pattern: ds/dr/dst + alphanumeric (e.g., ds123, dr950, dst456)
+            // Must not be empty after trimming and must not end with comma
+            key && !key.isEmpty() && (
+                key.matches(/^ds[a-zA-Z0-9]+$/) ||
+                key.matches(/^dr[a-zA-Z0-9]+$/) ||
+                key.matches(/^dst[a-zA-Z0-9]+$/)
+            )
+        }
     }
 }
