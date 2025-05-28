@@ -1,0 +1,22 @@
+/*
+*= require leaflet/leaflet
+*= require_self
+*/
+
+/* EasyMap specific styles */
+.easymap-container {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.leaflet-popup-content {
+    font-size: 12px;
+}
+
+.occurrence-marker {
+    background-color: #df4a21;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}

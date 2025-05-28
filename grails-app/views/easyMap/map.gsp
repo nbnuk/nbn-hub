@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EasyMap - ${mapData.speciesInfo.scientificName ?: mapData.tvk}</title>
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- EasyMap CSS includes Leaflet -->
+    <asset:stylesheet src="easymap.css"/>
 
-    <!-- Custom CSS for EasyMap -->
+    <!-- Additional inline styles for dynamic sizing -->
     <style>
         body {
             margin: 0;
@@ -22,8 +21,6 @@
             margin: 0;
             padding: 0;
         }
-
-
 
         .leaflet-popup-content {
             font-size: 12px;
@@ -40,9 +37,8 @@
 <body>
     <div id="easymap" class="easymap-container"></div>
 
-    <!-- Leaflet JavaScript -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- EasyMap JavaScript includes Leaflet -->
+    <asset:javascript src="easymap.js"/>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
