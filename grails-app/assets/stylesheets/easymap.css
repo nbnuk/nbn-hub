@@ -4,6 +4,12 @@
 */
 
 /* EasyMap specific styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
 .easymap-container {
     border: none;
     margin: 0;
@@ -12,6 +18,11 @@
 
 .leaflet-popup-content {
     font-size: 12px;
+    line-height: 1.4;
+}
+
+.leaflet-popup-content strong {
+    color: #333;
 }
 
 .occurrence-marker {
@@ -19,4 +30,72 @@
     border: 2px solid #fff;
     border-radius: 50%;
     box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Style the map controls to match NBN Atlas theme */
+.leaflet-control-layers {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 5px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+}
+
+.leaflet-control-scale-line {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid #777;
+    border-top: none;
+    color: #333;
+}
+
+/* Custom marker styles for different basis of record */
+.marker-human-observation {
+    background-color: #df4a21;
+}
+
+.marker-preserved-specimen {
+    background-color: #2e8b57;
+}
+
+.marker-machine-observation {
+    background-color: #4169e1;
+}
+
+.marker-unknown {
+    background-color: #808080;
+}
+
+/* Legend control styling */
+.legend {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 5px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+    padding: 10px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.legend h4 {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+}
+
+.legend i {
+    width: 12px;
+    height: 12px;
+    float: left;
+    margin-right: 8px;
+    margin-top: 2px;
+    border-radius: 50%;
+    border: 1px solid #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.legend .legend-item {
+    margin-bottom: 4px;
+    clear: both;
+}
+
+.legend .legend-item:last-child {
+    margin-bottom: 0;
 }

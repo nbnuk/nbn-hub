@@ -7,68 +7,6 @@
 
     <!-- EasyMap CSS includes Leaflet -->
     <asset:stylesheet src="easymap.css"/>
-
-    <!-- Additional inline styles for dynamic sizing -->
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        .easymap-container {
-            border: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .leaflet-popup-content {
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        .leaflet-popup-content strong {
-            color: #333;
-        }
-
-        .occurrence-marker {
-            background-color: #df4a21;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-
-        /* Style the map controls to match NBN Atlas theme */
-        .leaflet-control-layers {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 5px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-        }
-
-        .leaflet-control-scale-line {
-            background: rgba(255, 255, 255, 0.8);
-            border: 2px solid #777;
-            border-top: none;
-            color: #333;
-        }
-
-        /* Custom marker styles for different basis of record */
-        .marker-human-observation {
-            background-color: #df4a21;
-        }
-
-        .marker-preserved-specimen {
-            background-color: #2e8b57;
-        }
-
-        .marker-machine-observation {
-            background-color: #4169e1;
-        }
-
-        .marker-unknown {
-            background-color: #808080;
-        }
-    </style>
 </head>
 <body>
     <div id="easymap" class="easymap-container"></div>
@@ -246,6 +184,19 @@
                 imperial: false,
                 metric: true
             }).addTo(map);
+
+            // Add legend control showing marker colors and meanings
+            var legend = L.control({position: 'bottomleft'});
+            legend.onAdd = function(map) {
+                var div = L.DomUtil.create('div', 'legend');
+                div.innerHTML = '<h4>Record Types</h4>' +
+                    '<div class="legend-item"><i style="background: #df4a21"></i>Human Observation</div>' +
+                    '<div class="legend-item"><i style="background: #2e8b57"></i>Preserved Specimen</div>' +
+                    '<div class="legend-item"><i style="background: #4169e1"></i>Machine Observation</div>' +
+                    '<div class="legend-item"><i style="background: #808080"></i>Unknown/Other</div>';
+                return div;
+            };
+            legend.addTo(map);
 
             // Add attribution control with NBN Atlas branding
             map.attributionControl.setPrefix('NBN Atlas EasyMap | Powered by <a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>');
