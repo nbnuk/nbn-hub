@@ -15,17 +15,6 @@ window.EasyMap = (function() {
             lng: -3.0,
             zoom: 6
         },
-        MARKER_COLORS: {
-            'HumanObservation': '#df4a21',      // NBN Atlas orange
-            'PreservedSpecimen': '#2e8b57',     // Sea green
-            'MachineObservation': '#4169e1',    // Royal blue
-            'default': '#808080'                // Gray for unknown
-        },
-        MARKER_NAMES: {
-            'HumanObservation': 'Human Observation',
-            'PreservedSpecimen': 'Preserved Specimen',
-            'MachineObservation': 'Machine Observation'
-        },
         TILE_LAYERS: {
             minimal: {
                 url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
@@ -42,45 +31,6 @@ window.EasyMap = (function() {
     };
 
     /**
-     * Get marker color based on basis of record
-     * @param {string} basisOfRecord - The basis of record type
-     * @returns {string} Hex color code
-     */
-    function getMarkerColor(basisOfRecord) {
-        return CONFIG.MARKER_COLORS[basisOfRecord] || CONFIG.MARKER_COLORS.default;
-    }
-
-    /**
-     * Get readable basis of record name
-     * @param {string} basisOfRecord - The basis of record type
-     * @returns {string} Human-readable name
-     */
-    function getBasisOfRecordName(basisOfRecord) {
-        return CONFIG.MARKER_NAMES[basisOfRecord] || basisOfRecord || 'Unknown';
-    }
-
-    /**
-     * Create base layers for the map
-     * @returns {Object} Object containing base layer definitions
-     */
-    function createBaseLayers() {
-        var defaultBaseLayer = L.tileLayer(CONFIG.TILE_LAYERS.minimal.url, {
-            attribution: CONFIG.TILE_LAYERS.minimal.attribution,
-            subdomains: CONFIG.TILE_LAYERS.minimal.subdomains,
-            maxZoom: CONFIG.TILE_LAYERS.minimal.maxZoom
-        });
-
-        return {
-            "Minimal": defaultBaseLayer,
-            "OpenStreetMap": L.tileLayer(CONFIG.TILE_LAYERS.osm.url, {
-                attribution: CONFIG.TILE_LAYERS.osm.attribution,
-                maxZoom: CONFIG.TILE_LAYERS.osm.maxZoom
-            }),
-            defaultLayer: defaultBaseLayer
-        };
-    }
-
-    /**
      * Create and add occurrence markers to the map
      * @param {L.Map} map - The Leaflet map instance
      * @param {Array} occurrences - Array of occurrence data
@@ -95,7 +45,8 @@ window.EasyMap = (function() {
 
         occurrences.forEach(function(occurrence) {
             if (occurrence.latitude && occurrence.longitude) {
-                var markerColor = getMarkerColor(occurrence.basisOfRecord);
+                // Use consistent NBN Atlas orange color for all markers
+                var markerColor = '#df4a21';
 
                 var marker = L.circleMarker([occurrence.latitude, occurrence.longitude], {
                     radius: 6,
@@ -112,25 +63,6 @@ window.EasyMap = (function() {
 
         map.addLayer(markerGroup);
         return markerGroup;
-    }
-
-    /**
-     * Create and add legend control to the map
-     * @param {L.Map} map - The Leaflet map instance
-     */
-    function addLegendControl(map) {
-        var legend = L.control({position: 'bottomleft'});
-        legend.onAdd = function(map) {
-            var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML = '<h4>Record Types</h4>' +
-                '<div class="legend-item"><i style="background: ' + CONFIG.MARKER_COLORS.HumanObservation + '"></i>Human Observation</div>' +
-                '<div class="legend-item"><i style="background: ' + CONFIG.MARKER_COLORS.PreservedSpecimen + '"></i>Preserved Specimen</div>' +
-                '<div class="legend-item"><i style="background: ' + CONFIG.MARKER_COLORS.MachineObservation + '"></i>Machine Observation</div>' +
-                '<div class="legend-item"><i style="background: ' + CONFIG.MARKER_COLORS.default + '"></i>Unknown/Other</div>';
-            return div;
-        };
-        legend.addTo(map);
-        return legend;
     }
 
     /**
@@ -189,16 +121,13 @@ window.EasyMap = (function() {
             worldCopyJump: true
         });
 
-        // Create and add base layers
-        var baseLayers = createBaseLayers();
-        map.addLayer(baseLayers.defaultLayer);
-
-        // Add layer control
-        var layerControl = L.control.layers(baseLayers, {}, {
-            collapsed: true,
-            position: 'topleft'
+        // Create and add default base layer (no layer switching needed)
+        var defaultBaseLayer = L.tileLayer(CONFIG.TILE_LAYERS.minimal.url, {
+            attribution: CONFIG.TILE_LAYERS.minimal.attribution,
+            subdomains: CONFIG.TILE_LAYERS.minimal.subdomains,
+            maxZoom: CONFIG.TILE_LAYERS.minimal.maxZoom
         });
-        layerControl.addTo(map);
+        map.addLayer(defaultBaseLayer);
 
         // Add occurrence markers
         var markerGroup = addOccurrenceMarkers(map, occurrences);
@@ -212,9 +141,6 @@ window.EasyMap = (function() {
             imperial: false,
             metric: true
         }).addTo(map);
-
-        // Add legend control
-        addLegendControl(map);
 
         // Add attribution control with NBN Atlas branding
         map.attributionControl.setPrefix('NBN Atlas EasyMap | Powered by <a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>');
@@ -231,8 +157,6 @@ window.EasyMap = (function() {
     // Public API
     return {
         init: initializeMap,
-        getMarkerColor: getMarkerColor,
-        getBasisOfRecordName: getBasisOfRecordName,
         CONFIG: CONFIG
     };
 
