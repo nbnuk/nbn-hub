@@ -81,45 +81,6 @@ window.EasyMap = (function() {
     }
 
     /**
-     * Create popup content for an occurrence marker
-     * @param {Object} occurrence - The occurrence data
-     * @returns {string} HTML content for the popup
-     */
-    function createPopupContent(occurrence) {
-        var content = '<div style="min-width: 200px;">';
-
-        if (occurrence.scientificName) {
-            content += '<strong>' + occurrence.scientificName + '</strong><br>';
-        }
-        if (occurrence.commonName) {
-            content += '<em>' + occurrence.commonName + '</em><br>';
-        }
-        content += '<hr style="margin: 5px 0;" />';
-
-        if (occurrence.eventDate) {
-            content += '<strong>Date:</strong> ' + occurrence.eventDate + '<br>';
-        }
-        if (occurrence.locality) {
-            content += '<strong>Location:</strong> ' + occurrence.locality + '<br>';
-        }
-        if (occurrence.basisOfRecord) {
-            content += '<strong>Basis:</strong> ' + getBasisOfRecordName(occurrence.basisOfRecord) + '<br>';
-        }
-        if (occurrence.dataResourceName) {
-            content += '<strong>Source:</strong> ' + occurrence.dataResourceName + '<br>';
-        }
-        if (occurrence.recordedBy) {
-            content += '<strong>Recorded by:</strong> ' + occurrence.recordedBy + '<br>';
-        }
-        if (occurrence.coordinateUncertaintyInMeters) {
-            content += '<strong>Uncertainty:</strong> ' + occurrence.coordinateUncertaintyInMeters + 'm<br>';
-        }
-
-        content += '</div>';
-        return content;
-    }
-
-    /**
      * Create and add occurrence markers to the map
      * @param {L.Map} map - The Leaflet map instance
      * @param {Array} occurrences - Array of occurrence data
@@ -143,12 +104,6 @@ window.EasyMap = (function() {
                     weight: 2,
                     opacity: 1,
                     fillOpacity: 0.8
-                });
-
-                var popupContent = createPopupContent(occurrence);
-                marker.bindPopup(popupContent, {
-                    maxWidth: 300,
-                    className: 'occurrence-popup'
                 });
 
                 markerGroup.addLayer(marker);
@@ -225,7 +180,12 @@ window.EasyMap = (function() {
             zoom: defaultZoom,
             minZoom: 1,
             maxZoom: 18,
-            scrollWheelZoom: true,
+            zoomControl: false,        // Disable zoom control buttons (+/-)
+            scrollWheelZoom: false,    // Disable mouse wheel zoom
+            doubleClickZoom: false,    // Disable double-click zoom
+            touchZoom: false,          // Disable touch/pinch zoom
+            boxZoom: false,            // Disable shift+drag box zoom
+            keyboard: false,           // Disable keyboard zoom (+ and - keys)
             worldCopyJump: true
         });
 
@@ -273,7 +233,6 @@ window.EasyMap = (function() {
         init: initializeMap,
         getMarkerColor: getMarkerColor,
         getBasisOfRecordName: getBasisOfRecordName,
-        createPopupContent: createPopupContent,
         CONFIG: CONFIG
     };
 
