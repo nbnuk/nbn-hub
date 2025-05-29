@@ -34,13 +34,13 @@
             var occurrences = ${raw(occurrencesJson)};
             var speciesInfo = ${raw(speciesInfoJson)};
 
-            // Initialize EasyMap using the modular approach
             var map = EasyMap.init({
                 containerId: 'easymap',
                 mapConfig: mapConfig,
                 occurrences: occurrences,
                 speciesInfo: speciesInfo,
-                tvk: '${mapData.tvk}'
+                tvk: '${mapData.tvk}',
+                datasetFilter: '${raw(mapData.datasetFilter ?: "")}'
             });
         });
     </script>

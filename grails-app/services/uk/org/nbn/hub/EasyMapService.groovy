@@ -257,10 +257,14 @@ class EasyMapService {
      */
     def prepareMapConfig(List occurrences) {
         log.debug("Preparing map config for ${occurrences?.size() ?: 0} occurrences")
+// TODO - perhaps use mini-atlas as the default ?
+        def biocacheUrl = grailsApplication.config.biocacheServicesUrl ?: grailsApplication.config.biocacheServiceUrl ?: 'https://records-ws.nbnatlas.org'
+        log.debug("Using biocache URL in map config: ${biocacheUrl}")
 
         def config = [
             occurrenceCount: occurrences?.size() ?: 0,
-            bounds: null
+            bounds: null,
+            biocacheUrl: biocacheUrl
         ]
 
         if (occurrences && occurrences.size() > 0) {

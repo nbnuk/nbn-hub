@@ -31,56 +31,80 @@ window.EasyMap = (function() {
     };
 
     /**
-     * Create and add occurrence markers to the map
+     * Create and add 10km grid WMS layer to the map
      * @param {L.Map} map - The Leaflet map instance
-     * @param {Array} occurrences - Array of occurrence data
-     * @returns {L.FeatureGroup} Feature group containing all markers
+     * @param {string} tvk - Taxon Version Key for the species
+     * @param {string} biocacheUrl - Base URL for biocache service
+     * @param {string} datasetFilter - Optional dataset filter
+     * @returns {L.Layer} The WMS layer
      */
-    function addOccurrenceMarkers(map, occurrences) {
-        var markerGroup = L.featureGroup();
-
-        if (!occurrences || occurrences.length === 0) {
-            return markerGroup;
+    function addGridLayer(map, tvk, biocacheUrl, datasetFilter) {
+        if (!tvk || !biocacheUrl) {
+            console.warn('Missing required parameters for grid layer');
+            return null;
         }
 
-        occurrences.forEach(function(occurrence) {
-            if (occurrence.latitude && occurrence.longitude) {
-                // Use consistent NBN Atlas orange color for all markers
-                var markerColor = '#df4a21';
+        // Build the query string
+        var query = "?q=lsid:" + encodeURIComponent(tvk);
 
-                var marker = L.circleMarker([occurrence.latitude, occurrence.longitude], {
-                    radius: 6,
-                    fillColor: markerColor,
-                    color: '#fff',
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                });
+        // Add dataset filter if provided
+        if (datasetFilter) {
+            // Build filter queries for datasets
+            var datasets = datasetFilter.split(',');
+            datasets.forEach(function(ds) {
+                if (ds.trim()) {
+                    query += "&fq=data_resource_uid:" + encodeURIComponent(ds.trim());
+                }
+            });
+        }
 
-                markerGroup.addLayer(marker);
-            }
+        // TODO - is this needed ? Add presence filter to exclude absent records
+        query += "&fq=-occurrence_status:absent";
+
+        // Build WMS URL
+        var wmsUrl = biocacheUrl + "/mapping/wms/reflect" + query;
+
+        // TODO - natural candidate for configuration or parameter? Configure 10km grid parameters
+        var envProperty = "colormode:osgrid;gridlabels:true;gridres:10kgrid;opacity:1;color:df4a21";
+
+        // TODO - more stuff that could be configured or parameters ? Create WMS layer
+        var gridLayer = L.tileLayer.wms(wmsUrl, {
+            layers: 'ALA:occurrences',
+            format: 'image/png',
+            transparent: true,
+            bgcolor: "0x000000",
+            outline: false,
+            ENV: envProperty,
+            opacity: 0.8,
+            STYLE: "opacity:0.8"
         });
 
-        map.addLayer(markerGroup);
-        return markerGroup;
+        map.addLayer(gridLayer);
+        console.log('10km grid layer added with URL:', wmsUrl);
+        console.log('ENV parameters:', envProperty);
+
+        return gridLayer;
     }
 
     /**
-     * Fit map bounds to show all markers or use provided bounds
+     * Fit map bounds to show all data or use provided bounds
      * @param {L.Map} map - The Leaflet map instance
-     * @param {L.FeatureGroup} markerGroup - Feature group containing markers
+     * @param {L.Layer} dataLayer - The data layer (could be WMS grid or marker group)
      * @param {Object} mapConfig - Map configuration with optional bounds
      */
-    function fitMapBounds(map, markerGroup, mapConfig) {
-        if (mapConfig.bounds && markerGroup.getLayers().length > 0) {
+    function fitMapBounds(map, dataLayer, mapConfig) {
+        if (mapConfig.bounds) {
             var bounds = L.latLngBounds([
                 [mapConfig.bounds.southwest.lat, mapConfig.bounds.southwest.lng],
                 [mapConfig.bounds.northeast.lat, mapConfig.bounds.northeast.lng]
             ]);
             map.fitBounds(bounds, { padding: [10, 10] });
-        } else if (markerGroup.getLayers().length > 0) {
-            // Fallback: fit to marker bounds
-            map.fitBounds(markerGroup.getBounds(), { padding: [10, 10] });
+        } else if (dataLayer && typeof dataLayer.getBounds === 'function' && dataLayer.getLayers && dataLayer.getLayers().length > 0) {
+            // For marker groups - fallback option (shouldn't be used with grid but kept for safety)
+            map.fitBounds(dataLayer.getBounds(), { padding: [10, 10] });
+        } else {
+            // For WMS layers or when no bounds available, use default UK view
+            map.setView([CONFIG.DEFAULT_COORDS.lat, CONFIG.DEFAULT_COORDS.lng], CONFIG.DEFAULT_COORDS.zoom);
         }
     }
 
@@ -129,11 +153,20 @@ window.EasyMap = (function() {
         });
         map.addLayer(defaultBaseLayer);
 
-        // Add occurrence markers
-        var markerGroup = addOccurrenceMarkers(map, occurrences);
+        // Add 10km grid WMS layer
+        var biocacheUrl = mapConfig.biocacheUrl;
+        if (!biocacheUrl) {
+            console.warn('biocacheUrl not provided in mapConfig, using fallback URL');
+            biocacheUrl = 'https://records-ws.nbnatlas.org'; // Fallback URL
+        }
 
-        // Fit map to show all markers
-        fitMapBounds(map, markerGroup, mapConfig);
+        console.log('Using biocache URL:', biocacheUrl);
+
+        var datasetFilter = options.datasetFilter || null;
+        var gridLayer = addGridLayer(map, tvk, biocacheUrl, datasetFilter);
+
+        // Fit map to show all data
+        fitMapBounds(map, gridLayer, mapConfig);
 
         // Add scale control
         L.control.scale({
@@ -148,8 +181,9 @@ window.EasyMap = (function() {
         // Log initialization for debugging
         console.log('EasyMap initialized for TVK:', tvk);
         console.log('Map config:', mapConfig);
-        console.log('Occurrences:', occurrences.length);
-        console.log('Species info:', speciesInfo);
+        console.log('Grid mode: 10km grid');
+        console.log('Dataset filter:', datasetFilter || 'none');
+        console.log('Biocache URL:', biocacheUrl);
 
         return map;
     }
