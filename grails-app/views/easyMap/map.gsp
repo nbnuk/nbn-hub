@@ -34,13 +34,21 @@
             var occurrences = ${raw(occurrencesJson)};
             var speciesInfo = ${raw(speciesInfoJson)};
 
+            // Use acceptedTvk if available, otherwise fall back to original tvk
+            var tvkForQuery = speciesInfo.acceptedTvk || '${mapData.tvk}';
+
             var map = EasyMap.init({
                 containerId: 'easymap',
                 mapConfig: mapConfig,
                 occurrences: occurrences,
                 speciesInfo: speciesInfo,
-                tvk: '${mapData.tvk}',
-                datasetFilter: '${raw(mapData.datasetFilter ?: "")}'
+                tvk: tvkForQuery,
+                datasetFilter: '${raw(mapData.datasetFilter ?: "")}',
+                // Additional EasyMap parameters
+                color: '${raw(mapData.b0fill ?: "df4a21")}',
+                background: '${raw(mapData.bg ?: "")}',
+                gridResolution: '${raw(mapData.gridResolution ?: "10km")}',
+                zoomArea: '${raw(mapData.zoomArea ?: "")}'
             });
         });
     </script>

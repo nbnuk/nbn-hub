@@ -36,47 +36,55 @@ window.EasyMap = (function() {
      * @param {string} tvk - Taxon Version Key for the species
      * @param {string} biocacheUrl - Base URL for biocache service
      * @param {string} datasetFilter - Optional dataset filter
+     * @param {string} color - Optional color for the grid (default: df4a21)
      * @returns {L.Layer} The WMS layer
      */
-    function addGridLayer(map, tvk, biocacheUrl, datasetFilter) {
+    function addGridLayer(map, tvk, biocacheUrl, datasetFilter, color) {
         if (!tvk || !biocacheUrl) {
             console.warn('Missing required parameters for grid layer');
             return null;
         }
 
-        // Build the query string
+        // Default color if not provided
+        color = color || 'df4a21';
+
+        // Build the query string - match EasyMap_Shim format
         var query = "?q=lsid:" + encodeURIComponent(tvk);
 
-        // Add dataset filter if provided
+        // Add dataset filter if provided - build druidurl like EasyMap_Shim
         if (datasetFilter) {
-            // Build filter queries for datasets
             var datasets = datasetFilter.split(',');
+            var druidQueries = [];
             datasets.forEach(function(ds) {
                 if (ds.trim()) {
-                    query += "&fq=data_resource_uid:" + encodeURIComponent(ds.trim());
+                    druidQueries.push("data_resource_uid:" + ds.trim());
                 }
             });
+            if (druidQueries.length > 0) {
+                if (druidQueries.length === 1) {
+                    query += "&fq=" + encodeURIComponent(druidQueries[0]);
+                } else {
+                    query += "&fq=" + encodeURIComponent("(" + druidQueries.join(" OR ") + ")");
+                }
+            }
         }
 
-        // TODO - is this needed ? Add presence filter to exclude absent records
-        query += "&fq=-occurrence_status:absent";
+        // Add presence filter to exclude absent records
+        query += "&fq=" + encodeURIComponent("-occurrence_status:absent");
 
-        // Build WMS URL
-        var wmsUrl = biocacheUrl + "/mapping/wms/reflect" + query;
+        // Build WMS URL using /ogc/wms/reflect endpoint like EasyMap_Shim
+        var wmsUrl = biocacheUrl + "/ogc/wms/reflect" + query;
 
-        // TODO - natural candidate for configuration or parameter? Configure 10km grid parameters
-        var envProperty = "colormode:osgrid;gridlabels:true;gridres:10kgrid;opacity:1;color:df4a21";
+        // Configure grid parameters to match EasyMap_Shim with dynamic color
+        var envProperty = "colourmode:osgrid;color:" + color + ";opacity:0.8;gridlabels:false;gridres:fixed_10km";
 
-        // TODO - more stuff that could be configured or parameters ? Create WMS layer
+        // Create WMS layer using the correct format
         var gridLayer = L.tileLayer.wms(wmsUrl, {
             layers: 'ALA:occurrences',
             format: 'image/png',
             transparent: true,
-            bgcolor: "0x000000",
-            outline: false,
             ENV: envProperty,
-            opacity: 0.8,
-            STYLE: "opacity:0.8"
+            opacity: 0.8
         });
 
         map.addLayer(gridLayer);
@@ -163,7 +171,8 @@ window.EasyMap = (function() {
         console.log('Using biocache URL:', biocacheUrl);
 
         var datasetFilter = options.datasetFilter || null;
-        var gridLayer = addGridLayer(map, tvk, biocacheUrl, datasetFilter);
+        var color = options.color || 'df4a21';
+        var gridLayer = addGridLayer(map, tvk, biocacheUrl, datasetFilter, color);
 
         // Fit map to show all data
         fitMapBounds(map, gridLayer, mapConfig);

@@ -41,6 +41,16 @@ class EasyMapController {
         def format = params.format as String ?: 'html'
         def datasetKeys = params.ds as String
 
+        // TODO Discuss these additional to match EasyMap_Shim functionality
+        def b0fill = params.b0fill as String ?: 'df4a21'  // Default red color
+        def bg = params.bg as String  // Background map (e.g., 'VC' for Vice Counties)
+        def gridResolution = params.gd as String ?: params.res as String ?: '10km'  // Grid resolution
+        def zoomArea = params.zoom as String  // Zoom to specific area (e.g., 'highland')
+        def terms = params.terms as String
+        def ref = params.ref as String
+        def link = params.link as String
+        def css = params.css as String
+
         if (!tvk || !isValidTVK(tvk)) {
             log.warn("Invalid TVK format provided: ${tvk}")
             response.status = 400
@@ -86,7 +96,16 @@ class EasyMapController {
                 speciesInfo: speciesInfo,
                 occurrences: occurrenceData,
                 mapConfig: mapConfig,
-                datasetFilter: datasetKeys
+                datasetFilter: datasetKeys,
+                // Additional EasyMap parameters
+                b0fill: b0fill,
+                bg: bg,
+                gridResolution: gridResolution,
+                zoomArea: zoomArea,
+                terms: terms,
+                ref: ref,
+                link: link,
+                css: css
             ]
 
             log.info("Successfully prepared EasyMap for ${speciesInfo.scientificName}" +
