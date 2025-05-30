@@ -21,7 +21,7 @@ class EasyMapService {
         log.debug("Retrieving species info for TVK: ${tvk}")
 
         // Check if mock data should be used
-        if (grailsApplication.config.getProperty('use.mock.data', Boolean, true)) {
+        if (grailsApplication.config.getProperty('use.mock.data', Boolean, false)) {
             log.info("Using mock data mode for species info")
             return getMockSpeciesInfo(tvk)
         }
@@ -40,7 +40,7 @@ class EasyMapService {
 
                 return [
                     tvk: tvk,
-                    acceptedTvk: taxonConcept.guid ?: tvk,
+                    acceptedTvk: taxonConcept.acceptedConceptID ?: taxonConcept.guid ?: tvk,
                     scientificName: taxonConcept.nameString ?: classification.scientificName,
                     commonName: preferredCommonName ?: anyCommonName,
                     rank: taxonConcept.rankString ?: classification.rank,
@@ -84,7 +84,7 @@ class EasyMapService {
                  (datasetKeys ? " with dataset filter: ${datasetKeys}" : ""))
 
         // Check if mock data should be used
-        if (grailsApplication.config.getProperty('use.mock.data', Boolean, true)) {
+        if (grailsApplication.config.getProperty('use.mock.data', Boolean, false)) {
             log.info("Using mock data mode for occurrence data")
             return getMockOccurrenceData(acceptedTvk)
         }
