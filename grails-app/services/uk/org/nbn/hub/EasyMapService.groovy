@@ -253,10 +253,11 @@ class EasyMapService {
     /**
      * Prepare map configuration based on occurrence data
      * @param occurrences List of occurrence records
+     * @param zoomArea Optional predefined geographical area to zoom to
      * @return Map containing map configuration
      */
-    def prepareMapConfig(List occurrences) {
-        log.debug("Preparing map config for ${occurrences?.size() ?: 0} occurrences")
+    def prepareMapConfig(List occurrences, String zoomArea = null) {
+        log.debug("Preparing map config for ${occurrences?.size() ?: 0} occurrences with zoom area: ${zoomArea}")
 // TODO - perhaps use mini-atlas as the default ?
         def biocacheUrl = grailsApplication.config.biocacheServicesUrl ?: grailsApplication.config.biocacheServiceUrl ?: 'https://records-ws.nbnatlas.org'
         log.debug("Using biocache URL in map config: ${biocacheUrl}")
@@ -266,6 +267,22 @@ class EasyMapService {
             bounds: null,
             biocacheUrl: biocacheUrl
         ]
+
+        // Check if a specific zoom area is requested and override bounds
+        if (zoomArea && isValidZoomArea(zoomArea)) {
+            def areaBounds = getZoomAreaBounds(zoomArea)
+            if (areaBounds) {
+                config.defaultLatitude = areaBounds.centerLat
+                config.defaultLongitude = areaBounds.centerLng
+                config.defaultZoom = areaBounds.zoom
+                config.bounds = [
+                    southwest: [lat: areaBounds.south, lng: areaBounds.west],
+                    northeast: [lat: areaBounds.north, lng: areaBounds.east]
+                ]
+                log.info("Applied zoom area '${zoomArea}' bounds: ${config.bounds}")
+                return config
+            }
+        }
 
         if (occurrences && occurrences.size() > 0) {
             // Calculate bounds from occurrence data
@@ -325,6 +342,116 @@ class EasyMapService {
         }
 
         return config
+    }
+
+    /**
+     * Check if the provided zoom area is valid
+     * @param zoomArea The zoom area identifier
+     * @return boolean true if valid
+     */
+    def isValidZoomArea(String zoomArea) {
+        if (!zoomArea) return false
+
+        def validAreas = ['england', 'scotland', 'wales', 'highland', 'sco-mainland', 'outer-heb']
+        return validAreas.contains(zoomArea.toLowerCase())
+    }
+
+    /**
+     * Get predefined geographical bounds for zoom areas
+     * Based on legacy EasyMap_Shim areas: england, scotland, wales, highland, sco-mainland, outer-heb
+     * @param zoomArea The area identifier
+     * @return Map containing bounds and zoom level, or null if not found
+     */
+    def getZoomAreaBounds(String zoomArea) {
+        if (!zoomArea) return null
+
+        // Predefined geographical bounds for UK regions
+        // Coordinates are approximate and based on commonly used boundaries
+        def areaBounds = [:]
+
+        switch (zoomArea.toLowerCase()) {
+            case 'england':
+                areaBounds = [
+                    north: 55.8,     // Northernmost point of England (near Scotland border)
+                    south: 49.9,     // Southern coast (near Isle of Wight)
+                    east: 1.8,       // Eastern coast (Norfolk)
+                    west: -5.7,      // Western coast (Cornwall)
+                    centerLat: 52.8,
+                    centerLng: -2.0,
+                    zoom: 6
+                ]
+                break
+
+            case 'scotland':
+                areaBounds = [
+                    north: 60.9,     // Shetland Islands
+                    south: 54.6,     // Southern Scotland border
+                    east: -0.7,      // Eastern coast
+                    west: -8.6,      // Western islands
+                    centerLat: 57.0,
+                    centerLng: -4.0,
+                    zoom: 6
+                ]
+                break
+
+            case 'wales':
+                areaBounds = [
+                    north: 53.4,     // Northern Wales
+                    south: 51.4,     // Southern Wales
+                    east: -2.7,      // Eastern border
+                    west: -5.3,      // Western coast
+                    centerLat: 52.3,
+                    centerLng: -3.8,
+                    zoom: 7
+                ]
+                break
+
+            case 'highland':
+                // Scottish Highlands region
+                areaBounds = [
+                    north: 58.6,     // Northern Highlands
+                    south: 56.0,     // Southern Highlands boundary
+                    east: -2.0,      // Eastern boundary
+                    west: -6.2,      // Western boundary
+                    centerLat: 57.4,
+                    centerLng: -4.2,
+                    zoom: 7
+                ]
+                break
+
+            case 'sco-mainland':
+                // Scottish mainland (excluding islands)
+                areaBounds = [
+                    north: 58.6,     // Northern Scotland mainland
+                    south: 54.6,     // Southern Scotland border
+                    east: -1.8,      // Eastern coast
+                    west: -5.1,      // Western mainland coast
+                    centerLat: 56.8,
+                    centerLng: -3.2,
+                    zoom: 6
+                ]
+                break
+
+            case 'outer-heb':
+                // Outer Hebrides
+                areaBounds = [
+                    north: 58.5,     // Lewis northern tip
+                    south: 56.9,     // Barra southern tip
+                    east: -6.1,      // Eastern edge
+                    west: -7.7,      // Western edge
+                    centerLat: 57.7,
+                    centerLng: -7.0,
+                    zoom: 8
+                ]
+                break
+
+            default:
+                log.warn("Unknown zoom area requested: ${zoomArea}")
+                return null
+        }
+
+        log.debug("Retrieved bounds for zoom area '${zoomArea}': ${areaBounds}")
+        return areaBounds
     }
 
     /**

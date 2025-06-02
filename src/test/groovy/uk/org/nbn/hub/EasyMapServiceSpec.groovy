@@ -146,6 +146,105 @@ class EasyMapServiceSpec extends Specification {
         result.defaultZoom >= 8
     }
 
+    // ========== Zoom Area Tests ==========
+
+    void "test isValidZoomArea with valid areas"() {
+        when: "checking valid zoom areas"
+        then: "all supported areas should return true"
+        service.isValidZoomArea('england') == true
+        service.isValidZoomArea('scotland') == true
+        service.isValidZoomArea('wales') == true
+        service.isValidZoomArea('highland') == true
+        service.isValidZoomArea('sco-mainland') == true
+        service.isValidZoomArea('outer-heb') == true
+
+        and: "case insensitive check should work"
+        service.isValidZoomArea('ENGLAND') == true
+        service.isValidZoomArea('Scotland') == true
+        service.isValidZoomArea('Highland') == true
+    }
+
+    void "test isValidZoomArea with invalid areas"() {
+        when: "checking invalid zoom areas"
+        then: "should return false"
+        service.isValidZoomArea('invalid') == false
+        service.isValidZoomArea('france') == false
+        service.isValidZoomArea('') == false
+        service.isValidZoomArea(null) == false
+    }
+
+    void "test getZoomAreaBounds returns correct bounds for england"() {
+        when: "getting bounds for England"
+        def bounds = service.getZoomAreaBounds('england')
+
+        then: "should return correct England bounds"
+        bounds != null
+        bounds.centerLat == 52.8
+        bounds.centerLng == -2.0
+        bounds.zoom == 6
+        bounds.north > bounds.south
+        bounds.east > bounds.west
+    }
+
+    void "test getZoomAreaBounds returns correct bounds for highland"() {
+        when: "getting bounds for Highland"
+        def bounds = service.getZoomAreaBounds('highland')
+
+        then: "should return correct Highland bounds"
+        bounds != null
+        bounds.centerLat == 57.4
+        bounds.centerLng == -4.2
+        bounds.zoom == 7
+        bounds.north > bounds.south
+        bounds.east > bounds.west
+    }
+
+    void "test getZoomAreaBounds returns null for invalid area"() {
+        when: "getting bounds for invalid area"
+        def bounds = service.getZoomAreaBounds('invalid')
+
+        then: "should return null"
+        bounds == null
+    }
+
+    void "test prepareMapConfig with zoom area overrides occurrence bounds"() {
+        given: "a list of occurrence records"
+        def occurrences = [
+            [latitude: 51.5074, longitude: -0.1278],  // London
+            [latitude: 53.4808, longitude: -2.2426],  // Manchester
+        ]
+
+        when: "prepareMapConfig is called with zoom area"
+        def result = service.prepareMapConfig(occurrences, 'scotland')
+
+        then: "it should use Scotland bounds instead of occurrence bounds"
+        result != null
+        result.occurrenceCount == 2
+        result.defaultLatitude == 57.0  // Scotland center lat
+        result.defaultLongitude == -4.0  // Scotland center lng
+        result.defaultZoom == 6
+        result.bounds != null
+        result.bounds.southwest.lat == 54.6  // Scotland south
+        result.bounds.northeast.lat == 60.9  // Scotland north
+    }
+
+    void "test prepareMapConfig with invalid zoom area ignores it"() {
+        given: "a list of occurrence records"
+        def occurrences = [
+            [latitude: 51.5074, longitude: -0.1278]
+        ]
+
+        when: "prepareMapConfig is called with invalid zoom area"
+        def result = service.prepareMapConfig(occurrences, 'invalid')
+
+        then: "it should ignore the zoom area and use occurrence bounds"
+        result != null
+        result.occurrenceCount == 1
+        // Should calculate from occurrences, not use zoom area
+        result.defaultLatitude != 57.0
+        result.defaultLongitude != -4.0
+    }
+
     // ========== Statistics Tests ==========
 
     void "test getOccurrenceStatistics with valid data returns statistics"() {

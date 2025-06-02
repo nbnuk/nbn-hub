@@ -75,6 +75,19 @@ class EasyMapController {
             return
         }
 
+        // Validate zoom area if provided
+        if (zoomArea && !easyMapService.isValidZoomArea(zoomArea)) {
+            log.warn("Invalid zoom area provided: ${zoomArea}")
+            response.status = 400
+            def errorMessage = "Invalid zoom area: ${zoomArea}. Supported areas: england, scotland, wales, highland, sco-mainland, outer-heb"
+            if (format == 'json') {
+                render([result: "ERROR", message: errorMessage, data: null] as JSON)
+            } else {
+                render(view: 'error', model: [message: errorMessage, tvk: tvk])
+            }
+            return
+        }
+
         try {
             def speciesInfo = easyMapService.getSpeciesInfo(tvk)
             if (!speciesInfo) {
@@ -89,7 +102,7 @@ class EasyMapController {
             }
 
             def occurrenceData = easyMapService.getOccurrenceData(speciesInfo.acceptedTvk ?: tvk, datasetKeys)
-            def mapConfig = easyMapService.prepareMapConfig(occurrenceData)
+            def mapConfig = easyMapService.prepareMapConfig(occurrenceData, zoomArea)
 
             def mapData = [
                 tvk: tvk,

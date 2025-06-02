@@ -99,8 +99,21 @@ window.EasyMap = (function() {
      * @param {L.Map} map - The Leaflet map instance
      * @param {L.Layer} dataLayer - The data layer (could be WMS grid or marker group)
      * @param {Object} mapConfig - Map configuration with optional bounds
+     * @param {string} zoomArea - Optional predefined zoom area
      */
-    function fitMapBounds(map, dataLayer, mapConfig) {
+    function fitMapBounds(map, dataLayer, mapConfig, zoomArea) {
+        // Priority 1: Use predefined zoom area bounds if specified and available in mapConfig
+        if (zoomArea && mapConfig.bounds) {
+            console.log('Applying zoom area bounds for:', zoomArea);
+            var bounds = L.latLngBounds([
+                [mapConfig.bounds.southwest.lat, mapConfig.bounds.southwest.lng],
+                [mapConfig.bounds.northeast.lat, mapConfig.bounds.northeast.lng]
+            ]);
+            map.fitBounds(bounds, { padding: [10, 10] });
+            return;
+        }
+
+        // Priority 2: Use occurrence-based bounds if available
         if (mapConfig.bounds) {
             var bounds = L.latLngBounds([
                 [mapConfig.bounds.southwest.lat, mapConfig.bounds.southwest.lng],
@@ -124,6 +137,7 @@ window.EasyMap = (function() {
      * @param {Array} options.occurrences - Array of occurrence data
      * @param {Object} options.speciesInfo - Species information object
      * @param {string} options.tvk - Taxon Version Key
+     * @param {string} options.zoomArea - Optional predefined zoom area
      * @returns {L.Map} The initialized Leaflet map instance
      */
     function initializeMap(options) {
@@ -132,6 +146,7 @@ window.EasyMap = (function() {
         var occurrences = options.occurrences || [];
         var speciesInfo = options.speciesInfo || {};
         var tvk = options.tvk || '';
+        var zoomArea = options.zoomArea || '';
 
         // Set default coordinates (UK bounds)
         var defaultLat = mapConfig.defaultLatitude || CONFIG.DEFAULT_COORDS.lat;
@@ -174,8 +189,8 @@ window.EasyMap = (function() {
         var color = options.color || 'df4a21';
         var gridLayer = addGridLayer(map, tvk, biocacheUrl, datasetFilter, color);
 
-        // Fit map to show all data
-        fitMapBounds(map, gridLayer, mapConfig);
+        // Fit map to show all data or zoom area
+        fitMapBounds(map, gridLayer, mapConfig, zoomArea);
 
         // Add scale control
         L.control.scale({
@@ -192,6 +207,7 @@ window.EasyMap = (function() {
         console.log('Map config:', mapConfig);
         console.log('Grid mode: 10km grid');
         console.log('Dataset filter:', datasetFilter || 'none');
+        console.log('Zoom area:', zoomArea || 'none');
         console.log('Biocache URL:', biocacheUrl);
 
         return map;
