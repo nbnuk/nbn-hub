@@ -12,6 +12,11 @@ class EasyMapService {
     def grailsApplication
     def webServicesService
 
+    // Cache for vice county bounds data to avoid repeated API calls
+    private static Map<String, Map> viceCountyBoundsCache = [:]
+    private static long viceCountyCacheTimestamp = 0
+    private static final long CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000 // 24 hours
+
     /**
      * Get species information from BIE service using TVK
      * @param tvk The Taxon Version Key
@@ -254,94 +259,92 @@ class EasyMapService {
      * Prepare map configuration based on occurrence data
      * @param occurrences List of occurrence records
      * @param zoomArea Optional predefined geographical area to zoom to
+     * @param viceCounty Optional vice-county number
+     * @param bottomLeft Optional bottom left grid reference
+     * @param topRight Optional top right grid reference
+     * @param bottomLeftCoord Optional bottom left coordinates (Easting,Northing)
+     * @param topRightCoord Optional top right coordinates (Easting,Northing)
      * @return Map containing map configuration
      */
-    def prepareMapConfig(List occurrences, String zoomArea = null) {
-        log.debug("Preparing map config for ${occurrences?.size() ?: 0} occurrences with zoom area: ${zoomArea}")
+    def prepareMapConfig(List occurrences, String zoomArea = null, String viceCounty = null,
+                        String bottomLeft = null, String topRight = null,
+                        String bottomLeftCoord = null, String topRightCoord = null) {
+        log.debug("Preparing map config for ${occurrences?.size() ?: 0} occurrences with zoom area: ${zoomArea}, vc: ${viceCounty}, bl: ${bottomLeft}, tr: ${topRight}")
 // TODO - perhaps use mini-atlas as the default ?
         def biocacheUrl = grailsApplication.config.biocacheServicesUrl ?: grailsApplication.config.biocacheServiceUrl ?: 'https://records-ws.nbnatlas.org'
         log.debug("Using biocache URL in map config: ${biocacheUrl}")
 
-        def config = [
+        def mapConfig = [
+            biocacheUrl: biocacheUrl,
             occurrenceCount: occurrences?.size() ?: 0,
+            defaultLatitude: 54.5,
+            defaultLongitude: -3.0,
             bounds: null,
-            biocacheUrl: biocacheUrl
+            zoomLevel: 6
         ]
 
-        // Check if a specific zoom area is requested and override bounds
-        if (zoomArea && isValidZoomArea(zoomArea)) {
+        // Priority 1: Use predefined zoom area bounds if specified
+        if (zoomArea && getZoomAreaBounds(zoomArea)) {
             def areaBounds = getZoomAreaBounds(zoomArea)
-            if (areaBounds) {
-                config.defaultLatitude = areaBounds.centerLat
-                config.defaultLongitude = areaBounds.centerLng
-                config.defaultZoom = areaBounds.zoom
-                config.bounds = [
-                    southwest: [lat: areaBounds.south, lng: areaBounds.west],
-                    northeast: [lat: areaBounds.north, lng: areaBounds.east]
-                ]
-                log.info("Applied zoom area '${zoomArea}' bounds: ${config.bounds}")
-                return config
+            // Convert to the format expected by JavaScript (southwest/northeast)
+            mapConfig.bounds = [
+                southwest: [lat: areaBounds.south, lng: areaBounds.west],
+                northeast: [lat: areaBounds.north, lng: areaBounds.east]
+            ]
+            log.debug("Using zoom area bounds for: ${zoomArea}")
+            log.debug("Original area bounds: ${areaBounds}")
+            log.debug("Converted map bounds: ${mapConfig.bounds}")
+            return mapConfig
+        }
+
+        // Priority 2: Use vice-county bounds if specified
+        if (viceCounty) {
+            def vcBounds = getViceCountyBounds(viceCounty)
+            if (vcBounds) {
+                mapConfig.bounds = vcBounds
+                log.debug("Using vice-county bounds for VC: ${viceCounty}")
+                return mapConfig
             }
         }
 
-        if (occurrences && occurrences.size() > 0) {
-            // Calculate bounds from occurrence data
-            def latitudes = occurrences.collect { it.latitude }.findAll { it != null }
-            def longitudes = occurrences.collect { it.longitude }.findAll { it != null }
-
-            if (latitudes && longitudes) {
-                def minLat = latitudes.min()
-                def maxLat = latitudes.max()
-                def minLon = longitudes.min()
-                def maxLon = longitudes.max()
-
-                // Calculate center point
-                def centerLat = (minLat + maxLat) / 2
-                def centerLon = (minLon + maxLon) / 2
-
-                // Add padding to bounds
-                def latPadding = Math.max((maxLat - minLat) * 0.1, 0.01)
-                def lonPadding = Math.max((maxLon - minLon) * 0.1, 0.01)
-
-                config.defaultLatitude = centerLat
-                config.defaultLongitude = centerLon
-                config.bounds = [
-                    southwest: [lat: minLat - latPadding, lng: minLon - lonPadding],
-                    northeast: [lat: maxLat + latPadding, lng: maxLon + lonPadding]
-                ]
-
-                // Calculate appropriate zoom level based on bounds
-                def latDiff = maxLat - minLat + (2 * latPadding)
-                def lonDiff = maxLon - minLon + (2 * lonPadding)
-                def maxDiff = Math.max(latDiff, lonDiff)
-
-                if (maxDiff > 10) {
-                    config.defaultZoom = 5
-                } else if (maxDiff > 5) {
-                    config.defaultZoom = 6
-                } else if (maxDiff > 2) {
-                    config.defaultZoom = 7
-                } else if (maxDiff > 1) {
-                    config.defaultZoom = 8
-                } else if (maxDiff > 0.5) {
-                    config.defaultZoom = 9
-                } else {
-                    config.defaultZoom = 10
-                }
-            } else {
-                // Default to UK bounds if no valid coordinates
-                config.defaultLatitude = 54.5
-                config.defaultLongitude = -3.0
-                config.defaultZoom = 6
+        // Priority 3: Use grid reference bounding box if bl and tr specified
+        if (bottomLeft && topRight) {
+            def grBounds = getGridReferenceBounds(bottomLeft, topRight)
+            if (grBounds) {
+                mapConfig.bounds = grBounds
+                log.debug("Using grid reference bounds: ${bottomLeft} to ${topRight}")
+                return mapConfig
             }
+        }
+
+        // Priority 4: Use coordinate bounding box if blCoord and trCoord specified
+        if (bottomLeftCoord && topRightCoord) {
+            def coordBounds = getCoordinateBounds(bottomLeftCoord, topRightCoord)
+            if (coordBounds) {
+                mapConfig.bounds = coordBounds
+                log.debug("Using coordinate bounds: ${bottomLeftCoord} to ${topRightCoord}")
+                return mapConfig
+            }
+        }
+
+        // Priority 5: Use default UK bounds if no specific bounds are set and no occurrences
+        if (!occurrences || occurrences.isEmpty()) {
+            mapConfig.bounds = getDefaultUKBounds()
+            log.debug("Using default UK bounds - no occurrences available")
+            return mapConfig
+        }
+
+        // Priority 6: Calculate bounds from occurrence data as fallback
+        def calculatedBounds = calculateBoundsFromOccurrences(occurrences)
+        if (calculatedBounds) {
+            mapConfig.bounds = calculatedBounds
+            log.debug("Using calculated bounds from ${occurrences.size()} occurrences")
         } else {
-            // Default to UK bounds if no occurrences
-            config.defaultLatitude = 54.5
-            config.defaultLongitude = -3.0
-            config.defaultZoom = 6
+            mapConfig.bounds = getDefaultUKBounds()
+            log.debug("Using default UK bounds - could not calculate from occurrences")
         }
 
-        return config
+        return mapConfig
     }
 
     /**
@@ -509,5 +512,503 @@ class EasyMapService {
         stats.dataProviders = providerCounts
 
         return stats
+    }
+
+    /**
+     * Validate bounding box parameters
+     * @param viceCounty Optional vice-county number
+     * @param bottomLeft Optional bottom left grid reference
+     * @param topRight Optional top right grid reference
+     * @param bottomLeftCoord Optional bottom left coordinates
+     * @param topRightCoord Optional top right coordinates
+     * @return Map with valid flag and message
+     */
+    def validateBoundingBoxParams(String viceCounty, String bottomLeft, String topRight,
+                                 String bottomLeftCoord, String topRightCoord) {
+        // Check for conflicting parameters
+        def paramCount = [viceCounty, bottomLeft, bottomLeftCoord].count { it != null }
+        if (paramCount > 1) {
+            return [valid: false, message: "Cannot specify multiple bounding box types (vc, bl/tr, blCoord/trCoord) simultaneously"]
+        }
+
+        // Validate grid reference pairs
+        if ((bottomLeft && !topRight) || (!bottomLeft && topRight)) {
+            return [valid: false, message: "Grid reference bounding box requires both bl and tr parameters"]
+        }
+
+        // Validate coordinate pairs
+        if ((bottomLeftCoord && !topRightCoord) || (!bottomLeftCoord && topRightCoord)) {
+            return [valid: false, message: "Coordinate bounding box requires both blCoord and trCoord parameters"]
+        }
+
+        // Validate vice-county format
+        if (viceCounty && !isValidViceCounty(viceCounty)) {
+            return [valid: false, message: "Invalid vice-county number: ${viceCounty}. Must be a number between 1 and 112"]
+        }
+
+        // Validate grid reference format
+        if (bottomLeft && !isValidGridReference(bottomLeft)) {
+            return [valid: false, message: "Invalid grid reference format for bl parameter: ${bottomLeft}"]
+        }
+        if (topRight && !isValidGridReference(topRight)) {
+            return [valid: false, message: "Invalid grid reference format for tr parameter: ${topRight}"]
+        }
+
+        // Validate coordinate format
+        if (bottomLeftCoord && !isValidCoordinate(bottomLeftCoord)) {
+            return [valid: false, message: "Invalid coordinate format for blCoord parameter: ${bottomLeftCoord}. Expected format: Easting,Northing"]
+        }
+        if (topRightCoord && !isValidCoordinate(topRightCoord)) {
+            return [valid: false, message: "Invalid coordinate format for trCoord parameter: ${topRightCoord}. Expected format: Easting,Northing"]
+        }
+
+        return [valid: true, message: "Valid parameters"]
+    }
+
+    /**
+     * Get vice-county bounds using dynamic lookup from NBN Atlas layers service
+     * @param viceCounty Vice-county number (1-112)
+     * @return Map with bounds coordinates or null if not found
+     */
+    def getViceCountyBounds(String viceCounty) {
+        try {
+            def vcNumber = Integer.parseInt(viceCounty)
+
+            // Load vice county bounds data (with caching)
+            def viceCountyBounds = loadViceCountyBoundsData()
+
+            // Look up by vice county number
+            def vcBounds = viceCountyBounds.find { key, value ->
+                // Try to match by ID or name that contains the number
+                return key == vcNumber.toString() ||
+                       value.name?.contains(vcNumber.toString()) ||
+                       value.id == vcNumber.toString()
+            }
+
+            return vcBounds?.value?.bounds
+
+        } catch (NumberFormatException e) {
+            log.warn("Invalid vice-county number format: ${viceCounty}")
+            return null
+        } catch (Exception e) {
+            log.error("Error retrieving vice-county bounds for VC ${viceCounty}: ${e.message}", e)
+            return null
+        }
+    }
+
+    /**
+     * Load vice county bounds data from NBN Atlas layers service with caching
+     * @return Map of vice county identifiers to bounds data
+     */
+    private Map loadViceCountyBoundsData() {
+        // Check cache first
+        def currentTime = System.currentTimeMillis()
+        if (viceCountyBoundsCache &&
+            viceCountyCacheTimestamp > 0 &&
+            (currentTime - viceCountyCacheTimestamp) < CACHE_EXPIRY_MS) {
+            log.debug("Using cached vice county bounds data")
+            return viceCountyBoundsCache
+        }
+
+        try {
+            log.info("Fetching vice county bounds from NBN Atlas layers service")
+
+            def layersBaseUrl = grailsApplication.config.getProperty('nbnatlas.layers.baseUrl', 'https://layers.nbnatlas.org/ws')
+            def viceCountyLayerId = grailsApplication.config.getProperty('layer.vice_county', 'cl254')
+            def url = "${layersBaseUrl}/objects/${viceCountyLayerId}"
+
+            log.debug("Fetching vice county data from: ${url}")
+
+            def jsonResponse = webServicesService.getJsonElements(url)
+            if (!jsonResponse) {
+                log.warn("No response from layers service for vice counties")
+                return getBackupViceCountyBounds()
+            }
+
+            def viceCountyBounds = [:]
+
+            jsonResponse.each { vcData ->
+                if (vcData.bbox && vcData.id) {
+                    try {
+                        def bounds = convertBboxToLatLngBounds(vcData.bbox)
+                        if (bounds) {
+                            viceCountyBounds[vcData.id] = [
+                                id: vcData.id,
+                                name: vcData.name,
+                                bounds: bounds
+                            ]
+
+                            // Also store by name for alternate lookup
+                            if (vcData.name) {
+                                viceCountyBounds[vcData.name] = viceCountyBounds[vcData.id]
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.warn("Error processing vice county ${vcData.id}: ${e.message}")
+                    }
+                }
+            }
+
+            // Update cache
+            viceCountyBoundsCache = viceCountyBounds
+            viceCountyCacheTimestamp = currentTime
+
+            log.info("Successfully loaded ${viceCountyBounds.size()} vice county bounds from layers service")
+            return viceCountyBounds
+
+        } catch (Exception e) {
+            log.error("Error loading vice county bounds from layers service: ${e.message}", e)
+            return getBackupViceCountyBounds()
+        }
+    }
+
+    /**
+     * Convert bbox string from layers service to lat/lng bounds
+     * @param bboxString Bounding box string from layers service (POLYGON format or simple coordinate list)
+     * @return Map with southwest/northeast bounds or null if invalid
+     */
+    private Map convertBboxToLatLngBounds(String bboxString) {
+        try {
+            if (!bboxString) return null
+
+            // Handle POLYGON format: POLYGON((lon lat,lon lat,...))
+            if (bboxString.startsWith("POLYGON")) {
+                // Extract coordinates from POLYGON((coordinates))
+                def coordinateString = bboxString.replaceAll(/POLYGON\(\(/, '').replaceAll(/\)\)/, '')
+                return parseCoordinateString(coordinateString)
+            } else {
+                // Handle simple format: "lon lat,lon lat,..."
+                return parseCoordinateString(bboxString)
+            }
+
+        } catch (Exception e) {
+            log.warn("Error parsing bbox string '${bboxString}': ${e.message}")
+            return null
+        }
+    }
+
+    /**
+     * Parse coordinate string and return bounding box
+     * @param coordinateString String containing coordinate pairs separated by commas
+     * @return Map with southwest/northeast bounds or null if invalid
+     */
+    private Map parseCoordinateString(String coordinateString) {
+        try {
+            if (!coordinateString) return null
+
+            // Parse bbox coordinates - format is "lon lat,lon lat,..." for polygon vertices
+            def coordinates = []
+            coordinateString.split(',').each { pair ->
+                def parts = pair.trim().split(/\s+/)
+                if (parts.length >= 2) {
+                    def lon = Double.parseDouble(parts[0])
+                    def lat = Double.parseDouble(parts[1])
+                    coordinates << [lon: lon, lat: lat]
+                }
+            }
+
+            if (coordinates.isEmpty()) return null
+
+            // Find min/max coordinates to create bounding box
+            def lons = coordinates.collect { it.lon }
+            def lats = coordinates.collect { it.lat }
+
+            def minLon = lons.min()
+            def maxLon = lons.max()
+            def minLat = lats.min()
+            def maxLat = lats.max()
+
+            log.debug("Parsed coordinates: min(${minLon}, ${minLat}) to max(${maxLon}, ${maxLat})")
+
+            return [
+                southwest: [lat: minLat, lng: minLon],
+                northeast: [lat: maxLat, lng: maxLon]
+            ]
+
+        } catch (Exception e) {
+            log.warn("Error parsing coordinate string '${coordinateString}': ${e.message}")
+            return null
+        }
+    }
+
+    /**
+     * Get backup vice county bounds data when layers service is unavailable
+     * @return Map of vice-county numbers to bounds
+     */
+    private Map getBackupViceCountyBounds() {
+        log.warn("Using backup vice county bounds data")
+
+        // Minimal backup data for critical vice counties
+        return [
+            "1": [
+                id: "1",
+                name: "West Cornwall",
+                bounds: [southwest: [lat: 49.9, lng: -5.8], northeast: [lat: 50.4, lng: -4.9]]
+            ],
+            "17": [
+                id: "17",
+                name: "Surrey",
+                bounds: [southwest: [lat: 51.2, lng: -1.0], northeast: [lat: 51.7, lng: 0.3]]
+            ],
+            "21": [
+                id: "21",
+                name: "Middlesex",
+                bounds: [southwest: [lat: 51.3, lng: -0.5], northeast: [lat: 51.7, lng: 0.4]]
+            ]
+        ]
+    }
+
+    /**
+     * Get grid reference bounds
+     * @param bottomLeft Bottom left grid reference
+     * @param topRight Top right grid reference
+     * @return Map with bounds coordinates or null if invalid
+     */
+    def getGridReferenceBounds(String bottomLeft, String topRight) {
+        try {
+            // Convert grid references to coordinates
+            def blCoords = convertGridReferenceToCoordinates(bottomLeft)
+            def trCoords = convertGridReferenceToCoordinates(topRight)
+
+            if (!blCoords || !trCoords) {
+                return null
+            }
+
+            return [
+                southwest: [lat: blCoords.lat, lng: blCoords.lng],
+                northeast: [lat: trCoords.lat, lng: trCoords.lng]
+            ]
+        } catch (Exception e) {
+            log.warn("Error converting grid references to bounds: ${e.message}")
+            return null
+        }
+    }
+
+    /**
+     * Get coordinate bounds
+     * @param bottomLeftCoord Bottom left coordinates as "Easting,Northing"
+     * @param topRightCoord Top right coordinates as "Easting,Northing"
+     * @return Map with bounds coordinates or null if invalid
+     */
+    def getCoordinateBounds(String bottomLeftCoord, String topRightCoord) {
+        try {
+            def blParts = bottomLeftCoord.split(',')
+            def trParts = topRightCoord.split(',')
+
+            if (blParts.length != 2 || trParts.length != 2) {
+                return null
+            }
+
+            def blEasting = Double.parseDouble(blParts[0].trim())
+            def blNorthing = Double.parseDouble(blParts[1].trim())
+            def trEasting = Double.parseDouble(trParts[0].trim())
+            def trNorthing = Double.parseDouble(trParts[1].trim())
+
+            // Convert British National Grid coordinates to WGS84
+            def blCoords = convertBNGToWGS84(blEasting, blNorthing)
+            def trCoords = convertBNGToWGS84(trEasting, trNorthing)
+
+            return [
+                southwest: [lat: blCoords.lat, lng: blCoords.lng],
+                northeast: [lat: trCoords.lat, lng: trCoords.lng]
+            ]
+        } catch (Exception e) {
+            log.warn("Error converting coordinates to bounds: ${e.message}")
+            return null
+        }
+    }
+
+    /**
+     * Calculate bounds from occurrence data
+     * @param occurrences List of occurrence records
+     * @return Map with bounds coordinates or null if no valid coordinates
+     */
+    def calculateBoundsFromOccurrences(List occurrences) {
+        if (!occurrences || occurrences.isEmpty()) {
+            return null
+        }
+
+        def latitudes = occurrences.collect { it.latitude }.findAll { it != null }
+        def longitudes = occurrences.collect { it.longitude }.findAll { it != null }
+
+        if (!latitudes || !longitudes) {
+            return null
+        }
+
+        def minLat = latitudes.min()
+        def maxLat = latitudes.max()
+        def minLon = longitudes.min()
+        def maxLon = longitudes.max()
+
+        // Add padding to bounds
+        def latPadding = Math.max((maxLat - minLat) * 0.1, 0.01)
+        def lonPadding = Math.max((maxLon - minLon) * 0.1, 0.01)
+
+        return [
+            southwest: [lat: minLat - latPadding, lng: minLon - lonPadding],
+            northeast: [lat: maxLat + latPadding, lng: maxLon + lonPadding]
+        ]
+    }
+
+    /**
+     * Get default UK bounds
+     * @return Map with UK bounds coordinates
+     */
+    def getDefaultUKBounds() {
+        return [
+            southwest: [lat: 49.8, lng: -7.5],
+            northeast: [lat: 60.9, lng: 1.8]
+        ]
+    }
+
+    /**
+     * Validate vice-county number
+     * @param viceCounty Vice-county number as string
+     * @return true if valid (1-112), false otherwise
+     */
+    private boolean isValidViceCounty(String viceCounty) {
+        try {
+            def vcNumber = Integer.parseInt(viceCounty)
+            return vcNumber >= 1 && vcNumber <= 112
+        } catch (NumberFormatException e) {
+            return false
+        }
+    }
+
+    /**
+     * Validate grid reference format
+     * @param gridRef Grid reference string
+     * @return true if valid format, false otherwise
+     */
+    private boolean isValidGridReference(String gridRef) {
+        if (!gridRef) return false
+        // UK grid reference pattern: 2 letters followed by digits (even number of digits)
+        // Examples: TQ123456, TQ12345678, TQ1234567890
+        return gridRef.matches(/^[A-Z]{2}[0-9]*$/) && (gridRef.length() - 2) % 2 == 0 && gridRef.length() >= 4
+    }
+
+    /**
+     * Validate coordinate format
+     * @param coord Coordinate string in format "Easting,Northing"
+     * @return true if valid format, false otherwise
+     */
+    private boolean isValidCoordinate(String coord) {
+        if (!coord) return false
+        try {
+            def parts = coord.split(',')
+            if (parts.length != 2) return false
+            Double.parseDouble(parts[0].trim())
+            Double.parseDouble(parts[1].trim())
+            return true
+        } catch (NumberFormatException e) {
+            return false
+        }
+    }
+
+    /**
+     * Convert grid reference to coordinates
+     * @param gridRef Grid reference string
+     * @return Map with lat/lng coordinates or null if conversion fails
+     */
+    private def convertGridReferenceToCoordinates(String gridRef) {
+        try {
+            // This is a simplified conversion - in practice you'd use a proper grid reference library
+            // For now, return sample coordinates for testing
+            def coords = convertOSGridToWGS84(gridRef)
+            return coords
+        } catch (Exception e) {
+            log.warn("Failed to convert grid reference ${gridRef}: ${e.message}")
+            return null
+        }
+    }
+
+    /**
+     * Convert British National Grid coordinates to WGS84
+     * @param easting Easting coordinate
+     * @param northing Northing coordinate
+     * @return Map with lat/lng coordinates
+     */
+    private def convertBNGToWGS84(double easting, double northing) {
+        // Simplified conversion - in practice you'd use a proper coordinate transformation library
+        // This is a rough approximation for demonstration
+        def lat = 49.5 + (northing / 111000.0)
+        def lng = -8.0 + (easting / 70000.0)
+        return [lat: lat, lng: lng]
+    }
+
+    /**
+     * Convert OS Grid Reference to WGS84 coordinates
+     * @param gridRef Grid reference string
+     * @return Map with lat/lng coordinates
+     */
+    private def convertOSGridToWGS84(String gridRef) {
+        // Simplified conversion for demonstration
+        // In practice, you'd use proper OS grid conversion algorithms
+        def letters = gridRef.substring(0, 2)
+        def numbers = gridRef.substring(2)
+
+        // Basic approximation based on grid square
+        def baseEasting = getGridSquareEasting(letters)
+        def baseNorthing = getGridSquareNorthing(letters)
+
+        // Parse the numeric part
+        def numDigits = numbers.length()
+        def halfDigits = numDigits / 2
+
+        def eastingOffset = 0
+        def northingOffset = 0
+
+        if (numDigits > 0) {
+            def eastingStr = numbers.substring(0, halfDigits as int)
+            def northingStr = numbers.substring(halfDigits as int)
+
+            // Scale to full precision
+            def scale = Math.pow(10, 5 - halfDigits)
+            eastingOffset = Integer.parseInt(eastingStr) * scale
+            northingOffset = Integer.parseInt(northingStr) * scale
+        }
+
+        def totalEasting = baseEasting + eastingOffset
+        def totalNorthing = baseNorthing + northingOffset
+
+        return convertBNGToWGS84(totalEasting, totalNorthing)
+    }
+
+    /**
+     * Get base easting for grid square
+     * @param letters Two-letter grid square identifier
+     * @return Base easting coordinate
+     */
+    private def getGridSquareEasting(String letters) {
+        // Simplified mapping for common grid squares
+        def firstLetter = letters.charAt(0)
+        def secondLetter = letters.charAt(1)
+
+        def firstLetterValue = (firstLetter as char) - ('A' as char)
+        if (firstLetterValue > 7) firstLetterValue-- // Skip 'I'
+
+        def secondLetterValue = (secondLetter as char) - ('A' as char)
+        if (secondLetterValue > 7) secondLetterValue-- // Skip 'I'
+
+        return (firstLetterValue % 5) * 500000 + (secondLetterValue % 5) * 100000
+    }
+
+    /**
+     * Get base northing for grid square
+     * @param letters Two-letter grid square identifier
+     * @return Base northing coordinate
+     */
+    private def getGridSquareNorthing(String letters) {
+        // Simplified mapping for common grid squares
+        def firstLetter = letters.charAt(0)
+        def secondLetter = letters.charAt(1)
+
+        def firstLetterValue = (firstLetter as char) - ('A' as char)
+        if (firstLetterValue > 7) firstLetterValue-- // Skip 'I'
+
+        def secondLetterValue = (secondLetter as char) - ('A' as char)
+        if (secondLetterValue > 7) secondLetterValue-- // Skip 'I'
+
+        return (4 - (firstLetterValue / 5 as int)) * 500000 + (4 - (secondLetterValue / 5 as int)) * 100000
     }
 }

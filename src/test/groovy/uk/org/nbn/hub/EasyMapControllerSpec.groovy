@@ -103,10 +103,12 @@ class EasyMapControllerSpec extends Specification {
         def mockSpeciesInfo = [scientificName: "Test Species", acceptedTvk: "NHMSYS0000458183"]
         def mockOccurrences = [[id: "1", latitude: 51.5, longitude: -0.1]]
         def mockMapConfig = [occurrenceCount: 1]
+        def mockValidation = [valid: true, message: "Valid parameters"]
 
         controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
         controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
-        controller.easyMapService.prepareMapConfig(_) >> mockMapConfig
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
 
         when: "easyMap action is called"
         controller.easyMap()
@@ -126,10 +128,12 @@ class EasyMapControllerSpec extends Specification {
         def mockSpeciesInfo = [scientificName: "Test Species", acceptedTvk: "NHMSYS0000458183"]
         def mockOccurrences = [[id: "1", latitude: 51.5, longitude: -0.1]]
         def mockMapConfig = [occurrenceCount: 1]
+        def mockValidation = [valid: true, message: "Valid parameters"]
 
         controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
         controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
-        controller.easyMapService.prepareMapConfig(_) >> mockMapConfig
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
 
         when: "easyMap action is called"
         controller.easyMap()
@@ -149,10 +153,12 @@ class EasyMapControllerSpec extends Specification {
         def mockSpeciesInfo = [scientificName: "Test Species", acceptedTvk: "NHMSYS0000458183"]
         def mockOccurrences = [[id: "1", latitude: 51.5, longitude: -0.1]]
         def mockMapConfig = [occurrenceCount: 1]
+        def mockValidation = [valid: true, message: "Valid parameters"]
 
         controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
         controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
-        controller.easyMapService.prepareMapConfig(_) >> mockMapConfig
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
 
         when: "easyMap action is called"
         controller.easyMap()
@@ -196,7 +202,9 @@ class EasyMapControllerSpec extends Specification {
         params.tvk = "NHMSYS0000458183"
         params.format = "json"
 
+        def mockValidation = [valid: true, message: "Valid parameters"]
         controller.easyMapService.getSpeciesInfo(_) >> null
+        controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
 
         when: "easyMap action is called"
         controller.easyMap()
@@ -205,5 +213,74 @@ class EasyMapControllerSpec extends Specification {
         response.status == 404
         1 * controller.easyMapService.getSpeciesInfo("NHMSYS0000458183")
         0 * controller.easyMapService.getOccurrenceData(_, _)
+    }
+
+    void "test easyMap with invalid bounding box parameters"() {
+        given: "valid TVK but invalid bounding box parameters"
+        params.tvk = "NHMSYS0000458183"
+        params.vc = "999"  // Invalid vice-county
+        params.format = "json"
+
+        def mockValidation = [valid: false, message: "Invalid vice-county number: 999. Must be a number between 1 and 112"]
+        controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+
+        when: "easyMap action is called"
+        controller.easyMap()
+
+        then: "response is bad request"
+        response.status == 400
+        0 * controller.easyMapService.getSpeciesInfo(_)
+        0 * controller.easyMapService.getOccurrenceData(_, _)
+    }
+
+    void "test easyMap with valid vice-county parameter"() {
+        given: "valid parameters including vice-county"
+        params.tvk = "NHMSYS0000458183"
+        params.vc = "17"  // Surrey
+        params.format = "json"
+
+        and: "mock service responses"
+        def mockSpeciesInfo = [scientificName: "Test Species", acceptedTvk: "NHMSYS0000458183"]
+        def mockOccurrences = [[id: "1", latitude: 51.5, longitude: -0.1]]
+        def mockMapConfig = [occurrenceCount: 1]
+        def mockValidation = [valid: true, message: "Valid parameters"]
+
+        controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
+        controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+
+        when: "easyMap action is called"
+        controller.easyMap()
+
+        then: "response is successful"
+        response.status == 200
+        1 * controller.easyMapService.getOccurrenceData("NHMSYS0000458183", null)
+    }
+
+    void "test easyMap with valid grid reference bounds"() {
+        given: "valid parameters including grid reference bounds"
+        params.tvk = "NHMSYS0000458183"
+        params.bl = "TQ1234"
+        params.tr = "TQ5678"
+        params.format = "json"
+
+        and: "mock service responses"
+        def mockSpeciesInfo = [scientificName: "Test Species", acceptedTvk: "NHMSYS0000458183"]
+        def mockOccurrences = [[id: "1", latitude: 51.5, longitude: -0.1]]
+        def mockMapConfig = [occurrenceCount: 1]
+        def mockValidation = [valid: true, message: "Valid parameters"]
+
+        controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
+        controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+
+        when: "easyMap action is called"
+        controller.easyMap()
+
+        then: "response is successful"
+        response.status == 200
+        1 * controller.easyMapService.getOccurrenceData("NHMSYS0000458183", null)
     }
 }

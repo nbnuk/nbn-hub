@@ -99,12 +99,14 @@ window.EasyMap = (function() {
      * @param {L.Map} map - The Leaflet map instance
      * @param {L.Layer} dataLayer - The data layer (could be WMS grid or marker group)
      * @param {Object} mapConfig - Map configuration with optional bounds
-     * @param {string} zoomArea - Optional predefined zoom area
+     * @param {Object} boundingParams - Bounding box parameters (zoomArea, viceCounty, etc.)
      */
-    function fitMapBounds(map, dataLayer, mapConfig, zoomArea) {
+    function fitMapBounds(map, dataLayer, mapConfig, boundingParams) {
+        boundingParams = boundingParams || {};
+
         // Priority 1: Use predefined zoom area bounds if specified and available in mapConfig
-        if (zoomArea && mapConfig.bounds) {
-            console.log('Applying zoom area bounds for:', zoomArea);
+        if (boundingParams.zoomArea && mapConfig.bounds) {
+            console.log('Applying zoom area bounds for:', boundingParams.zoomArea);
             var bounds = L.latLngBounds([
                 [mapConfig.bounds.southwest.lat, mapConfig.bounds.southwest.lng],
                 [mapConfig.bounds.northeast.lat, mapConfig.bounds.northeast.lng]
@@ -113,20 +115,78 @@ window.EasyMap = (function() {
             return;
         }
 
-        // Priority 2: Use occurrence-based bounds if available
-        if (mapConfig.bounds) {
+        // Priority 2: Use vice-county bounds if specified and available in mapConfig
+        if (boundingParams.viceCounty && mapConfig.bounds) {
+            console.log('Applying vice-county bounds for VC:', boundingParams.viceCounty);
             var bounds = L.latLngBounds([
                 [mapConfig.bounds.southwest.lat, mapConfig.bounds.southwest.lng],
                 [mapConfig.bounds.northeast.lat, mapConfig.bounds.northeast.lng]
             ]);
             map.fitBounds(bounds, { padding: [10, 10] });
-        } else if (dataLayer && typeof dataLayer.getBounds === 'function' && dataLayer.getLayers && dataLayer.getLayers().length > 0) {
-            // For marker groups - fallback option (shouldn't be used with grid but kept for safety)
-            map.fitBounds(dataLayer.getBounds(), { padding: [10, 10] });
-        } else {
-            // For WMS layers or when no bounds available, use default UK view
-            map.setView([CONFIG.DEFAULT_COORDS.lat, CONFIG.DEFAULT_COORDS.lng], CONFIG.DEFAULT_COORDS.zoom);
+            return;
         }
+
+        // Priority 3: Use grid reference bounding box if specified and available in mapConfig
+        if ((boundingParams.bottomLeft && boundingParams.topRight) && mapConfig.bounds) {
+            console.log('Applying grid reference bounds:', boundingParams.bottomLeft, 'to', boundingParams.topRight);
+            var bounds = L.latLngBounds([
+                [mapConfig.bounds.southwest.lat, mapConfig.bounds.southwest.lng],
+                [mapConfig.bounds.northeast.lat, mapConfig.bounds.northeast.lng]
+            ]);
+            map.fitBounds(bounds, { padding: [10, 10] });
+            return;
+        }
+
+        // Priority 4: Use coordinate bounding box if specified and available in mapConfig
+        if ((boundingParams.bottomLeftCoord && boundingParams.topRightCoord) && mapConfig.bounds) {
+            console.log('Applying coordinate bounds:', boundingParams.bottomLeftCoord, 'to', boundingParams.topRightCoord);
+            var bounds = L.latLngBounds([
+                [mapConfig.bounds.southwest.lat, mapConfig.bounds.southwest.lng],
+                [mapConfig.bounds.northeast.lat, mapConfig.bounds.northeast.lng]
+            ]);
+            map.fitBounds(bounds, { padding: [10, 10] });
+            return;
+        }
+
+        // Priority 5: Use default UK bounds if no specific bounds are set and no data layer
+        if (!dataLayer && mapConfig.bounds) {
+            console.log('Applying default bounds - no data available');
+            var bounds = L.latLngBounds([
+                [mapConfig.bounds.southwest.lat, mapConfig.bounds.southwest.lng],
+                [mapConfig.bounds.northeast.lat, mapConfig.bounds.northeast.lng]
+            ]);
+            map.fitBounds(bounds, { padding: [10, 10] });
+            return;
+        }
+
+        // Priority 6: Calculate bounds from occurrence data as fallback
+        if (mapConfig.bounds) {
+            console.log('Applying calculated bounds from occurrence data');
+            var bounds = L.latLngBounds([
+                [mapConfig.bounds.southwest.lat, mapConfig.bounds.southwest.lng],
+                [mapConfig.bounds.northeast.lat, mapConfig.bounds.northeast.lng]
+            ]);
+            map.fitBounds(bounds, { padding: [10, 10] });
+            return;
+        }
+
+        // Fallback: Try to fit bounds based on data layer
+        if (dataLayer && typeof dataLayer.getBounds === 'function') {
+            try {
+                var layerBounds = dataLayer.getBounds();
+                if (layerBounds.isValid()) {
+                    console.log('Fitting bounds to data layer');
+                    map.fitBounds(layerBounds, { padding: [20, 20] });
+                    return;
+                }
+            } catch (e) {
+                console.warn('Error getting layer bounds:', e);
+            }
+        }
+
+        // Final fallback: Use default UK view
+        console.log('Using default UK view');
+        map.setView([55.378051, -3.435973], 6);
     }
 
     /**
@@ -138,6 +198,11 @@ window.EasyMap = (function() {
      * @param {Object} options.speciesInfo - Species information object
      * @param {string} options.tvk - Taxon Version Key
      * @param {string} options.zoomArea - Optional predefined zoom area
+     * @param {string} options.viceCounty - Optional vice-county number
+     * @param {string} options.bottomLeft - Optional bottom left grid reference
+     * @param {string} options.topRight - Optional top right grid reference
+     * @param {string} options.bottomLeftCoord - Optional bottom left coordinates
+     * @param {string} options.topRightCoord - Optional top right coordinates
      * @returns {L.Map} The initialized Leaflet map instance
      */
     function initializeMap(options) {
@@ -145,8 +210,23 @@ window.EasyMap = (function() {
         var mapConfig = options.mapConfig || {};
         var occurrences = options.occurrences || [];
         var speciesInfo = options.speciesInfo || {};
-        var tvk = options.tvk || '';
-        var zoomArea = options.zoomArea || '';
+        var tvk = options.tvk;
+        var zoomArea = options.zoomArea;
+        var viceCounty = options.viceCounty;
+        var bottomLeft = options.bottomLeft;
+        var topRight = options.topRight;
+        var bottomLeftCoord = options.bottomLeftCoord;
+        var topRightCoord = options.topRightCoord;
+
+        console.log('Initializing EasyMap for:', speciesInfo.scientificName || tvk);
+        console.log('Bounding parameters:', {
+            zoomArea: zoomArea,
+            viceCounty: viceCounty,
+            bottomLeft: bottomLeft,
+            topRight: topRight,
+            bottomLeftCoord: bottomLeftCoord,
+            topRightCoord: topRightCoord
+        });
 
         // Set default coordinates (UK bounds)
         var defaultLat = mapConfig.defaultLatitude || CONFIG.DEFAULT_COORDS.lat;
@@ -189,8 +269,18 @@ window.EasyMap = (function() {
         var color = options.color || 'df4a21';
         var gridLayer = addGridLayer(map, tvk, biocacheUrl, datasetFilter, color);
 
-        // Fit map to show all data or zoom area
-        fitMapBounds(map, gridLayer, mapConfig, zoomArea);
+        // Create bounding parameters object
+        var boundingParams = {
+            zoomArea: zoomArea,
+            viceCounty: viceCounty,
+            bottomLeft: bottomLeft,
+            topRight: topRight,
+            bottomLeftCoord: bottomLeftCoord,
+            topRightCoord: topRightCoord
+        };
+
+        // Fit map to show all data or use specified bounds
+        fitMapBounds(map, gridLayer, mapConfig, boundingParams);
 
         // Add scale control
         L.control.scale({

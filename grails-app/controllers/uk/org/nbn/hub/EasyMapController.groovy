@@ -29,6 +29,12 @@ class EasyMapController {
      * @param cachedays Optional - Cache duration in days (default: 30, 0 to bypass cache)
      * @param format Optional - Response format ('html' or 'json', default: 'html')
      * @param ds Optional - Dataset key(s) obtainable from the NBN Gateway (e.g., 'dr123', 'ds456' or comma-separated list 'dr123,ds456,dr789')
+     * @param zoom Optional - Predefined zoom area (england, scotland, wales, highland, sco-mainland, outer-heb)
+     * @param vc Optional - Vice-county number to zoom to a particular vice-county
+     * @param bl Optional - Bottom left grid reference (10km, 2km or 1km resolution) - use with tr parameter
+     * @param tr Optional - Top right grid reference (10km, 2km or 1km resolution) - use with bl parameter
+     * @param blCoord Optional - Bottom left corner as Easting,Northing coordinates - use with trCoord parameter
+     * @param trCoord Optional - Top right corner as Easting,Northing coordinates - use with blCoord parameter
      */
     def easyMap() {
         log.debug("EasyMap request received with params: ${params}")
@@ -46,6 +52,14 @@ class EasyMapController {
         def bg = params.bg as String  // Background map (e.g., 'VC' for Vice Counties)
         def gridResolution = params.gd as String ?: params.res as String ?: '10km'  // Grid resolution
         def zoomArea = params.zoom as String  // Zoom to specific area (e.g., 'highland')
+
+        // New bounding box parameters from EasyMap_Shim
+        def viceCounty = params.vc as String  // Vice-county number
+        def bottomLeft = params.bl as String  // Bottom left grid reference
+        def topRight = params.tr as String  // Top right grid reference
+        def bottomLeftCoord = params.blCoord as String  // Bottom left coordinates (Easting,Northing)
+        def topRightCoord = params.trCoord as String  // Top right coordinates (Easting,Northing)
+
         def terms = params.terms as String
         def ref = params.ref as String
         def link = params.link as String
@@ -88,6 +102,19 @@ class EasyMapController {
             return
         }
 
+        // Validate bounding box parameters
+        def boundingBoxValidation = easyMapService.validateBoundingBoxParams(viceCounty, bottomLeft, topRight, bottomLeftCoord, topRightCoord)
+        if (!boundingBoxValidation.valid) {
+            log.warn("Invalid bounding box parameters: ${boundingBoxValidation.message}")
+            response.status = 400
+            if (format == 'json') {
+                render([result: "ERROR", message: boundingBoxValidation.message, data: null] as JSON)
+            } else {
+                render(view: 'error', model: [message: boundingBoxValidation.message, tvk: tvk])
+            }
+            return
+        }
+
         try {
             def speciesInfo = easyMapService.getSpeciesInfo(tvk)
             if (!speciesInfo) {
@@ -102,7 +129,7 @@ class EasyMapController {
             }
 
             def occurrenceData = easyMapService.getOccurrenceData(speciesInfo.acceptedTvk ?: tvk, datasetKeys)
-            def mapConfig = easyMapService.prepareMapConfig(occurrenceData, zoomArea)
+            def mapConfig = easyMapService.prepareMapConfig(occurrenceData, zoomArea, viceCounty, bottomLeft, topRight, bottomLeftCoord, topRightCoord)
 
             def mapData = [
                 tvk: tvk,
@@ -115,6 +142,12 @@ class EasyMapController {
                 bg: bg,
                 gridResolution: gridResolution,
                 zoomArea: zoomArea,
+                // New bounding box parameters
+                viceCounty: viceCounty,
+                bottomLeft: bottomLeft,
+                topRight: topRight,
+                bottomLeftCoord: bottomLeftCoord,
+                topRightCoord: topRightCoord,
                 terms: terms,
                 ref: ref,
                 link: link,
