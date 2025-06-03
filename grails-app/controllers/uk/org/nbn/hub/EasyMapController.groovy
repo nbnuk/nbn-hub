@@ -29,6 +29,8 @@ class EasyMapController {
      * @param cachedays Optional - Cache duration in days (default: 30, 0 to bypass cache)
      * @param format Optional - Response format ('html' or 'json', default: 'html')
      * @param ds Optional - Dataset key(s) obtainable from the NBN Gateway (e.g., 'dr123', 'ds456' or comma-separated list 'dr123,ds456,dr789')
+     * @param gd Optional - Grid resolution (1km, 2km, 5km, 10km, default: 10km) - alias: res
+     * @param res Optional - Grid resolution (1km, 2km, 5km, 10km, default: 10km) - alias: gd
      * @param zoom Optional - Predefined zoom area (england, scotland, wales, highland, sco-mainland, outer-heb)
      * @param vc Optional - Vice-county number to zoom to a particular vice-county
      * @param bl Optional - Bottom left grid reference (10km, 2km or 1km resolution) - use with tr parameter
@@ -89,6 +91,19 @@ class EasyMapController {
             return
         }
 
+        // Validate grid resolution if provided
+        if (gridResolution && !easyMapService.isValidGridResolution(gridResolution)) {
+            log.warn("Invalid grid resolution provided: ${gridResolution}")
+            response.status = 400
+            def errorMessage = "Invalid grid resolution: ${gridResolution}. Supported resolutions: 1km, 2km, 5km, 10km"
+            if (format == 'json') {
+                render([result: "ERROR", message: errorMessage, data: null] as JSON)
+            } else {
+                render(view: 'error', model: [message: errorMessage, tvk: tvk])
+            }
+            return
+        }
+
         // Validate zoom area if provided
         if (zoomArea && !easyMapService.isValidZoomArea(zoomArea)) {
             log.warn("Invalid zoom area provided: ${zoomArea}")
@@ -129,7 +144,7 @@ class EasyMapController {
             }
 
             def occurrenceData = easyMapService.getOccurrenceData(speciesInfo.acceptedTvk ?: tvk, datasetKeys)
-            def mapConfig = easyMapService.prepareMapConfig(occurrenceData, zoomArea, viceCounty, bottomLeft, topRight, bottomLeftCoord, topRightCoord)
+            def mapConfig = easyMapService.prepareMapConfig(occurrenceData, zoomArea, viceCounty, bottomLeft, topRight, bottomLeftCoord, topRightCoord, gridResolution)
 
             def mapData = [
                 tvk: tvk,

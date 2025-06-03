@@ -260,20 +260,26 @@ class EasyMapService {
     }
 
     /**
-     * Prepare map configuration based on occurrence data
-     * @param occurrences List of occurrence records
-     * @param zoomArea Optional predefined geographical area to zoom to
+     * Prepare map configuration data for EasyMap display
+     * @param occurrences List of occurrence data
+     * @param zoomArea Optional predefined zoom area
      * @param viceCounty Optional vice-county number
      * @param bottomLeft Optional bottom left grid reference
      * @param topRight Optional top right grid reference
-     * @param bottomLeftCoord Optional bottom left coordinates (Easting,Northing)
-     * @param topRightCoord Optional top right coordinates (Easting,Northing)
-     * @return Map containing map configuration
+     * @param bottomLeftCoord Optional bottom left coordinates
+     * @param topRightCoord Optional top right coordinates
+     * @param gridResolution Optional grid resolution (1km, 2km, 5km, 10km)
+     * @return Map configuration data
      */
     def prepareMapConfig(List occurrences, String zoomArea = null, String viceCounty = null,
                         String bottomLeft = null, String topRight = null,
-                        String bottomLeftCoord = null, String topRightCoord = null) {
-        log.debug("Preparing map config for ${occurrences?.size() ?: 0} occurrences with zoom area: ${zoomArea}, vc: ${viceCounty}, bl: ${bottomLeft}, tr: ${topRight}")
+                        String bottomLeftCoord = null, String topRightCoord = null,
+                        String gridResolution = null) {
+        log.debug("Preparing map config for ${occurrences?.size() ?: 0} occurrences with zoom area: ${zoomArea}, vc: ${viceCounty}, bl: ${bottomLeft}, tr: ${topRight}, gridRes: ${gridResolution}")
+
+        // Validate and normalize grid resolution
+        def validatedGridResolution = validateAndNormalizeGridResolution(gridResolution)
+
         // TODO - which one is correct - default to mini-atlas or production ?
         def biocacheUrl = grailsApplication.config.biocacheServicesUrl ?: grailsApplication.config.biocacheServiceUrl ?: 'https://records-ws.nbnatlas.org'
         log.debug("Using biocache URL in map config: ${biocacheUrl}")
@@ -299,7 +305,7 @@ class EasyMapService {
             easymapGridFormat: grailsApplication.config.getProperty('easymap.grid.format', String, 'image/png'),
             easymapGridColourMode: grailsApplication.config.getProperty('easymap.grid.colourMode', String, 'osgrid'),
             easymapGridGridLabels: grailsApplication.config.getProperty('easymap.grid.gridLabels', String, 'false'),
-            easymapGridGridResolution: grailsApplication.config.getProperty('easymap.grid.gridResolution', String, 'fixed_10km'),
+            easymapGridGridResolution: validatedGridResolution, // Use the validated resolution instead of hardcoded value
             easymapBiocacheFallbackUrl: grailsApplication.config.getProperty('easymap.biocache.fallbackUrl', String, 'https://records-ws.nbnatlas.org')
         ]
 
@@ -1146,5 +1152,63 @@ class EasyMapService {
         if (secondLetterValue > 7) secondLetterValue-- // Skip 'I'
 
         return (4 - (firstLetterValue / 5 as int)) * 500000 + (4 - (secondLetterValue / 5 as int)) * 100000
+    }
+
+    /**
+     * Validate and normalize grid resolution parameter
+     * @param gridResolution User-provided grid resolution value
+     * @return Normalized grid resolution for WMS layer
+     */
+    private def validateAndNormalizeGridResolution(String gridResolution) {
+        if (!gridResolution) {
+            log.debug("No grid resolution provided, using default: 10km")
+            return "fixed_10km"
+        }
+
+        // Normalize input - handle various formats
+        def normalizedInput = gridResolution.toLowerCase().trim()
+
+        // Map user-friendly values to WMS layer values
+        def resolutionMapping = [
+            "1km": "1km",
+            "2km": "2km",
+            "5km": "5km",
+            "10km": "fixed_10km"
+        ]
+
+        if (resolutionMapping.containsKey(normalizedInput)) {
+            log.debug("Valid grid resolution provided: ${normalizedInput} -> ${resolutionMapping[normalizedInput]}")
+            return resolutionMapping[normalizedInput]
+        }
+
+        // Handle legacy/alternative formats
+        if (normalizedInput in ["1", "1000", "1000m"]) {
+            return "1km"
+        } else if (normalizedInput in ["2", "2000", "2000m"]) {
+            return "2km"
+        } else if (normalizedInput in ["5", "5000", "5000m"]) {
+            return "5km"
+        } else if (normalizedInput in ["10", "10000", "10000m", "fixed_10km"]) {
+            return "fixed_10km"
+        }
+
+        log.warn("Invalid grid resolution provided: ${gridResolution}. Using default: 10km")
+        return "fixed_10km"
+    }
+
+    /**
+     * Check if the provided grid resolution is valid
+     * @param gridResolution Grid resolution to validate
+     * @return true if valid, false otherwise
+     */
+    def isValidGridResolution(String gridResolution) {
+        if (!gridResolution) return true // null/empty is valid (uses default)
+
+        def normalizedInput = gridResolution.toLowerCase().trim()
+        def validValues = ["1km", "2km", "5km", "10km", "1", "2", "5", "10",
+                          "1000", "2000", "5000", "10000",
+                          "1000m", "2000m", "5000m", "10000m", "fixed_10km"]
+
+        return validValues.contains(normalizedInput)
     }
 }

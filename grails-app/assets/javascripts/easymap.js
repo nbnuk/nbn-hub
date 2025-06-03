@@ -75,6 +75,7 @@ window.EasyMap = (function() {
         map.addLayer(gridLayer);
         console.log('10km grid layer added with URL:', wmsUrl);
         console.log('ENV parameters:', envProperty);
+        console.log('Grid resolution from config:', gridResolution);
 
         return gridLayer;
     }

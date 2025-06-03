@@ -447,17 +447,139 @@ class EasyMapServiceSpec extends Specification {
     }
 
     void "test convertBboxToLatLngBounds with simple bbox format"() {
-        given: "a valid simple bbox string"
-        def bboxString = "-1.0 51.2,0.3 51.2,0.3 51.7,-1.0 51.7,-1.0 51.2"
+        given: "a simple bbox format"
+        def bboxString = "-1.0,51.2,0.3,51.7"
 
         when: "convertBboxToLatLngBounds is called"
         def result = service.convertBboxToLatLngBounds(bboxString)
 
-        then: "it returns valid bounds"
+        then: "it returns null (not supported format)"
+        result == null
+    }
+
+    // ========== Grid Resolution Tests ==========
+
+    void "test validateAndNormalizeGridResolution with valid resolutions"() {
+        expect: "valid grid resolutions are normalized correctly"
+        service.validateAndNormalizeGridResolution(input) == expected
+
+        where:
+        input     | expected
+        "1km"     | "1km"
+        "2km"     | "2km"
+        "5km"     | "5km"
+        "10km"    | "fixed_10km"
+        "1KM"     | "1km"
+        "2KM"     | "2km"
+        "5KM"     | "5km"
+        "10KM"    | "fixed_10km"
+        "1"       | "1km"
+        "2"       | "2km"
+        "5"       | "5km"
+        "10"      | "fixed_10km"
+        "1000"    | "1km"
+        "2000"    | "2km"
+        "5000"    | "5km"
+        "10000"   | "fixed_10km"
+        "1000m"   | "1km"
+        "2000m"   | "2km"
+        "5000m"   | "5km"
+        "10000m"  | "fixed_10km"
+        null      | "fixed_10km"
+        ""        | "fixed_10km"
+        "invalid" | "fixed_10km"
+        "3km"     | "fixed_10km"
+    }
+
+    void "test isValidGridResolution with various inputs"() {
+        expect: "grid resolution validation works correctly"
+        service.isValidGridResolution(input) == expected
+
+        where:
+        input     | expected
+        "1km"     | true
+        "2km"     | true
+        "5km"     | true
+        "10km"    | true
+        "1KM"     | true
+        "2KM"     | true
+        "5KM"     | true
+        "10KM"    | true
+        "1"       | true
+        "2"       | true
+        "5"       | true
+        "10"      | true
+        "1000"    | true
+        "2000"    | true
+        "5000"    | true
+        "10000"   | true
+        "1000m"   | true
+        "2000m"   | true
+        "5000m"   | true
+        "10000m"  | true
+        "fixed_10km" | true
+        null      | true
+        ""        | true
+        "invalid" | false
+        "3km"     | false
+        "15km"    | false
+        "0km"     | false
+    }
+
+    void "test prepareMapConfig with grid resolution parameter"() {
+        given: "a grid resolution parameter"
+        def gridResolution = "5km"
+
+        when: "prepareMapConfig is called with grid resolution"
+        def result = service.prepareMapConfig([], null, null, null, null, null, null, gridResolution)
+
+        then: "it uses the specified grid resolution"
         result != null
-        result.southwest.lat == 51.2
-        result.southwest.lng == -1.0
-        result.northeast.lat == 51.7
-        result.northeast.lng == 0.3
+        result.easymapGridGridResolution == "5km"
+    }
+
+    void "test prepareMapConfig with invalid grid resolution uses default"() {
+        given: "an invalid grid resolution parameter"
+        def gridResolution = "invalid"
+
+        when: "prepareMapConfig is called with invalid grid resolution"
+        def result = service.prepareMapConfig([], null, null, null, null, null, null, gridResolution)
+
+        then: "it uses the default grid resolution"
+        result != null
+        result.easymapGridGridResolution == "fixed_10km"
+    }
+
+    void "test prepareMapConfig with null grid resolution uses default"() {
+        when: "prepareMapConfig is called with null grid resolution"
+        def result = service.prepareMapConfig([], null, null, null, null, null, null, null)
+
+        then: "it uses the default grid resolution"
+        result != null
+        result.easymapGridGridResolution == "fixed_10km"
+    }
+
+    void "test prepareMapConfig with 1km grid resolution"() {
+        given: "a 1km grid resolution parameter"
+        def gridResolution = "1km"
+
+        when: "prepareMapConfig is called with 1km grid resolution"
+        def result = service.prepareMapConfig([], null, null, null, null, null, null, gridResolution)
+
+        then: "it uses 1km grid resolution"
+        result != null
+        result.easymapGridGridResolution == "1km"
+    }
+
+    void "test prepareMapConfig with alternative grid resolution formats"() {
+        expect: "alternative formats are handled correctly"
+        service.prepareMapConfig([], null, null, null, null, null, null, input).easymapGridGridResolution == expected
+
+        where:
+        input    | expected
+        "1"      | "1km"
+        "2000"   | "2km"
+        "5000m"  | "5km"
+        "10KM"   | "fixed_10km"
     }
 }

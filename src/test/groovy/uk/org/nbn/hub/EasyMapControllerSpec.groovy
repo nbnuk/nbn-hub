@@ -107,8 +107,9 @@ class EasyMapControllerSpec extends Specification {
 
         controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
         controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
-        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, _) >> mockMapConfig
         controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+        controller.easyMapService.isValidGridResolution(_) >> true
 
         when: "easyMap action is called"
         controller.easyMap()
@@ -132,8 +133,9 @@ class EasyMapControllerSpec extends Specification {
 
         controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
         controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
-        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, _) >> mockMapConfig
         controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+        controller.easyMapService.isValidGridResolution(_) >> true
 
         when: "easyMap action is called"
         controller.easyMap()
@@ -157,8 +159,9 @@ class EasyMapControllerSpec extends Specification {
 
         controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
         controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
-        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, _) >> mockMapConfig
         controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+        controller.easyMapService.isValidGridResolution(_) >> true
 
         when: "easyMap action is called"
         controller.easyMap()
@@ -205,6 +208,7 @@ class EasyMapControllerSpec extends Specification {
         def mockValidation = [valid: true, message: "Valid parameters"]
         controller.easyMapService.getSpeciesInfo(_) >> null
         controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+        controller.easyMapService.isValidGridResolution(_) >> true
 
         when: "easyMap action is called"
         controller.easyMap()
@@ -223,6 +227,7 @@ class EasyMapControllerSpec extends Specification {
 
         def mockValidation = [valid: false, message: "Invalid vice-county number: 999. Must be a number between 1 and 112"]
         controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+        controller.easyMapService.isValidGridResolution(_) >> true
 
         when: "easyMap action is called"
         controller.easyMap()
@@ -247,8 +252,9 @@ class EasyMapControllerSpec extends Specification {
 
         controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
         controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
-        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, _) >> mockMapConfig
         controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+        controller.easyMapService.isValidGridResolution(_) >> true
 
         when: "easyMap action is called"
         controller.easyMap()
@@ -273,8 +279,9 @@ class EasyMapControllerSpec extends Specification {
 
         controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
         controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
-        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, _) >> mockMapConfig
         controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+        controller.easyMapService.isValidGridResolution(_) >> true
 
         when: "easyMap action is called"
         controller.easyMap()
@@ -282,5 +289,153 @@ class EasyMapControllerSpec extends Specification {
         then: "response is successful"
         response.status == 200
         1 * controller.easyMapService.getOccurrenceData("NHMSYS0000458183", null)
+    }
+
+    // ========== Grid Resolution Tests ==========
+
+    void "test easyMap with valid grid resolution parameter"() {
+        given: "valid parameters including grid resolution"
+        params.tvk = "NHMSYS0000458183"
+        params.gd = "5km"
+        params.format = "json"
+
+        and: "mock service responses"
+        def mockSpeciesInfo = [scientificName: "Test Species", acceptedTvk: "NHMSYS0000458183"]
+        def mockOccurrences = [[id: "1", latitude: 51.5, longitude: -0.1]]
+        def mockMapConfig = [occurrenceCount: 1]
+        def mockValidation = [valid: true, message: "Valid parameters"]
+
+        controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
+        controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+        controller.easyMapService.isValidGridResolution("5km") >> true
+
+        when: "easyMap action is called"
+        controller.easyMap()
+
+        then: "response is successful and grid resolution is passed to service"
+        response.status == 200
+        1 * controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, "5km")
+    }
+
+    void "test easyMap with valid grid resolution using res parameter"() {
+        given: "valid parameters using res alias for grid resolution"
+        params.tvk = "NHMSYS0000458183"
+        params.res = "2km"
+        params.format = "json"
+
+        and: "mock service responses"
+        def mockSpeciesInfo = [scientificName: "Test Species", acceptedTvk: "NHMSYS0000458183"]
+        def mockOccurrences = [[id: "1", latitude: 51.5, longitude: -0.1]]
+        def mockMapConfig = [occurrenceCount: 1]
+        def mockValidation = [valid: true, message: "Valid parameters"]
+
+        controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
+        controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+        controller.easyMapService.isValidGridResolution("2km") >> true
+
+        when: "easyMap action is called"
+        controller.easyMap()
+
+        then: "response is successful and grid resolution is passed to service"
+        response.status == 200
+        1 * controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, "2km")
+    }
+
+    void "test easyMap with gd parameter takes precedence over res"() {
+        given: "valid parameters with both gd and res specified"
+        params.tvk = "NHMSYS0000458183"
+        params.gd = "1km"
+        params.res = "5km"
+        params.format = "json"
+
+        and: "mock service responses"
+        def mockSpeciesInfo = [scientificName: "Test Species", acceptedTvk: "NHMSYS0000458183"]
+        def mockOccurrences = [[id: "1", latitude: 51.5, longitude: -0.1]]
+        def mockMapConfig = [occurrenceCount: 1]
+        def mockValidation = [valid: true, message: "Valid parameters"]
+
+        controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
+        controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+        controller.easyMapService.isValidGridResolution("1km") >> true
+
+        when: "easyMap action is called"
+        controller.easyMap()
+
+        then: "response is successful and gd parameter takes precedence"
+        response.status == 200
+        1 * controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, "1km")
+    }
+
+    void "test easyMap with invalid grid resolution parameter"() {
+        given: "valid TVK but invalid grid resolution"
+        params.tvk = "NHMSYS0000458183"
+        params.gd = "invalid"
+        params.format = "json"
+
+        controller.easyMapService.isValidGridResolution("invalid") >> false
+
+        when: "easyMap action is called"
+        controller.easyMap()
+
+        then: "response is bad request"
+        response.status == 400
+        0 * controller.easyMapService.getSpeciesInfo(_)
+        0 * controller.easyMapService.getOccurrenceData(_, _)
+    }
+
+    @Unroll
+    void "test easyMap with various valid grid resolutions: #gridResolution"() {
+        given: "valid parameters with different grid resolutions"
+        params.tvk = "NHMSYS0000458183"
+        params.gd = gridResolution
+        params.format = "json"
+
+        and: "mock service responses"
+        def mockSpeciesInfo = [scientificName: "Test Species", acceptedTvk: "NHMSYS0000458183"]
+        def mockOccurrences = [[id: "1", latitude: 51.5, longitude: -0.1]]
+        def mockMapConfig = [occurrenceCount: 1]
+        def mockValidation = [valid: true, message: "Valid parameters"]
+
+        controller.easyMapService.getSpeciesInfo(_) >> mockSpeciesInfo
+        controller.easyMapService.getOccurrenceData(_, _) >> mockOccurrences
+        controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, _) >> mockMapConfig
+        controller.easyMapService.validateBoundingBoxParams(_, _, _, _, _) >> mockValidation
+        controller.easyMapService.isValidGridResolution(gridResolution) >> true
+
+        when: "easyMap action is called"
+        controller.easyMap()
+
+        then: "response is successful"
+        response.status == 200
+        1 * controller.easyMapService.prepareMapConfig(_, _, _, _, _, _, _, gridResolution)
+
+        where:
+        gridResolution << ["1km", "2km", "5km", "10km", "1KM", "2KM", "5KM", "10KM"]
+    }
+
+    @Unroll
+    void "test easyMap with invalid grid resolutions: #gridResolution"() {
+        given: "valid TVK but invalid grid resolution"
+        params.tvk = "NHMSYS0000458183"
+        params.gd = gridResolution
+        params.format = "json"
+
+        controller.easyMapService.isValidGridResolution(gridResolution) >> false
+
+        when: "easyMap action is called"
+        controller.easyMap()
+
+        then: "response is bad request"
+        response.status == 400
+        0 * controller.easyMapService.getSpeciesInfo(_)
+
+        where:
+        gridResolution << ["3km", "15km", "0km", "invalid", "100m", "-1km"]
     }
 }
