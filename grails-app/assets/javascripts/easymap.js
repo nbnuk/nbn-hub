@@ -4,31 +4,10 @@
 /**
  * NBN Atlas EasyMap JavaScript Module
  * Provides reusable functionality for EasyMap species occurrence mapping
+ * Configuration is now managed via the application properties file
  */
 window.EasyMap = (function() {
     'use strict';
-
-    // Configuration constants
-    var CONFIG = {
-        DEFAULT_COORDS: {
-            lat: 54.5,
-            lng: -3.0,
-            zoom: 6
-        },
-        TILE_LAYERS: {
-            minimal: {
-                url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
-                attribution: '© OpenStreetMap contributors, © CartoDB',
-                subdomains: 'abcd',
-                maxZoom: 18
-            },
-            osm: {
-                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 18
-            }
-        }
-    };
 
     /**
      * Create and add 10km grid WMS layer to the map
@@ -36,17 +15,18 @@ window.EasyMap = (function() {
      * @param {string} tvk - Taxon Version Key for the species
      * @param {string} biocacheUrl - Base URL for biocache service
      * @param {string} datasetFilter - Optional dataset filter
-     * @param {string} color - Optional color for the grid (default: df4a21)
+     * @param {string} color - Optional color for the grid
+     * @param {Object} gridConfig - Grid layer configuration
      * @returns {L.Layer} The WMS layer
      */
-    function addGridLayer(map, tvk, biocacheUrl, datasetFilter, color) {
+    function addGridLayer(map, tvk, biocacheUrl, datasetFilter, color, gridConfig) {
         if (!tvk || !biocacheUrl) {
             console.warn('Missing required parameters for grid layer');
             return null;
         }
 
-        // Default color if not provided
-        color = color || 'df4a21';
+        // Use provided color or fall back to configuration
+        color = color || (gridConfig && gridConfig.defaultColor) || 'df4a21';
 
         // Build the query string - match EasyMap_Shim format
         var query = "?q=lsid:" + encodeURIComponent(tvk);
@@ -75,16 +55,21 @@ window.EasyMap = (function() {
         // Build WMS URL using /ogc/wms/reflect endpoint like EasyMap_Shim
         var wmsUrl = biocacheUrl + "/ogc/wms/reflect" + query;
 
-        // Configure grid parameters to match EasyMap_Shim with dynamic color
-        var envProperty = "colourmode:osgrid;color:" + color + ";opacity:0.8;gridlabels:false;gridres:fixed_10km";
+        // Configure grid parameters using configuration
+        var opacity = (gridConfig && gridConfig.opacity) || '0.8';
+        var colourMode = (gridConfig && gridConfig.colourMode) || 'osgrid';
+        var gridLabels = (gridConfig && gridConfig.gridLabels) || 'false';
+        var gridResolution = (gridConfig && gridConfig.gridResolution) || 'fixed_10km';
 
-        // Create WMS layer using the correct format
+        var envProperty = "colourmode:" + colourMode + ";color:" + color + ";opacity:" + opacity + ";gridlabels:" + gridLabels + ";gridres:" + gridResolution;
+
+        // Create WMS layer using configuration
         var gridLayer = L.tileLayer.wms(wmsUrl, {
-            layers: 'ALA:occurrences',
-            format: 'image/png',
+            layers: (gridConfig && gridConfig.layers) || 'ALA:occurrences',
+            format: (gridConfig && gridConfig.format) || 'image/png',
             transparent: true,
             ENV: envProperty,
-            opacity: 0.8
+            opacity: parseFloat(opacity)
         });
 
         map.addLayer(gridLayer);
@@ -186,7 +171,10 @@ window.EasyMap = (function() {
 
         // Final fallback: Use default UK view
         console.log('Using default UK view');
-        map.setView([55.378051, -3.435973], 6);
+        var fallbackLat = mapConfig.easymapDefaultLatitude || mapConfig.defaultLatitude || 55.378051;
+        var fallbackLng = mapConfig.easymapDefaultLongitude || mapConfig.defaultLongitude || -3.435973;
+        var fallbackZoom = mapConfig.easymapDefaultZoom || mapConfig.defaultZoom || 6;
+        map.setView([fallbackLat, fallbackLng], fallbackZoom);
     }
 
     /**
@@ -228,10 +216,10 @@ window.EasyMap = (function() {
             topRightCoord: topRightCoord
         });
 
-        // Set default coordinates (UK bounds)
-        var defaultLat = mapConfig.defaultLatitude || CONFIG.DEFAULT_COORDS.lat;
-        var defaultLng = mapConfig.defaultLongitude || CONFIG.DEFAULT_COORDS.lng;
-        var defaultZoom = mapConfig.defaultZoom || CONFIG.DEFAULT_COORDS.zoom;
+        // Set default coordinates using mapConfig or fallback values
+        var defaultLat = mapConfig.easymapDefaultLatitude || mapConfig.defaultLatitude || 54.5;
+        var defaultLng = mapConfig.easymapDefaultLongitude || mapConfig.defaultLongitude || -3.0;
+        var defaultZoom = mapConfig.easymapDefaultZoom || mapConfig.defaultZoom || 6;
 
         // Initialize the map
         var map = L.map(containerId, {
@@ -248,26 +236,40 @@ window.EasyMap = (function() {
             worldCopyJump: true
         });
 
+        // Get tile layer configuration from mapConfig or use defaults
+        var tileLayerUrl = mapConfig.easymapTileLayerMinimalUrl || 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
+        var tileLayerAttribution = mapConfig.easymapTileLayerMinimalAttribution || '© OpenStreetMap contributors, © CartoDB';
+        var tileLayerSubdomains = mapConfig.easymapTileLayerMinimalSubdomains || 'abcd';
+        var tileLayerMaxZoom = parseInt(mapConfig.easymapTileLayerMinimalMaxZoom) || 18;
+
         // Create and add default base layer (no layer switching needed)
-        var defaultBaseLayer = L.tileLayer(CONFIG.TILE_LAYERS.minimal.url, {
-            attribution: CONFIG.TILE_LAYERS.minimal.attribution,
-            subdomains: CONFIG.TILE_LAYERS.minimal.subdomains,
-            maxZoom: CONFIG.TILE_LAYERS.minimal.maxZoom
+        var defaultBaseLayer = L.tileLayer(tileLayerUrl, {
+            attribution: tileLayerAttribution,
+            subdomains: tileLayerSubdomains,
+            maxZoom: tileLayerMaxZoom
         });
         map.addLayer(defaultBaseLayer);
 
         // Add 10km grid WMS layer
-        var biocacheUrl = mapConfig.biocacheUrl;
-        if (!biocacheUrl) {
-            console.warn('biocacheUrl not provided in mapConfig, using fallback URL');
-            biocacheUrl = 'https://records-ws.nbnatlas.org'; // Fallback URL
-        }
+        var biocacheUrl = mapConfig.biocacheUrl || mapConfig.easymapBiocacheFallbackUrl || 'https://records-ws.nbnatlas.org';
 
         console.log('Using biocache URL:', biocacheUrl);
 
         var datasetFilter = options.datasetFilter || null;
-        var color = options.color || 'df4a21';
-        var gridLayer = addGridLayer(map, tvk, biocacheUrl, datasetFilter, color);
+        var color = options.color || mapConfig.easymapGridDefaultColor || 'df4a21';
+
+        // Prepare grid configuration from mapConfig
+        var gridConfig = {
+            defaultColor: mapConfig.easymapGridDefaultColor,
+            opacity: mapConfig.easymapGridOpacity,
+            layers: mapConfig.easymapGridLayers,
+            format: mapConfig.easymapGridFormat,
+            colourMode: mapConfig.easymapGridColourMode,
+            gridLabels: mapConfig.easymapGridGridLabels,
+            gridResolution: mapConfig.easymapGridGridResolution
+        };
+
+        var gridLayer = addGridLayer(map, tvk, biocacheUrl, datasetFilter, color, gridConfig);
 
         // Create bounding parameters object
         var boundingParams = {
@@ -305,8 +307,7 @@ window.EasyMap = (function() {
 
     // Public API
     return {
-        init: initializeMap,
-        CONFIG: CONFIG
+        init: initializeMap
     };
 
 })();

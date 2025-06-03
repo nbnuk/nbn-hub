@@ -21,6 +21,8 @@ class EasyMapServiceSpec extends Specification {
                             return 'https://layers.nbnatlas.org/ws'
                         case 'layer.vice_county':
                             return 'cl254'
+                        case 'layer.uk_countries':
+                            return 'cl2'
                         default:
                             return defaultValue
                     }
@@ -115,20 +117,96 @@ class EasyMapServiceSpec extends Specification {
 
     // ========== Map Configuration Tests ==========
 
-    void "test prepareMapConfig with zoom area parameter"() {
-        given: "a valid zoom area"
+    void "test getZoomAreaBounds directly"() {
+        given: "a valid zoom area and mocked layers service response"
+        def zoomArea = "england"
+        def mockCountriesData = [
+            [
+                id: "england",
+                name: "England",
+                bbox: "POLYGON((-5.7 49.9,-5.7 55.8,1.8 55.8,1.8 49.9,-5.7 49.9))"
+            ]
+        ]
+
+        when: "getZoomAreaBounds is called directly"
+        service.webServicesService.getJsonElements("https://layers.nbnatlas.org/ws/objects/cl2") >> mockCountriesData
+        def result = service.getZoomAreaBounds(zoomArea)
+
+        then: "it returns bounds from service"
+        result != null
+        result.southwest != null
+        result.northeast != null
+        result.southwest.lat >= 49.8
+        result.southwest.lat <= 50.0
+    }
+
+    void "test getZoomAreaBounds with service failure uses backup"() {
+        given: "a valid zoom area but failed layers service"
         def zoomArea = "england"
 
+        when: "getZoomAreaBounds is called but service fails"
+        service.webServicesService.getJsonElements(_) >> { throw new Exception("Service unavailable") }
+        def result = service.getZoomAreaBounds(zoomArea)
+
+        then: "it returns backup bounds"
+        result != null
+        result.southwest != null
+        result.northeast != null
+        result.southwest.lat == 49.9
+        result.southwest.lng == -5.7
+        result.northeast.lat == 55.8
+        result.northeast.lng == 1.8
+    }
+
+    void "test prepareMapConfig with zoom area parameter"() {
+        given: "a valid zoom area and mocked layers service response"
+        def zoomArea = "england"
+        def mockCountriesData = [
+            [
+                id: "england",
+                name: "England",
+                bbox: "POLYGON((-5.7 49.9,-5.7 55.8,1.8 55.8,1.8 49.9,-5.7 49.9))"
+            ]
+        ]
+
         when: "prepareMapConfig is called with zoom area"
+        service.webServicesService.getJsonElements(_) >> mockCountriesData
         def result = service.prepareMapConfig([], zoomArea)
 
-        then: "it uses zoom area bounds"
+        then: "it uses zoom area bounds from service (or fallback to backup bounds)"
         result != null
         result.bounds != null
         result.bounds.southwest != null
         result.bounds.northeast != null
+        // Check bounds are reasonable for England (allowing for either service response or backup bounds)
+        result.bounds.southwest.lat >= 49.8  // Allow for backup bounds (49.9) or service response
+        result.bounds.southwest.lat <= 50.0
+        result.bounds.southwest.lng >= -5.8  // Allow for backup bounds (-5.7) or service response
+        result.bounds.southwest.lng <= -5.6
+        result.bounds.northeast.lat >= 55.7  // Allow for backup bounds (55.8) or service response
+        result.bounds.northeast.lat <= 56.0
+        result.bounds.northeast.lng >= 1.7   // Allow for backup bounds (1.8) or service response
+        result.bounds.northeast.lng <= 2.0
+    }
+
+    void "test prepareMapConfig with zoom area parameter and service failure"() {
+        given: "a valid zoom area but failed layers service"
+        def zoomArea = "england"
+
+        when: "prepareMapConfig is called with zoom area but service fails"
+        service.webServicesService.getJsonElements(_) >> { throw new Exception("Service unavailable") }
+        def result = service.prepareMapConfig([], zoomArea)
+
+        then: "it uses backup zoom area bounds"
+        result != null
+        result.bounds != null
+        result.bounds.southwest != null
+        result.bounds.northeast != null
+        // Check backup bounds for England
         result.bounds.southwest.lat == 49.9
         result.bounds.southwest.lng == -5.7
+        result.bounds.northeast.lat == 55.8
+        result.bounds.northeast.lng == 1.8
     }
 
     void "test prepareMapConfig with vice-county parameter"() {

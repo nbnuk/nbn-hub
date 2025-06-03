@@ -17,6 +17,10 @@ class EasyMapService {
     private static long viceCountyCacheTimestamp = 0
     private static final long CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000 // 24 hours
 
+    // Cache for zoom area bounds data to avoid repeated API calls
+    private static Map<String, Map> zoomAreaBoundsCache = [:]
+    private static long zoomAreaCacheTimestamp = 0
+
     /**
      * Get species information from BIE service using TVK
      * @param tvk The Taxon Version Key
@@ -270,30 +274,42 @@ class EasyMapService {
                         String bottomLeft = null, String topRight = null,
                         String bottomLeftCoord = null, String topRightCoord = null) {
         log.debug("Preparing map config for ${occurrences?.size() ?: 0} occurrences with zoom area: ${zoomArea}, vc: ${viceCounty}, bl: ${bottomLeft}, tr: ${topRight}")
-// TODO - perhaps use mini-atlas as the default ?
+        // TODO - which one is correct - default to mini-atlas or production ?
         def biocacheUrl = grailsApplication.config.biocacheServicesUrl ?: grailsApplication.config.biocacheServiceUrl ?: 'https://records-ws.nbnatlas.org'
         log.debug("Using biocache URL in map config: ${biocacheUrl}")
 
         def mapConfig = [
             biocacheUrl: biocacheUrl,
             occurrenceCount: occurrences?.size() ?: 0,
-            defaultLatitude: 54.5,
-            defaultLongitude: -3.0,
-            bounds: null,
-            zoomLevel: 6
+            bounds: grailsApplication.config.getProperty('easymap.defaultBounds', String, null),
+            zoomLevel: grailsApplication.config.getProperty('easymap.defaultZoom', Integer, 6),
+            easymapDefaultLatitude: grailsApplication.config.getProperty('easymap.defaultLatitude', Double, 54.5),
+            easymapDefaultLongitude: grailsApplication.config.getProperty('easymap.defaultLongitude', Double, -3.0),
+            easymapDefaultZoom: grailsApplication.config.getProperty('easymap.defaultZoom', Integer, 6),
+            easymapTileLayerMinimalUrl: grailsApplication.config.getProperty('easymap.tileLayer.minimal.url', String, 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png'),
+            easymapTileLayerMinimalAttribution: grailsApplication.config.getProperty('easymap.tileLayer.minimal.attribution', String, '© OpenStreetMap contributors, © CartoDB'),
+            easymapTileLayerMinimalSubdomains: grailsApplication.config.getProperty('easymap.tileLayer.minimal.subdomains', String, 'abcd'),
+            easymapTileLayerMinimalMaxZoom: grailsApplication.config.getProperty('easymap.tileLayer.minimal.maxZoom', Integer, 18),
+            easymapTileLayerOsmUrl: grailsApplication.config.getProperty('easymap.tileLayer.osm.url', String, 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
+            easymapTileLayerOsmAttribution: grailsApplication.config.getProperty('easymap.tileLayer.osm.attribution', String, '© OpenStreetMap contributors'),
+            easymapTileLayerOsmMaxZoom: grailsApplication.config.getProperty('easymap.tileLayer.osm.maxZoom', Integer, 18),
+            easymapGridDefaultColor: grailsApplication.config.getProperty('easymap.grid.defaultColor', String, 'df4a21'),
+            easymapGridOpacity: grailsApplication.config.getProperty('easymap.grid.opacity', String, '0.8'),
+            easymapGridLayers: grailsApplication.config.getProperty('easymap.grid.layers', String, 'ALA:occurrences'),
+            easymapGridFormat: grailsApplication.config.getProperty('easymap.grid.format', String, 'image/png'),
+            easymapGridColourMode: grailsApplication.config.getProperty('easymap.grid.colourMode', String, 'osgrid'),
+            easymapGridGridLabels: grailsApplication.config.getProperty('easymap.grid.gridLabels', String, 'false'),
+            easymapGridGridResolution: grailsApplication.config.getProperty('easymap.grid.gridResolution', String, 'fixed_10km'),
+            easymapBiocacheFallbackUrl: grailsApplication.config.getProperty('easymap.biocache.fallbackUrl', String, 'https://records-ws.nbnatlas.org')
         ]
 
         // Priority 1: Use predefined zoom area bounds if specified
         if (zoomArea && getZoomAreaBounds(zoomArea)) {
             def areaBounds = getZoomAreaBounds(zoomArea)
-            // Convert to the format expected by JavaScript (southwest/northeast)
-            mapConfig.bounds = [
-                southwest: [lat: areaBounds.south, lng: areaBounds.west],
-                northeast: [lat: areaBounds.north, lng: areaBounds.east]
-            ]
+            // The areaBounds already comes in the correct format (southwest/northeast)
+            mapConfig.bounds = areaBounds
             log.debug("Using zoom area bounds for: ${zoomArea}")
-            log.debug("Original area bounds: ${areaBounds}")
-            log.debug("Converted map bounds: ${mapConfig.bounds}")
+            log.debug("Zoom area bounds: ${areaBounds}")
             return mapConfig
         }
 
@@ -360,101 +376,221 @@ class EasyMapService {
     }
 
     /**
-     * Get predefined geographical bounds for zoom areas
-     * Based on legacy EasyMap_Shim areas: england, scotland, wales, highland, sco-mainland, outer-heb
+     * Get predefined geographical bounds for zoom areas from NBN Atlas layers service
+     * Based on dynamic lookup from layers service instead of hardcoded values
      * @param zoomArea The area identifier
      * @return Map containing bounds and zoom level, or null if not found
      */
     def getZoomAreaBounds(String zoomArea) {
         if (!zoomArea) return null
 
-        // Predefined geographical bounds for UK regions
-        // Coordinates are approximate and based on commonly used boundaries
-        def areaBounds = [:]
+        try {
+            // Load zoom area bounds data (with caching)
+            def zoomAreaBounds = loadZoomAreaBoundsData()
 
-        switch (zoomArea.toLowerCase()) {
-            case 'england':
-                areaBounds = [
-                    north: 55.8,     // Northernmost point of England (near Scotland border)
-                    south: 49.9,     // Southern coast (near Isle of Wight)
-                    east: 1.8,       // Eastern coast (Norfolk)
-                    west: -5.7,      // Western coast (Cornwall)
-                    centerLat: 52.8,
-                    centerLng: -2.0,
-                    zoom: 6
-                ]
-                break
+            // Look up by area name (case-insensitive)
+            def areaBounds = zoomAreaBounds.find { key, value ->
+                return key.toLowerCase() == zoomArea.toLowerCase() ||
+                       value.name?.toLowerCase()?.contains(zoomArea.toLowerCase())
+            }
 
-            case 'scotland':
-                areaBounds = [
-                    north: 60.9,     // Shetland Islands
-                    south: 54.6,     // Southern Scotland border
-                    east: -0.7,      // Eastern coast
-                    west: -8.6,      // Western islands
-                    centerLat: 57.0,
-                    centerLng: -4.0,
-                    zoom: 6
-                ]
-                break
+            if (areaBounds?.value?.bounds) {
+                // Add default zoom level based on area type
+                def bounds = areaBounds.value.bounds
+                bounds.zoom = getDefaultZoomForArea(zoomArea)
+                return bounds
+            }
 
-            case 'wales':
-                areaBounds = [
-                    north: 53.4,     // Northern Wales
-                    south: 51.4,     // Southern Wales
-                    east: -2.7,      // Eastern border
-                    west: -5.3,      // Western coast
-                    centerLat: 52.3,
-                    centerLng: -3.8,
-                    zoom: 7
-                ]
-                break
+            log.warn("No bounds found for zoom area: ${zoomArea}")
 
-            case 'highland':
-                // Scottish Highlands region
-                areaBounds = [
-                    north: 58.6,     // Northern Highlands
-                    south: 56.0,     // Southern Highlands boundary
-                    east: -2.0,      // Eastern boundary
-                    west: -6.2,      // Western boundary
-                    centerLat: 57.4,
-                    centerLng: -4.2,
-                    zoom: 7
-                ]
-                break
+            // Fall back to backup bounds if not found in service data
+            def backupBounds = getBackupZoomAreaBounds()
+            def backupArea = backupBounds.find { key, value ->
+                return key.toLowerCase() == zoomArea.toLowerCase()
+            }
 
-            case 'sco-mainland':
-                // Scottish mainland (excluding islands)
-                areaBounds = [
-                    north: 58.6,     // Northern Scotland mainland
-                    south: 54.6,     // Southern Scotland border
-                    east: -1.8,      // Eastern coast
-                    west: -5.1,      // Western mainland coast
-                    centerLat: 56.8,
-                    centerLng: -3.2,
-                    zoom: 6
-                ]
-                break
+            if (backupArea?.value?.bounds) {
+                log.debug("Using backup bounds for zoom area: ${zoomArea}")
+                return backupArea.value.bounds
+            }
 
-            case 'outer-heb':
-                // Outer Hebrides
-                areaBounds = [
-                    north: 58.5,     // Lewis northern tip
-                    south: 56.9,     // Barra southern tip
-                    east: -6.1,      // Eastern edge
-                    west: -7.7,      // Western edge
-                    centerLat: 57.7,
-                    centerLng: -7.0,
-                    zoom: 8
-                ]
-                break
+            return null
 
-            default:
-                log.warn("Unknown zoom area requested: ${zoomArea}")
-                return null
+        } catch (Exception e) {
+            log.error("Error retrieving zoom area bounds for ${zoomArea}: ${e.message}", e)
+
+            // Fall back to backup bounds on exception
+            try {
+                def backupBounds = getBackupZoomAreaBounds()
+                def backupArea = backupBounds.find { key, value ->
+                    return key.toLowerCase() == zoomArea.toLowerCase()
+                }
+
+                if (backupArea?.value?.bounds) {
+                    log.debug("Using backup bounds for zoom area after error: ${zoomArea}")
+                    return backupArea.value.bounds
+                }
+            } catch (Exception backupException) {
+                log.error("Error retrieving backup bounds for ${zoomArea}: ${backupException.message}")
+            }
+
+            return null
+        }
+    }
+
+    /**
+     * Load zoom area bounds data from NBN Atlas layers service with caching
+     * @return Map of area identifiers to bounds data
+     */
+    private Map loadZoomAreaBoundsData() {
+        // Check cache first
+        def currentTime = System.currentTimeMillis()
+        if (zoomAreaBoundsCache &&
+            zoomAreaCacheTimestamp > 0 &&
+            (currentTime - zoomAreaCacheTimestamp) < CACHE_EXPIRY_MS) {
+            log.debug("Using cached zoom area bounds data")
+            return zoomAreaBoundsCache
         }
 
-        log.debug("Retrieved bounds for zoom area '${zoomArea}': ${areaBounds}")
-        return areaBounds
+        try {
+            log.info("Fetching zoom area bounds from NBN Atlas layers service")
+
+            def layersBaseUrl = grailsApplication.config.getProperty('nbnatlas.layers.baseUrl', 'https://layers.nbnatlas.org/ws')
+            def countriesLayerId = grailsApplication.config.getProperty('layer.uk_countries', 'cl2')
+            def url = "${layersBaseUrl}/objects/${countriesLayerId}"
+
+            log.debug("Fetching UK countries data from: ${url}")
+
+            def jsonResponse = webServicesService.getJsonElements(url)
+            if (!jsonResponse) {
+                log.warn("No response from layers service for UK countries")
+                return getBackupZoomAreaBounds()
+            }
+
+            def zoomAreaBounds = [:]
+
+            jsonResponse.each { areaData ->
+                if (areaData.bbox && areaData.name) {
+                    try {
+                        def bounds = convertBboxToLatLngBounds(areaData.bbox)
+                        if (bounds) {
+                            def areaName = areaData.name.toLowerCase()
+                            zoomAreaBounds[areaName] = [
+                                id: areaData.id,
+                                name: areaData.name,
+                                bounds: bounds
+                            ]
+
+                            // Add common aliases for zoom areas
+                            addZoomAreaAliases(zoomAreaBounds, areaName, areaData)
+                        }
+                    } catch (Exception e) {
+                        log.warn("Error processing zoom area ${areaData.name}: ${e.message}")
+                    }
+                }
+            }
+
+            // Update cache
+            zoomAreaBoundsCache = zoomAreaBounds
+            zoomAreaCacheTimestamp = currentTime
+
+            log.info("Successfully loaded ${zoomAreaBounds.size()} zoom area bounds from layers service")
+            return zoomAreaBounds
+
+        } catch (Exception e) {
+            log.error("Error loading zoom area bounds from layers service: ${e.message}", e)
+            return getBackupZoomAreaBounds()
+        }
+    }
+
+    /**
+     * Add common aliases for zoom areas to support legacy area names
+     * @param zoomAreaBounds Map to add aliases to
+     * @param areaName Primary area name
+     * @param areaData Original area data
+     */
+    private void addZoomAreaAliases(Map zoomAreaBounds, String areaName, def areaData) {
+        def boundsData = zoomAreaBounds[areaName]
+
+        // Add aliases based on common zoom area names
+        switch (areaName) {
+            case 'scotland':
+                zoomAreaBounds['sco-mainland'] = boundsData
+                zoomAreaBounds['highland'] = boundsData  // For now, use Scotland bounds for Highland
+                break
+            case 'england':
+                // England aliases if needed
+                break
+            case 'wales':
+                // Wales aliases if needed
+                break
+        }
+
+        // Add specific handling for Scottish regions if available
+        if (areaName.contains('highland') || areaName.contains('outer hebrides')) {
+            zoomAreaBounds['highland'] = boundsData
+            zoomAreaBounds['outer-heb'] = boundsData
+        }
+    }
+
+    /**
+     * Get default zoom level for different area types
+     * @param zoomArea Area identifier
+     * @return Default zoom level
+     */
+    private Integer getDefaultZoomForArea(String zoomArea) {
+        switch (zoomArea.toLowerCase()) {
+            case 'england':
+            case 'scotland':
+            case 'wales':
+                return 6
+            case 'highland':
+            case 'sco-mainland':
+                return 7
+            case 'outer-heb':
+                return 8
+            default:
+                return grailsApplication.config.getProperty('easymap.defaultZoom', Integer, 6)
+        }
+    }
+
+    /**
+     * Get backup zoom area bounds data when layers service is unavailable
+     * @return Map of area names to bounds
+     */
+    private Map getBackupZoomAreaBounds() {
+        log.warn("Using backup zoom area bounds data")
+
+        // Minimal backup data for critical zoom areas
+        return [
+            "england": [
+                id: "england",
+                name: "England",
+                bounds: [
+                    southwest: [lat: 49.9, lng: -5.7],
+                    northeast: [lat: 55.8, lng: 1.8],
+                    zoom: 6
+                ]
+            ],
+            "scotland": [
+                id: "scotland",
+                name: "Scotland",
+                bounds: [
+                    southwest: [lat: 54.6, lng: -8.6],
+                    northeast: [lat: 60.9, lng: -0.7],
+                    zoom: 6
+                ]
+            ],
+            "wales": [
+                id: "wales",
+                name: "Wales",
+                bounds: [
+                    southwest: [lat: 51.4, lng: -5.3],
+                    northeast: [lat: 53.4, lng: -2.7],
+                    zoom: 7
+                ]
+            ]
+        ]
     }
 
     /**
