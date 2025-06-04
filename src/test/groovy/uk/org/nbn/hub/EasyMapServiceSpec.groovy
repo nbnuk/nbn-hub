@@ -467,23 +467,23 @@ class EasyMapServiceSpec extends Specification {
         input     | expected
         "1km"     | "1km"
         "2km"     | "2km"
-        "5km"     | "5km"
+        "5km"     | "2km"  // 5km maps to 2km (not supported by WMS)
         "10km"    | "fixed_10km"
         "1KM"     | "1km"
         "2KM"     | "2km"
-        "5KM"     | "5km"
+        "5KM"     | "2km"  // 5km maps to 2km (not supported by WMS)
         "10KM"    | "fixed_10km"
         "1"       | "1km"
         "2"       | "2km"
-        "5"       | "5km"
+        "5"       | "2km"  // 5km maps to 2km (not supported by WMS)
         "10"      | "fixed_10km"
         "1000"    | "1km"
         "2000"    | "2km"
-        "5000"    | "5km"
+        "5000"    | "2km"  // 5km maps to 2km (not supported by WMS)
         "10000"   | "fixed_10km"
         "1000m"   | "1km"
         "2000m"   | "2km"
-        "5000m"   | "5km"
+        "5000m"   | "2km"  // 5km maps to 2km (not supported by WMS)
         "10000m"  | "fixed_10km"
         null      | "fixed_10km"
         ""        | "fixed_10km"
@@ -533,9 +533,9 @@ class EasyMapServiceSpec extends Specification {
         when: "prepareMapConfig is called with grid resolution"
         def result = service.prepareMapConfig([], null, null, null, null, null, null, gridResolution)
 
-        then: "it uses the specified grid resolution"
+        then: "it uses the mapped grid resolution (5km -> 2km)"
         result != null
-        result.easymapGridGridResolution == "5km"
+        result.easymapGridGridResolution == "2km"  // 5km maps to 2km (not supported by WMS)
     }
 
     void "test prepareMapConfig with invalid grid resolution uses default"() {
@@ -579,7 +579,7 @@ class EasyMapServiceSpec extends Specification {
         input    | expected
         "1"      | "1km"
         "2000"   | "2km"
-        "5000m"  | "5km"
+        "5000m"  | "2km"  // 5km maps to 2km (not supported by WMS)
         "10KM"   | "fixed_10km"
     }
 }

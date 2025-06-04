@@ -1169,11 +1169,13 @@ class EasyMapService {
         def normalizedInput = gridResolution.toLowerCase().trim()
 
         // Map user-friendly values to WMS layer values
+        // Note: The biocache WMS service supports: 100km, 50km, 10km, 2km, 1km, 100m
+        // 5km is not supported and will be rejected as invalid
         def resolutionMapping = [
             "1km": "1km",
             "2km": "2km",
-            "5km": "5km",
-            "10km": "fixed_10km"
+            "10km": "fixed_10km",
+            "100km": "100km"
         ]
 
         if (resolutionMapping.containsKey(normalizedInput)) {
@@ -1186,10 +1188,10 @@ class EasyMapService {
             return "1km"
         } else if (normalizedInput in ["2", "2000", "2000m"]) {
             return "2km"
-        } else if (normalizedInput in ["5", "5000", "5000m"]) {
-            return "5km"
         } else if (normalizedInput in ["10", "10000", "10000m", "fixed_10km"]) {
             return "fixed_10km"
+        } else if (normalizedInput in ["100", "100000", "100000m"]) {
+            return "100km"
         }
 
         log.warn("Invalid grid resolution provided: ${gridResolution}. Using default: 10km")
@@ -1205,9 +1207,9 @@ class EasyMapService {
         if (!gridResolution) return true // null/empty is valid (uses default)
 
         def normalizedInput = gridResolution.toLowerCase().trim()
-        def validValues = ["1km", "2km", "5km", "10km", "1", "2", "5", "10",
-                          "1000", "2000", "5000", "10000",
-                          "1000m", "2000m", "5000m", "10000m", "fixed_10km"]
+        def validValues = ["1km", "2km", "10km", "100km", "1", "2", "10", "100",
+                          "1000", "2000", "10000", "100000",
+                          "1000m", "2000m", "10000m", "100000m", "fixed_10km"]
 
         return validValues.contains(normalizedInput)
     }

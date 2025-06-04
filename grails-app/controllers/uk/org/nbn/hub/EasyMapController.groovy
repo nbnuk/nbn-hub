@@ -29,8 +29,8 @@ class EasyMapController {
      * @param cachedays Optional - Cache duration in days (default: 30, 0 to bypass cache)
      * @param format Optional - Response format ('html' or 'json', default: 'html')
      * @param ds Optional - Dataset key(s) obtainable from the NBN Gateway (e.g., 'dr123', 'ds456' or comma-separated list 'dr123,ds456,dr789')
-     * @param gd Optional - Grid resolution (1km, 2km, 5km, 10km, default: 10km) - alias: res
-     * @param res Optional - Grid resolution (1km, 2km, 5km, 10km, default: 10km) - alias: gd
+     * @param gd Optional - Grid resolution (1km, 2km, 10km, 100km, default: 10km) - alias: res
+     * @param res Optional - Grid resolution (1km, 2km, 10km, 100km, default: 10km) - alias: gd
      * @param zoom Optional - Predefined zoom area (england, scotland, wales, highland, sco-mainland, outer-heb)
      * @param vc Optional - Vice-county number to zoom to a particular vice-county
      * @param bl Optional - Bottom left grid reference (10km, 2km or 1km resolution) - use with tr parameter
@@ -95,7 +95,7 @@ class EasyMapController {
         if (gridResolution && !easyMapService.isValidGridResolution(gridResolution)) {
             log.warn("Invalid grid resolution provided: ${gridResolution}")
             response.status = 400
-            def errorMessage = "Invalid grid resolution: ${gridResolution}. Supported resolutions: 1km, 2km, 5km, 10km"
+            def errorMessage = "Invalid grid resolution: ${gridResolution}. Supported resolutions: 1km, 2km, 10km, 100km"
             if (format == 'json') {
                 render([result: "ERROR", message: errorMessage, data: null] as JSON)
             } else {
