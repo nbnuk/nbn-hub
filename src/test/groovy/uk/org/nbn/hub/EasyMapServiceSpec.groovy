@@ -467,28 +467,32 @@ class EasyMapServiceSpec extends Specification {
         input     | expected
         "1km"     | "1km"
         "2km"     | "2km"
-        "5km"     | "2km"  // 5km maps to 2km (not supported by WMS)
         "10km"    | "fixed_10km"
+        "100km"   | "100km"
         "1KM"     | "1km"
         "2KM"     | "2km"
-        "5KM"     | "2km"  // 5km maps to 2km (not supported by WMS)
         "10KM"    | "fixed_10km"
+        "100KM"   | "100km"
         "1"       | "1km"
         "2"       | "2km"
-        "5"       | "2km"  // 5km maps to 2km (not supported by WMS)
         "10"      | "fixed_10km"
+        "100"     | "100km"
         "1000"    | "1km"
         "2000"    | "2km"
-        "5000"    | "2km"  // 5km maps to 2km (not supported by WMS)
         "10000"   | "fixed_10km"
+        "100000"  | "100km"
         "1000m"   | "1km"
         "2000m"   | "2km"
-        "5000m"   | "2km"  // 5km maps to 2km (not supported by WMS)
         "10000m"  | "fixed_10km"
+        "100000m" | "100km"
         null      | "fixed_10km"
         ""        | "fixed_10km"
         "invalid" | "fixed_10km"
         "3km"     | "fixed_10km"
+        "5km"     | "fixed_10km"  // 5km is no longer supported
+        "5"       | "fixed_10km"  // 5km is no longer supported
+        "5000"    | "fixed_10km"  // 5km is no longer supported
+        "5000m"   | "fixed_10km"  // 5km is no longer supported
     }
 
     void "test isValidGridResolution with various inputs"() {
@@ -499,43 +503,60 @@ class EasyMapServiceSpec extends Specification {
         input     | expected
         "1km"     | true
         "2km"     | true
-        "5km"     | true
         "10km"    | true
+        "100km"   | true
         "1KM"     | true
         "2KM"     | true
-        "5KM"     | true
         "10KM"    | true
+        "100KM"   | true
         "1"       | true
         "2"       | true
-        "5"       | true
         "10"      | true
+        "100"     | true
         "1000"    | true
         "2000"    | true
-        "5000"    | true
         "10000"   | true
+        "100000"  | true
         "1000m"   | true
         "2000m"   | true
-        "5000m"   | true
         "10000m"  | true
+        "100000m" | true
         "fixed_10km" | true
         null      | true
         ""        | true
         "invalid" | false
         "3km"     | false
+        "5km"     | false  // 5km is no longer supported
+        "5KM"     | false  // 5km is no longer supported
+        "5"       | false  // 5km is no longer supported
+        "5000"    | false  // 5km is no longer supported
+        "5000m"   | false  // 5km is no longer supported
         "15km"    | false
         "0km"     | false
     }
 
     void "test prepareMapConfig with grid resolution parameter"() {
         given: "a grid resolution parameter"
-        def gridResolution = "5km"
+        def gridResolution = "2km"  // Changed from 5km to 2km since 5km is no longer valid
 
         when: "prepareMapConfig is called with grid resolution"
         def result = service.prepareMapConfig([], null, null, null, null, null, null, gridResolution)
 
-        then: "it uses the mapped grid resolution (5km -> 2km)"
+        then: "it uses the specified grid resolution"
         result != null
-        result.easymapGridGridResolution == "2km"  // 5km maps to 2km (not supported by WMS)
+        result.easymapGridGridResolution == "2km"
+    }
+
+    void "test prepareMapConfig with invalid 5km grid resolution falls back to default"() {
+        given: "an invalid 5km grid resolution parameter"
+        def gridResolution = "5km"
+
+        when: "prepareMapConfig is called with 5km grid resolution"
+        def result = service.prepareMapConfig([], null, null, null, null, null, null, gridResolution)
+
+        then: "it falls back to the default grid resolution"
+        result != null
+        result.easymapGridGridResolution == "fixed_10km"
     }
 
     void "test prepareMapConfig with invalid grid resolution uses default"() {
@@ -579,7 +600,7 @@ class EasyMapServiceSpec extends Specification {
         input    | expected
         "1"      | "1km"
         "2000"   | "2km"
-        "5000m"  | "2km"  // 5km maps to 2km (not supported by WMS)
         "10KM"   | "fixed_10km"
+        "100"    | "100km"
     }
 }
