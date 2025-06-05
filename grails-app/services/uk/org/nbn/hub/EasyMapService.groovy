@@ -982,9 +982,32 @@ class EasyMapService {
         def minLon = longitudes.min()
         def maxLon = longitudes.max()
 
-        // Add padding to bounds
-        def latPadding = Math.max((maxLat - minLat) * 0.1, 0.01)
-        def lonPadding = Math.max((maxLon - minLon) * 0.1, 0.01)
+        // Calculate the spread of data
+        def latSpread = maxLat - minLat
+        def lonSpread = maxLon - minLon
+
+        // If data spans most of the UK (lat > 8 degrees or lon > 6 degrees),
+        // use default UK bounds for better centering
+        if (latSpread > 8.0 || lonSpread > 6.0) {
+            log.debug("Data spread too wide (lat: ${latSpread}, lon: ${lonSpread}), using default UK bounds")
+            return null
+        }
+
+        // For smaller areas, add intelligent padding
+        def latPadding = Math.max(latSpread * 0.2, 0.1)  // Minimum 0.1 degree padding
+        def lonPadding = Math.max(lonSpread * 0.2, 0.1)  // Minimum 0.1 degree padding
+
+        // Ensure we don't zoom in too tight for small areas
+        def minLatSpread = 1.0  // Minimum 1 degree lat spread
+        def minLonSpread = 1.5  // Minimum 1.5 degree lon spread
+
+        if (latSpread + (2 * latPadding) < minLatSpread) {
+            latPadding = (minLatSpread - latSpread) / 2.0
+        }
+
+        if (lonSpread + (2 * lonPadding) < minLonSpread) {
+            lonPadding = (minLonSpread - lonSpread) / 2.0
+        }
 
         return [
             southwest: [lat: minLat - latPadding, lng: minLon - lonPadding],
@@ -997,9 +1020,11 @@ class EasyMapService {
      * @return Map with UK bounds coordinates
      */
     def getDefaultUKBounds() {
+        // Use bounds that provide better UK-wide view, similar to EasyMap_Shim
+        // These bounds are derived from EasyMap_Shim's UK bounds converted to WGS84
         return [
-            southwest: [lat: 49.8, lng: -7.5],
-            northeast: [lat: 60.9, lng: 1.8]
+            southwest: [lat: 49.5, lng: -8.5],
+            northeast: [lat: 61.0, lng: 2.0]
         ]
     }
 

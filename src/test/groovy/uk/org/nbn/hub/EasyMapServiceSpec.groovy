@@ -258,10 +258,10 @@ class EasyMapServiceSpec extends Specification {
         then: "it uses default UK bounds"
         result != null
         result.bounds != null
-        result.bounds.southwest.lat == 49.8
-        result.bounds.southwest.lng == -7.5
-        result.bounds.northeast.lat == 60.9
-        result.bounds.northeast.lng == 1.8
+        result.bounds.southwest.lat == 49.5
+        result.bounds.southwest.lng == -8.5
+        result.bounds.northeast.lat == 61.0
+        result.bounds.northeast.lng == 2.0
     }
 
     // ========== Vice County Bounds Tests ==========
