@@ -29,14 +29,13 @@ class EasyMapService {
     def getSpeciesInfo(String tvk) {
         log.debug("Retrieving species info for TVK: ${tvk}")
 
-        // Check if mock data should be used
+        // Check if mock data should be used ( TODO remove mock data when feature complete)
         if (grailsApplication.config.getProperty('use.mock.data', Boolean, false)) {
             log.info("Using mock data mode for species info")
             return getMockSpeciesInfo(tvk)
         }
 
         try {
-            // Use the existing method from WebServicesService
             def jsonResponse = webServicesService.getTaxon(tvk)
 
             if (jsonResponse && !jsonResponse.isEmpty()) {
@@ -77,7 +76,7 @@ class EasyMapService {
 
         } catch (Exception e) {
             log.error("Error retrieving species info for TVK ${tvk}: ${e.message}", e)
-            // Return mock data for demo purposes when external services are unavailable
+            // TODO remove this - use mock data for demo purposes when external services are unavailable
             return getMockSpeciesInfo(tvk)
         }
     }
@@ -102,7 +101,7 @@ class EasyMapService {
             // Use the biocache-hubs SearchRequestParams to build the query
             def requestParams = new au.org.ala.biocache.hubs.SearchRequestParams()
             requestParams.q = "lsid:${acceptedTvk}"
-            requestParams.pageSize = 500  // Limit for map display
+            requestParams.pageSize = 500  // Limit for map display ?
 
             // Add dataset filter if provided
             if (datasetKeys) {
@@ -1237,5 +1236,124 @@ class EasyMapService {
                           "1000m", "2000m", "10000m", "100000m", "fixed_10km"]
 
         return validValues.contains(normalizedInput)
+    }
+
+    /**
+     * Process occurrence data according to date bands
+     * @param occurrences List of occurrence records
+     * @param dateBands Map containing date band configurations
+     * @return Map containing processed occurrence data organized by date bands
+     */
+    def processDateBands(List occurrences, Map dateBands) {
+        def result = [
+            bands: [],
+            processedOccurrences: []
+        ]
+
+        // Create date band configurations from parameters
+        def bands = []
+
+        // Band 0 (bottom layer)
+        if (dateBands.b0from || dateBands.b0to) {
+            bands << [
+                name: 'band0',
+                fromYear: parseYear(dateBands.b0from, 0),
+                toYear: parseYear(dateBands.b0to, 9999),
+                fillColor: sanitizeColor(dateBands.b0fill, 'df4a21'),
+                occurrences: []
+            ]
+        }
+
+        // Band 1 (middle layer)
+        if (dateBands.b1from || dateBands.b1to) {
+            bands << [
+                name: 'band1',
+                fromYear: parseYear(dateBands.b1from, 0),
+                toYear: parseYear(dateBands.b1to, 9999),
+                fillColor: sanitizeColor(dateBands.b1fill, 'FF00FF'),
+                occurrences: []
+            ]
+        }
+
+        // Band 2 (top layer)
+        if (dateBands.b2from || dateBands.b2to) {
+            bands << [
+                name: 'band2',
+                fromYear: parseYear(dateBands.b2from, 0),
+                toYear: parseYear(dateBands.b2to, 9999),
+                fillColor: sanitizeColor(dateBands.b2fill, '00FFFF'),
+                occurrences: []
+            ]
+        }
+
+        // If no date bands defined, return all occurrences in default band
+        if (bands.isEmpty()) {
+            result.bands = [[
+                name: 'default',
+                fromYear: 0,
+                toYear: 9999,
+                fillColor: sanitizeColor(dateBands.b0fill, 'df4a21'),
+                occurrences: occurrences
+            ]]
+            result.processedOccurrences = occurrences
+            return result
+        }
+
+        // Categorize occurrences into date bands
+        occurrences.each { occurrence ->
+            def year = occurrence.year
+            if (year != null) {
+                // Find the appropriate band (check from top to bottom layer)
+                def assignedBand = null
+                bands.reverse().each { band ->
+                    if (!assignedBand && year >= band.fromYear && year <= band.toYear) {
+                        assignedBand = band
+                    }
+                }
+
+                if (assignedBand) {
+                    assignedBand.occurrences << occurrence
+                }
+            }
+        }
+
+        result.bands = bands
+        result.processedOccurrences = occurrences
+
+        return result
+    }
+
+    /**
+     * Parse year string to integer with fallback
+     */
+    private int parseYear(String yearString, int defaultValue) {
+        if (!yearString) return defaultValue
+
+        // Sanitize - remove non-numeric characters
+        def sanitized = yearString.replaceAll(/[^0-9]/, '')
+
+        // Must be 4 digits
+        if (sanitized.length() != 4) return defaultValue
+
+        try {
+            return Integer.parseInt(sanitized)
+        } catch (NumberFormatException e) {
+            return defaultValue
+        }
+    }
+
+    /**
+     * Sanitize and validate hex color string
+     */
+    private String sanitizeColor(String colorString, String defaultColor) {
+        if (!colorString) return defaultColor
+
+        // Remove any non-hex characters and convert to uppercase
+        def sanitized = colorString.toUpperCase().replaceAll(/[^A-F0-9]/, '')
+
+        // Must be 6 characters for valid hex color
+        if (sanitized.length() != 6) return defaultColor
+
+        return sanitized
     }
 }

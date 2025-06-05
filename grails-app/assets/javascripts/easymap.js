@@ -3,8 +3,20 @@
 
 /**
  * NBN Atlas EasyMap JavaScript Module
- * Provides reusable functionality for EasyMap species occurrence mapping
- * Configuration is now managed via the application properties file
+ *
+ * This module provides functionality for displaying species occurrence maps in the NBN Atlas style.
+ * It implements the EasyMap API specification for consistent mapping across NBN Atlas platforms.
+ *
+ * Key features:
+ * - Grid-based occurrence visualization
+ * - Support for multiple dataset filters
+ * - Configurable grid colors and styles
+ * - WMS layer integration with biocache service
+ * - Leaflet map integration
+ *
+ * @module EasyMap
+ * @requires leaflet
+ * @version 1.0.0
  */
 window.EasyMap = (function() {
     'use strict';
@@ -28,10 +40,10 @@ window.EasyMap = (function() {
         // Use provided color or fall back to configuration
         color = color || (gridConfig && gridConfig.defaultColor) || 'df4a21';
 
-        // Build the query string - match EasyMap_Shim format
+        // Build the query string
         var query = "?q=lsid:" + encodeURIComponent(tvk);
 
-        // Add dataset filter if provided - build druidurl like EasyMap_Shim
+        // Add dataset filter if provided
         if (datasetFilter) {
             var datasets = datasetFilter.split(',');
             var druidQueries = [];
@@ -49,11 +61,11 @@ window.EasyMap = (function() {
             }
         }
 
-        // Add presence filter to exclude absent records
+        // Add presence filter to exclude absent records ( TODO is this needed ?)
         query += "&fq=" + encodeURIComponent("-occurrence_status:absent");
 
-        // Build WMS URL using /ogc/wms/reflect endpoint like EasyMap_Shim
-        var wmsUrl = biocacheUrl + "/ogc/wms/reflect" + query;
+        // Build WMS URL using /mapping/wms/reflect endpoint like EasyMap_Shim
+        var wmsUrl = biocacheUrl + "/mapping/wms/reflect" + query;
 
         // Configure grid parameters using configuration
         var opacity = (gridConfig && gridConfig.opacity) || '0.8';
@@ -78,6 +90,103 @@ window.EasyMap = (function() {
         console.log('Grid resolution from config:', gridResolution);
 
         return gridLayer;
+    }
+
+    /**
+     * Create and add grid WMS layers for date bands to the map
+     * @param {L.Map} map - The Leaflet map instance
+     * @param {string} tvk - Taxon Version Key for the species
+     * @param {string} biocacheUrl - Base URL for biocache service
+     * @param {string} datasetFilter - Optional dataset filter
+     * @param {Object} dateBands - Date bands configuration
+     * @param {Object} gridConfig - Grid layer configuration
+     * @returns {Array} Array of WMS layers
+     */
+    function addGridLayersWithDateBands(map, tvk, biocacheUrl, datasetFilter, dateBands, gridConfig) {
+        if (!tvk || !biocacheUrl) {
+            console.warn('Missing required parameters for grid layer');
+            return [];
+        }
+
+        var layers = [];
+
+        // If no date bands specified, use default single layer
+        if (!dateBands || !dateBands.bands || dateBands.bands.length === 0) {
+            var defaultColor = dateBands && dateBands.bands && dateBands.bands[0] ? dateBands.bands[0].fillColor : 'df4a21';
+            var layer = addGridLayer(map, tvk, biocacheUrl, datasetFilter, defaultColor, gridConfig);
+            if (layer) layers.push(layer);
+            return layers;
+        }
+
+        // Add layers for each date band (bottom to top)
+        dateBands.bands.forEach(function(band, index) {
+            // Create layer for each defined band (WMS will filter based on date range)
+            if (band.fromYear !== undefined && band.fillColor) {
+                console.log('Adding date band layer:', band.name, 'from', band.fromYear, 'to', band.toYear, 'color:', band.fillColor);
+
+                // Build the query string with date range
+                var query = "?q=lsid:" + encodeURIComponent(tvk);
+
+                // Add date range filter
+                if (band.fromYear !== undefined && band.toYear !== undefined) {
+                    query += "&fq=" + encodeURIComponent("year:[" + band.fromYear + " TO " + band.toYear + "]");
+                } else if (band.fromYear !== undefined) {
+                    // Open-ended range (e.g., from 2020 onwards)
+                    query += "&fq=" + encodeURIComponent("year:[" + band.fromYear + " TO *]");
+                }
+
+                // Add dataset filter if provided
+                if (datasetFilter) {
+                    var datasets = datasetFilter.split(',');
+                    var druidQueries = [];
+                    datasets.forEach(function(ds) {
+                        if (ds.trim()) {
+                            druidQueries.push("data_resource_uid:" + ds.trim());
+                        }
+                    });
+                    if (druidQueries.length > 0) {
+                        if (druidQueries.length === 1) {
+                            query += "&fq=" + encodeURIComponent(druidQueries[0]);
+                        } else {
+                            query += "&fq=" + encodeURIComponent("(" + druidQueries.join(" OR ") + ")");
+                        }
+                    }
+                }
+
+                // Add presence filter to exclude absent records
+                query += "&fq=" + encodeURIComponent("-occurrence_status:absent");
+
+                // Build WMS URL using /mapping/wms/reflect endpoint like EasyMap_Shim
+                var wmsUrl = biocacheUrl + "/mapping/wms/reflect" + query;
+
+                // Configure grid parameters using configuration
+                var opacity = (gridConfig && gridConfig.opacity) || '0.8';
+                var colourMode = (gridConfig && gridConfig.colourMode) || 'osgrid';
+                var gridLabels = (gridConfig && gridConfig.gridLabels) || 'false';
+                var gridResolution = (gridConfig && gridConfig.gridResolution) || 'fixed_10km';
+
+                var envProperty = "colourmode:" + colourMode + ";color:" + band.fillColor + ";opacity:" + opacity + ";gridlabels:" + gridLabels + ";gridres:" + gridResolution;
+
+                // Create WMS layer using configuration
+                var gridLayer = L.tileLayer.wms(wmsUrl, {
+                    layers: (gridConfig && gridConfig.layers) || 'ALA:occurrences',
+                    format: (gridConfig && gridConfig.format) || 'image/png',
+                    transparent: true,
+                    ENV: envProperty,
+                    opacity: parseFloat(opacity)
+                });
+
+                map.addLayer(gridLayer);
+                layers.push(gridLayer);
+
+                console.log('Date band layer added:', band.name);
+                console.log('WMS URL:', wmsUrl);
+                console.log('ENV parameters:', envProperty);
+                console.log('Date range filter: year:[' + band.fromYear + ' TO ' + (band.toYear || '*') + ']');
+            }
+        });
+
+        return layers;
     }
 
     /**
@@ -184,6 +293,7 @@ window.EasyMap = (function() {
      * @param {string} options.containerId - ID of the map container element
      * @param {Object} options.mapConfig - Map configuration object
      * @param {Array} options.occurrences - Array of occurrence data
+     * @param {Object} options.dateBands - Date bands configuration
      * @param {Object} options.speciesInfo - Species information object
      * @param {string} options.tvk - Taxon Version Key
      * @param {string} options.zoomArea - Optional predefined zoom area
@@ -198,6 +308,7 @@ window.EasyMap = (function() {
         var containerId = options.containerId || 'easymap';
         var mapConfig = options.mapConfig || {};
         var occurrences = options.occurrences || [];
+        var dateBands = options.dateBands || null;
         var speciesInfo = options.speciesInfo || {};
         var tvk = options.tvk;
         var zoomArea = options.zoomArea;
@@ -208,6 +319,7 @@ window.EasyMap = (function() {
         var topRightCoord = options.topRightCoord;
 
         console.log('Initializing EasyMap for:', speciesInfo.scientificName || tvk);
+        console.log('Date bands:', dateBands);
         console.log('Bounding parameters:', {
             zoomArea: zoomArea,
             viceCounty: viceCounty,
@@ -237,7 +349,7 @@ window.EasyMap = (function() {
             worldCopyJump: true
         });
 
-        // Get tile layer configuration from mapConfig or use defaults
+        // Get tile layer configuration from mapConfig or use defaults (TODO - move defaults to app config)
         var tileLayerUrl = mapConfig.easymapTileLayerMinimalUrl || 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
         var tileLayerAttribution = mapConfig.easymapTileLayerMinimalAttribution || '© OpenStreetMap contributors, © CartoDB';
         var tileLayerSubdomains = mapConfig.easymapTileLayerMinimalSubdomains || 'abcd';
@@ -251,7 +363,7 @@ window.EasyMap = (function() {
         });
         map.addLayer(defaultBaseLayer);
 
-        // Add 10km grid WMS layer
+        // Add 10km grid WMS layer (TODO - use default from app config)
         var biocacheUrl = mapConfig.biocacheUrl || mapConfig.easymapBiocacheFallbackUrl || 'https://records-ws.nbnatlas.org';
 
         console.log('Using biocache URL:', biocacheUrl);
@@ -270,7 +382,7 @@ window.EasyMap = (function() {
             gridResolution: mapConfig.easymapGridGridResolution
         };
 
-        var gridLayer = addGridLayer(map, tvk, biocacheUrl, datasetFilter, color, gridConfig);
+        var gridLayers = addGridLayersWithDateBands(map, tvk, biocacheUrl, datasetFilter, dateBands, gridConfig);
 
         // Create bounding parameters object
         var boundingParams = {
@@ -283,7 +395,9 @@ window.EasyMap = (function() {
         };
 
         // Fit map to show all data or use specified bounds
-        fitMapBounds(map, gridLayer, mapConfig, boundingParams);
+        // Pass the first layer if any layers were created, otherwise null
+        var firstGridLayer = gridLayers && gridLayers.length > 0 ? gridLayers[0] : null;
+        fitMapBounds(map, firstGridLayer, mapConfig, boundingParams);
 
         // Add scale control
         L.control.scale({

@@ -33,6 +33,7 @@
             var mapConfig = ${raw(mapConfigJson)};
             var occurrences = ${raw(occurrencesJson)};
             var speciesInfo = ${raw(speciesInfoJson)};
+            var dateBands = ${raw(dateBandsJson)};
 
             // Use acceptedTvk if available, otherwise fall back to original tvk
             var tvkForQuery = speciesInfo.acceptedTvk || '${mapData.tvk}';
@@ -41,10 +42,10 @@
                 containerId: 'easymap',
                 mapConfig: mapConfig,
                 occurrences: occurrences,
+                dateBands: dateBands,
                 speciesInfo: speciesInfo,
                 tvk: tvkForQuery,
                 datasetFilter: '${raw(mapData.datasetFilter ?: "")}',
-                // Additional EasyMap parameters
                 color: '${raw(mapData.b0fill ?: "df4a21")}',
                 background: '${raw(mapData.bg ?: "")}',
                 gridResolution: '${raw(mapData.gridResolution ?: "10km")}',

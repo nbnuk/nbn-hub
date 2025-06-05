@@ -37,6 +37,15 @@ class EasyMapController {
      * @param tr Optional - Top right grid reference (10km, 2km or 1km resolution) - use with bl parameter
      * @param blCoord Optional - Bottom left corner as Easting,Northing coordinates - use with trCoord parameter
      * @param trCoord Optional - Top right corner as Easting,Northing coordinates - use with blCoord parameter
+     * @param b0from Optional - Start date for first date band (format: YYYY-MM-DD)
+     * @param b0to Optional - End date for first date band (format: YYYY-MM-DD)
+     * @param b0fill Optional - Color for first date band (hex code, default: 'df4a21')
+     * @param b1from Optional - Start date for second date band (format: YYYY-MM-DD)
+     * @param b1to Optional - End date for second date band (format: YYYY-MM-DD)
+     * @param b1fill Optional - Color for second date band (hex code)
+     * @param b2from Optional - Start date for third date band (format: YYYY-MM-DD)
+     * @param b2to Optional - End date for third date band (format: YYYY-MM-DD)
+     * @param b2fill Optional - Color for third date band (hex code)
      */
     def easyMap() {
         log.debug("EasyMap request received with params: ${params}")
@@ -49,8 +58,18 @@ class EasyMapController {
         def format = params.format as String ?: 'html'
         def datasetKeys = params.ds as String
 
+        // Date band parameters for displaying temporal data in different colors
+        def b0from = params.b0from as String
+        def b0to = params.b0to as String
+        def b0fill = params.b0fill as String ?: 'df4a21'  // TODO move Default red color to config ?
+        def b1from = params.b1from as String
+        def b1to = params.b1to as String
+        def b1fill = params.b1fill as String
+        def b2from = params.b2from as String
+        def b2to = params.b2to as String
+        def b2fill = params.b2fill as String
+
         // TODO Discuss these additional to match EasyMap_Shim functionality
-        def b0fill = params.b0fill as String ?: 'df4a21'  // Default red color
         def bg = params.bg as String  // Background map (e.g., 'VC' for Vice Counties)
         def gridResolution = params.gd as String ?: params.res as String ?: '10km'  // Grid resolution
         def zoomArea = params.zoom as String  // Zoom to specific area (e.g., 'highland')
@@ -144,20 +163,37 @@ class EasyMapController {
             }
 
             def occurrenceData = easyMapService.getOccurrenceData(speciesInfo.acceptedTvk ?: tvk, datasetKeys)
+
+            // Process date bands if specified
+            def dateBands = [
+                b0from: b0from, b0to: b0to, b0fill: b0fill,
+                b1from: b1from, b1to: b1to, b1fill: b1fill,
+                b2from: b2from, b2to: b2to, b2fill: b2fill
+            ]
+            def dateBandResult = easyMapService.processDateBands(occurrenceData, dateBands)
+
             def mapConfig = easyMapService.prepareMapConfig(occurrenceData, zoomArea, viceCounty, bottomLeft, topRight, bottomLeftCoord, topRightCoord, gridResolution)
 
             def mapData = [
                 tvk: tvk,
                 speciesInfo: speciesInfo,
                 occurrences: occurrenceData,
+                dateBands: dateBandResult,
                 mapConfig: mapConfig,
                 datasetFilter: datasetKeys,
                 // Additional EasyMap parameters
+                b0from: b0from,
+                b0to: b0to,
                 b0fill: b0fill,
+                b1from: b1from,
+                b1to: b1to,
+                b1fill: b1fill,
+                b2from: b2from,
+                b2to: b2to,
+                b2fill: b2fill,
                 bg: bg,
                 gridResolution: gridResolution,
                 zoomArea: zoomArea,
-                // New bounding box parameters
                 viceCounty: viceCounty,
                 bottomLeft: bottomLeft,
                 topRight: topRight,
@@ -181,7 +217,7 @@ class EasyMapController {
                 ] as JSON)
                 return
             } else {
-                // Return HTML view
+                // Return HTML view (map.gsp)
                 def model = [
                     mapData: mapData,
                     tvk: tvk,
@@ -190,7 +226,8 @@ class EasyMapController {
                     retina: retina,
                     mapConfigJson: (mapData.mapConfig as JSON).toString(),
                     occurrencesJson: (mapData.occurrences as JSON).toString(),
-                    speciesInfoJson: (mapData.speciesInfo as JSON).toString()
+                    speciesInfoJson: (mapData.speciesInfo as JSON).toString(),
+                    dateBandsJson: (mapData.dateBands as JSON).toString()
                 ]
 
                 // Set cache headers based on cachedays parameter
@@ -220,7 +257,7 @@ class EasyMapController {
     }
 
     /**
-     * Alternative endpoint that returns only JSON (for API consumers)
+     * Alternative endpoint that returns only JSON (useful when testing API)
      * GET /EasyMap.json?tvk=TAXONVERSIONKEY
      */
     def easyMapJson() {
@@ -230,7 +267,7 @@ class EasyMapController {
     }
 
     /**
-     * Health check endpoint for EasyMap service
+     * Health check endpoint for EasyMap service ( more useful when lifting feature into separate service)
      */
     def health() {
         try {
