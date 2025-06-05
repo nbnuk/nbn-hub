@@ -603,4 +603,86 @@ class EasyMapServiceSpec extends Specification {
         "10KM"   | "fixed_10km"
         "100"    | "100km"
     }
+
+    void "test processDateBands with multiple date bands"() {
+        given: "a list of occurrences from different years"
+        def occurrences = [
+            [year: 2000, latitude: 51.5, longitude: -0.1],
+            [year: 2010, latitude: 52.0, longitude: -1.0],
+            [year: 2016, latitude: 53.0, longitude: -2.0],
+            [year: 2021, latitude: 54.0, longitude: -3.0]
+        ]
+
+        and: "date band configuration"
+        def dateBands = [
+            b0from: '1990', b0to: '2014', b0fill: '99c2ff',
+            b1from: '2015', b1to: '2019', b1fill: '000099',
+            b2from: '2020', b2to: null, b2fill: '990000'
+        ]
+
+        when: "processDateBands is called"
+        def result = service.processDateBands(occurrences, dateBands)
+
+        then: "it returns properly organized date bands"
+        result != null
+        result.bands.size() == 3
+        result.bands[0].name == 'band0'
+        result.bands[0].fromYear == 1990
+        result.bands[0].toYear == 2014
+        result.bands[0].fillColor == '99C2FF'
+        result.bands[0].occurrences.size() == 2  // 2000, 2010
+
+        result.bands[1].name == 'band1'
+        result.bands[1].fromYear == 2015
+        result.bands[1].toYear == 2019
+        result.bands[1].fillColor == '000099'
+        result.bands[1].occurrences.size() == 1  // 2016
+
+        result.bands[2].name == 'band2'
+        result.bands[2].fromYear == 2020
+        result.bands[2].toYear == 9999
+        result.bands[2].fillColor == '990000'
+        result.bands[2].occurrences.size() == 1  // 2021
+    }
+
+    void "test processDateBands with no date bands returns default"() {
+        given: "a list of occurrences"
+        def occurrences = [
+            [year: 2000, latitude: 51.5, longitude: -0.1],
+            [year: 2010, latitude: 52.0, longitude: -1.0]
+        ]
+
+        and: "no date band configuration"
+        def dateBands = [b0fill: 'df4a21']
+
+        when: "processDateBands is called"
+        def result = service.processDateBands(occurrences, dateBands)
+
+        then: "it returns a single default band"
+        result != null
+        result.bands.size() == 1
+        result.bands[0].name == 'default'
+        result.bands[0].fillColor == 'DF4A21'
+        result.bands[0].occurrences.size() == 2
+    }
+
+    void "test parseYear with valid and invalid inputs"() {
+        expect: "parseYear to handle various inputs correctly"
+        service.parseYear('2020', 0) == 2020
+        service.parseYear('abcd', 1999) == 1999
+        service.parseYear('20', 1999) == 1999
+        service.parseYear('202020', 1999) == 1999
+        service.parseYear(null, 1999) == 1999
+        service.parseYear('', 1999) == 1999
+    }
+
+    void "test sanitizeColor with valid and invalid inputs"() {
+        expect: "sanitizeColor to handle various inputs correctly"
+        service.sanitizeColor('ff0000', 'default') == 'FF0000'
+        service.sanitizeColor('FF0000', 'default') == 'FF0000'
+        service.sanitizeColor('xyz123', 'default') == 'default'
+        service.sanitizeColor('ff00', 'default') == 'default'
+        service.sanitizeColor(null, 'default') == 'default'
+        service.sanitizeColor('', 'default') == 'default'
+    }
 }
