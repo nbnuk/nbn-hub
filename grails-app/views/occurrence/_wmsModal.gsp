@@ -23,7 +23,7 @@
                             <a href="mailto:support@nbnatlas.org" class="btn btn-primary feedback-btn">
                                 <i class="fa fa-envelope"></i> Email Support
                             </a>
-                            <a href="https://forums.nbn.org.uk/viewforum.php?id=46" class="btn btn-primary feedback-btn" target="_blank" rel="noopener">
+                            <a href="https://forums.nbn.org.uk/viewforum.php?id=52" class="btn btn-primary feedback-btn" target="_blank" rel="noopener">
                                 <i class="fa fa-comments"></i> Support Forum
                             </a>
                         </div>
