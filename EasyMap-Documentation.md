@@ -13,13 +13,14 @@ The EasyMap functionality provides NBN Atlas-compatible species distribution map
 5. [Changing Map Appearance](#changing-map-appearance)
 6. [Zooming and Map Extents](#zooming-and-map-extents)
 7. [Displaying Date Bands](#displaying-date-bands)
-8. [Legacy EasyMap Compatibility](#legacy-easymap-compatibility)
-9. [Usage Examples](#usage-examples)
-10. [Configuration](#configuration)
-11. [Data Flow](#data-flow)
-12. [Testing](#testing)
-13. [Refactoring Guidelines](#refactoring-guidelines)
-14. [Migration Checklist](#migration-checklist)
+8. [Display Controls](#display-controls)
+9. [Legacy EasyMap Compatibility](#legacy-easymap-compatibility)
+10. [Usage Examples](#usage-examples)
+11. [Configuration](#configuration)
+12. [Data Flow](#data-flow)
+13. [Testing](#testing)
+14. [Refactoring Guidelines](#refactoring-guidelines)
+15. [Migration Checklist](#migration-checklist)
 
 ---
 
@@ -308,6 +309,18 @@ GET /EasyMap?tvk=NHMSYS0000458183&ds=ds123,ds456&w=800
 | `link` | String | Custom link URL | - | `https://example.com` |
 | `css` | String | Custom CSS styling | - | `color:red` |
 
+### Display Control Parameters
+
+| Parameter | Type | Description | Default | Example |
+|-----------|------|-------------|---------|---------|
+| `title` | String | Title display mode: `sci` (scientific name), `com` (common name), or `0` (no title) | `sci` | `com`, `0` |
+| `terms` | String | Set to `0` to disable terms and conditions link and text | Shows terms | `0` |
+| `link` | String | Set to `0` to disable link to NBN Gateway interactive map | Shows link | `0` |
+| `ref` | String | Set to `0` to disable list of datasets | Shows dataset list | `0` |
+| `logo` | String | Set to `0` to disable NBN Gateway logo | Shows logo | `0` |
+| `maponly` | String | Set to `1` to display map only without any surrounding content | Shows full layout | `1` |
+| `css` | String | Custom CSS file URL for styling | Default styling | `https://example.com/custom.css` |
+
 ---
 
 ## Changing Map Appearance
@@ -548,6 +561,206 @@ GET /EasyMap?tvk=NHMSYS0000458183
 
 ---
 
+## Display Controls
+
+The EasyMap service provides comprehensive display control parameters that allow you to customize which elements appear on the species occurrence map. These parameters give you precise control over the map's appearance and comply with the [NBN Atlas EasyMap specification](https://easymap.nbnatlas.org/easymap.html).
+
+### Overview of Display Elements
+
+By default, the EasyMap service returns:
+- **Title** with species name (scientific or common)
+- **Terms and conditions** link and explanatory text
+- **Interactive map** with occurrence data visualization
+- **Link** to NBN Gateway interactive map
+- **Dataset acknowledgement list** (when dataset filtering is applied)
+- **NBN Gateway logo**
+
+### Title Display Control
+
+#### Controlling Title Display
+
+```bash
+# Show scientific name (default)
+GET /EasyMap?tvk=NHMSYS0000458183&title=sci
+
+# Show common name
+GET /EasyMap?tvk=NHMSYS0000458183&title=com
+
+# Hide title completely
+GET /EasyMap?tvk=NHMSYS0000458183&title=0
+```
+
+#### Title Behavior
+- **`title=sci`**: Displays the scientific name (default behavior)
+- **`title=com`**: Displays the common name if available, otherwise falls back to scientific name
+- **`title=0`**: Hides the title completely
+
+### Terms and Conditions Control
+
+#### Usage
+
+```bash
+# Show terms and conditions (default)
+GET /EasyMap?tvk=NHMSYS0000458183
+
+# Hide terms and conditions
+GET /EasyMap?tvk=NHMSYS0000458183&terms=0
+```
+
+#### Default Terms Text
+When displayed, the terms section shows:
+> "The National Biodiversity Network records are shown on the map below. (See [terms and conditions](https://nbnatlas.org/help/nbn-atlas-terms-use/))"
+
+### Interactive Map Link Control
+
+#### Usage
+
+```bash
+# Show link to interactive map (default)
+GET /EasyMap?tvk=NHMSYS0000458183
+
+# Hide interactive map link
+GET /EasyMap?tvk=NHMSYS0000458183&link=0
+```
+
+#### Link Behavior
+The interactive map link opens in a new window and preserves:
+- Species filter (TVK)
+- Dataset filters (if specified)
+- Direct link to NBN Atlas occurrence search
+
+### Dataset Reference List Control
+
+#### Usage
+
+```bash
+# Show dataset list when filtering (default)
+GET /EasyMap?tvk=NHMSYS0000458183&ds=ds123,ds456
+
+# Hide dataset list even when filtering
+GET /EasyMap?tvk=NHMSYS0000458183&ds=ds123,ds456&ref=0
+```
+
+#### Behavior
+- **Shows by default** when dataset filtering (`ds` parameter) is applied
+- **Hidden by default** when no dataset filtering is specified
+- **`ref=0`** always hides the list regardless of dataset filtering
+
+### NBN Gateway Logo Control
+
+#### Usage
+
+```bash
+# Show NBN Gateway logo (default)
+GET /EasyMap?tvk=NHMSYS0000458183
+
+# Hide NBN Gateway logo
+GET /EasyMap?tvk=NHMSYS0000458183&logo=0
+```
+
+#### Logo Specifications
+- Links to https://nbnatlas.org/
+- Opens in a new window
+- Uses NBN Atlas branding
+- Maximum height: 40px
+
+### Map-Only Display Mode
+
+#### Usage
+
+```bash
+# Show full layout with surrounding content (default)
+GET /EasyMap?tvk=NHMSYS0000458183
+
+# Show only the map
+GET /EasyMap?tvk=NHMSYS0000458183&maponly=1
+```
+
+#### Map-Only Mode Features
+- **Removes all surrounding content**: title, terms, links, logos, dataset lists
+- **Optimizes layout**: body dimensions match map dimensions
+- **Removes overflow**: sets `overflow: hidden` for clean embedding
+- **Maintains interactivity**: map functionality remains fully functional
+
+### Compliance Requirements
+
+#### Terms of Use Compliance
+According to the [NBN Atlas EasyMap specification](https://easymap.nbnatlas.org/easymap.html):
+
+> "To comply with the terms of use of this service the link to the terms and conditions, acknowledgement list of data providers and NBN Gateway logo must be displayed on your site. However they can be turned off if you prefer to include them elsewhere on your site or are restricting the map to just your datasets and do not wish to include the acknowledgement list of data providers."
+
+#### Recommended Compliance Approaches
+
+1. **Default Usage** (fully compliant):
+```bash
+GET /EasyMap?tvk=NHMSYS0000458183
+```
+
+2. **Custom site integration** (compliant if terms are shown elsewhere):
+```bash
+GET /EasyMap?tvk=NHMSYS0000458183&terms=0&logo=0&ref=0
+# Terms, logo, and attribution must be displayed elsewhere on your site
+```
+
+3. **Private/restricted datasets** (compliant for own data):
+```bash
+GET /EasyMap?tvk=NHMSYS0000458183&ds=your-dataset&ref=0
+# For maps restricted to your own datasets only
+```
+
+### Combining Display Parameters
+
+#### Common Combinations
+
+```bash
+# Minimal embedded map (requires compliance elsewhere)
+GET /EasyMap?tvk=NHMSYS0000458183&terms=0&link=0&ref=0&logo=0
+
+# Map-only for iframe embedding
+GET /EasyMap?tvk=NHMSYS0000458183&maponly=1&w=800&h=600
+
+# Custom title with selective elements
+GET /EasyMap?tvk=NHMSYS0000458183&title=com&terms=0&logo=0
+
+# Clean map with just essential elements
+GET /EasyMap?tvk=NHMSYS0000458183&title=com&ref=0&logo=0
+```
+
+#### Complex Example
+
+```bash
+# Comprehensive customization for conservation report
+GET /EasyMap?tvk=NHMSYS0000458183
+  &title=com                    # Use common name
+  &w=800&h=600                  # Set dimensions
+  &ds=conservation-survey       # Filter to specific dataset
+  &ref=0                        # Hide dataset list (shown in report text)
+  &terms=0                      # Hide terms (included in report footer)
+  &logo=0                       # Hide logo (report has NBN branding)
+  &b0from=1990-01-01&b0to=2000-12-31&b0fill=FF0000  # Historical data
+  &b1from=2010-01-01&b1to=2023-12-31&b1fill=00FF00  # Recent data
+```
+
+### Custom CSS Styling
+
+#### Usage
+
+```bash
+# Apply custom CSS styling
+GET /EasyMap?tvk=NHMSYS0000458183&css=https://example.com/custom-easymap.css
+```
+
+#### CSS Customization Options
+The custom CSS file can override default styles for:
+- Title fonts and colors
+- Terms and conditions text
+- Link appearance
+- Logo positioning
+- Map container styling
+- Background colors
+
+---
+
 ## Legacy EasyMap Compatibility
 
 ### Parameter Mapping
@@ -618,6 +831,22 @@ if not (res=='50km' or res=='10km' or res=='2km' or res=='1km' or res=='100m'): 
 GET /EasyMap?tvk=NHMSYS0000458183&w=800
 ```
 
+### Display Control Examples
+
+```bash
+# Map with common name title and no logo
+GET /EasyMap?tvk=NHMSYS0000458183&title=com&logo=0
+
+# Map-only view for embedding
+GET /EasyMap?tvk=NHMSYS0000458183&maponly=1&w=800&h=600
+
+# Clean map without terms and dataset references
+GET /EasyMap?tvk=NHMSYS0000458183&terms=0&ref=0&link=0
+
+# Minimal embedded map (ensure compliance elsewhere on site)
+GET /EasyMap?tvk=NHMSYS0000458183&terms=0&link=0&ref=0&logo=0&title=0
+```
+
 ### High-Resolution Map with Date Bands
 
 ```bash
@@ -665,9 +894,12 @@ GET /EasyMap?tvk=NHMSYS0000458183
   &zoom=highland
   &gd=2km
   &ds=ds123,ds456
+  &title=com                    # Use common name
+  &terms=0                      # Hide terms (included elsewhere)
+  &ref=0                        # Hide dataset list (shown in text)
   &b0from=1970-01-01&b0to=1989-12-31&b0fill=FF0000
   &b1from=1990-01-01&b1to=2009-12-31&b1fill=FFAA00
-  &b2from=2010-01-01&b2to=2023-12-31&b2fill=00AA00
+  &b2from=2010-01-01&b2to=2023-12-31&b1fill=00AA00
   &cachedays=7
 ```
 
@@ -724,9 +956,6 @@ download.doi.url=https://records.nbnatlas.org/occurrences/download
 
 ```
 
-
-
-
 ### Mock Data Toggle
 
 The system supports a mock data mode for development and testing:
@@ -774,7 +1003,8 @@ Exception → Fallback to Mock Data → Error Response (if mock fails)
 ### Unit Tests Coverage
 
 - **Service Tests**: 9 test methods covering core functionality
-- **Controller Tests**: 10 test methods covering validation and endpoints
+- **Controller Tests**: 25+ test methods covering validation and endpoints
+- **Display Parameter Tests**: Comprehensive coverage of all display controls
 - **Mock Data Tests**: Ensure fallback functionality works
 - **Integration Tests**: End-to-end workflow validation
 
@@ -783,6 +1013,9 @@ Exception → Fallback to Mock Data → Error Response (if mock fails)
 ```bash
 # Run all EasyMap tests
 ./gradlew test --tests="*EasyMap*"
+
+# Run specific display parameter tests
+./gradlew test --tests="*EasyMapControllerSpec*display*"
 
 # Run all tests
 ./gradlew test
@@ -793,6 +1026,7 @@ Exception → Fallback to Mock Data → Error Response (if mock fails)
 
 ### Test Coverage Areas
 
+#### Core Functionality
 - ✅ TVK validation (various formats)
 - ✅ Species information retrieval
 - ✅ Occurrence data processing
@@ -801,5 +1035,32 @@ Exception → Fallback to Mock Data → Error Response (if mock fails)
 - ✅ Error handling
 - ✅ Mock data fallback
 - ✅ Controller endpoints
+
+#### Display Parameter Testing
+- ✅ **Title parameter**: `sci`, `com`, `0` values and validation
+- ✅ **Boolean parameters**: `terms`, `link`, `ref`, `logo`, `maponly`
+  - Valid values: `0`, `1`, `null` (omitted)
+  - Invalid values: proper error handling for `yes`, `no`, `true`, `false`, etc.
+- ✅ **Combined parameters**: Multiple display controls working together
+- ✅ **Map-only mode**: Specific behavior validation for `maponly=1`
+- ✅ **CSS parameter**: Custom styling support
+
+#### Parameter Validation Tests
+```groovy
+// Example test cases covered:
+"test easyMap with valid boolean display parameters: terms=0" ✅
+"test easyMap with valid boolean display parameters: link=1" ✅
+"test easyMap with valid boolean display parameters: ref=null" ✅
+"test easyMap with invalid boolean display parameters: logo=true" ✅
+"test easyMap with multiple display parameters combined" ✅
+```
+
+### Testing Notes
+
+- Tests use Spock framework for behavior-driven testing
+- Mock services simulate external API dependencies
+- Parameter validation ensures proper error responses (400 status codes)
+- Display parameter tests verify controller logic without requiring full service integration
+- Tests cover edge cases like null values and invalid parameter combinations
 
 ---

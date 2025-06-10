@@ -46,6 +46,12 @@ class EasyMapController {
      * @param b2from Optional - Start date for third date band (format: YYYY-MM-DD)
      * @param b2to Optional - End date for third date band (format: YYYY-MM-DD)
      * @param b2fill Optional - Color for third date band (hex code)
+     * @param title Optional - Title display mode: 'sci' (scientific name), 'com' (common name), or '0' (no title). Default shows scientific name
+     * @param terms Optional - Set to '0' to disable terms and conditions link and text. Default shows terms
+     * @param link Optional - Set to '0' to disable link to NBN Gateway interactive map. Default shows link
+     * @param ref Optional - Set to '0' to disable list of datasets. Default shows dataset list
+     * @param logo Optional - Set to '0' to disable NBN Gateway logo. Default shows logo
+     * @param maponly Optional - Set to '1' to display map only without any surrounding content
      */
     def easyMap() {
         log.debug("EasyMap request received with params: ${params}")
@@ -69,7 +75,15 @@ class EasyMapController {
         def b2to = params.b2to as String
         def b2fill = params.b2fill as String
 
-        // TODO Discuss these additional to match EasyMap_Shim functionality
+        // Display control parameters for customizing what elements to show
+        def title = params.title as String ?: 'sci'  // Default to scientific name
+        def terms = params.terms as String
+        def link = params.link as String
+        def ref = params.ref as String
+        def logo = params.logo as String
+        def maponly = params.maponly as String
+
+        // Additional parameters for background and styling
         def bg = params.bg as String  // Background map (e.g., 'VC' for Vice Counties)
         def gridResolution = params.gd as String ?: params.res as String ?: '10km'  // Grid resolution
         def zoomArea = params.zoom as String  // Zoom to specific area (e.g., 'highland')
@@ -81,9 +95,6 @@ class EasyMapController {
         def bottomLeftCoord = params.blCoord as String  // Bottom left coordinates (Easting,Northing)
         def topRightCoord = params.trCoord as String  // Top right coordinates (Easting,Northing)
 
-        def terms = params.terms as String
-        def ref = params.ref as String
-        def link = params.link as String
         def css = params.css as String
 
         if (!tvk || !isValidTVK(tvk)) {
@@ -102,6 +113,33 @@ class EasyMapController {
             log.warn("Invalid dataset key format provided: ${datasetKeys}")
             response.status = 400
             def errorMessage = "Invalid dataset key format: ${datasetKeys}. Expected format: dr123, ds456, or dst789 (comma-separated for multiple keys)"
+            if (format == 'json') {
+                render([result: "ERROR", message: errorMessage, data: null] as JSON)
+            } else {
+                render(view: 'error', model: [message: errorMessage, tvk: tvk])
+            }
+            return
+        }
+
+        // Validate display parameters
+        if (!isValidDisplayParameter(title, ['sci', 'com', '0'])) {
+            log.warn("Invalid title parameter provided: ${title}")
+            response.status = 400
+            def errorMessage = "Invalid title parameter: ${title}. Supported values: 'sci', 'com', '0'"
+            if (format == 'json') {
+                render([result: "ERROR", message: errorMessage, data: null] as JSON)
+            } else {
+                render(view: 'error', model: [message: errorMessage, tvk: tvk])
+            }
+            return
+        }
+
+        if (!isValidBooleanParameter(terms) || !isValidBooleanParameter(link) ||
+            !isValidBooleanParameter(ref) || !isValidBooleanParameter(logo) ||
+            !isValidBooleanParameter(maponly)) {
+            log.warn("Invalid boolean display parameters provided")
+            response.status = 400
+            def errorMessage = "Invalid display parameters. Boolean parameters (terms, link, ref, logo, maponly) must be '0' or '1' (or omitted)"
             if (format == 'json') {
                 render([result: "ERROR", message: errorMessage, data: null] as JSON)
             } else {
@@ -199,10 +237,16 @@ class EasyMapController {
                 topRight: topRight,
                 bottomLeftCoord: bottomLeftCoord,
                 topRightCoord: topRightCoord,
+                // Display control parameters
+                title: title,
                 terms: terms,
                 ref: ref,
                 link: link,
-                css: css
+                logo: logo,
+                maponly: maponly,
+                css: css,
+                // Interactive map URL for link
+                interactiveMapUrl: buildInteractiveMapUrl(tvk, datasetKeys)
             ]
 
             log.info("Successfully prepared EasyMap for ${speciesInfo.scientificName}" +
@@ -313,5 +357,46 @@ class EasyMapController {
                 key.matches(/^dst[a-zA-Z0-9]+$/)
             )
         }
+    }
+
+    /**
+     * Validate display parameter value against allowed values
+     * @param paramValue The parameter value to validate
+     * @param allowedValues List of allowed values (null/empty values are always valid)
+     * @return true if valid, false otherwise
+     */
+    private boolean isValidDisplayParameter(String paramValue, List<String> allowedValues) {
+        if (!paramValue) return true // Optional parameter
+        return allowedValues.contains(paramValue)
+    }
+
+    /**
+     * Validate boolean display parameter
+     * @param paramValue The parameter value to validate
+     * @return true if valid (null, empty, '0', or '1'), false otherwise
+     */
+    private boolean isValidBooleanParameter(String paramValue) {
+        if (!paramValue) return true // Optional parameter
+        return paramValue in ['0', '1']
+    }
+
+    /**
+     * Build interactive map URL for NBN Atlas
+     * @param tvk The taxon version key
+     * @param datasetKeys Optional dataset keys filter
+     * @return Full URL to NBN Atlas interactive map
+     */
+    private String buildInteractiveMapUrl(String tvk, String datasetKeys) {
+        def baseUrl = grailsApplication.config.getProperty('easymap.interactiveMapUrl', String, 'https://records.nbnatlas.org/occurrences/search')
+        def url = "${baseUrl}?q=lsid:${URLEncoder.encode(tvk, 'UTF-8')}"
+
+        if (datasetKeys) {
+            def datasets = datasetKeys.split(',').collect { it.trim() }
+            def datasetQueries = datasets.collect { "data_resource_uid:${it}" }
+            def fqParam = datasetQueries.size() == 1 ? datasetQueries[0] : "(${datasetQueries.join(' OR ')})"
+            url += "&fq=${URLEncoder.encode(fqParam, 'UTF-8')}"
+        }
+
+        return url
     }
 }
