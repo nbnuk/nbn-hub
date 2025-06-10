@@ -230,7 +230,7 @@ class EasyMapController {
                     dateBandsJson: (mapData.dateBands as JSON).toString()
                 ]
 
-                // Set cache headers based on cachedays parameter
+                // TODO - cache on EasyMapService level Set cache headers based on cachedays parameter
                 if (cachedays > 0) {
                     def maxAge = cachedays * 24 * 60 * 60 // Convert days to seconds
                     response.setHeader("Cache-Control", "public, max-age=${maxAge}")

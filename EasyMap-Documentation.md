@@ -9,11 +9,17 @@ The EasyMap functionality provides NBN Atlas-compatible species distribution map
 1. [Architecture Overview](#architecture-overview)
 2. [Components](#components)
 3. [API Endpoints](#api-endpoints)
-4. [Configuration](#configuration)
-5. [Data Flow](#data-flow)
-6. [Testing](#testing)
-7. [Refactoring Guidelines](#refactoring-guidelines)
-8. [Migration Checklist](#migration-checklist)
+4. [Complete Parameter Reference](#complete-parameter-reference)
+5. [Changing Map Appearance](#changing-map-appearance)
+6. [Zooming and Map Extents](#zooming-and-map-extents)
+7. [Displaying Date Bands](#displaying-date-bands)
+8. [Legacy EasyMap Compatibility](#legacy-easymap-compatibility)
+9. [Usage Examples](#usage-examples)
+10. [Configuration](#configuration)
+11. [Data Flow](#data-flow)
+12. [Testing](#testing)
+13. [Refactoring Guidelines](#refactoring-guidelines)
+14. [Migration Checklist](#migration-checklist)
 
 ---
 
@@ -33,16 +39,6 @@ The EasyMap functionality follows the standard Grails MVC pattern with clear sep
 │   (GSP/JSON)    │    │   (Fallback)    │
 └─────────────────┘    └─────────────────┘
 ```
-
-### Design Principles
-
-- **SOLID Principles**: Single responsibility, dependency injection, interface segregation
-- **DRY**: Reusable service methods and configuration
-- **KISS**: Simple, straightforward implementation
-- **YAGNI**: Only implemented required features
-- **OWASP**: Input validation, secure parameter handling
-
----
 
 ## Components
 
@@ -252,6 +248,431 @@ GET /EasyMap?tvk=NHMSYS0000458183&ds=ds123,ds456&w=800
 
 ---
 
+## Complete Parameter Reference
+
+### Core Parameters
+
+| Parameter | Type | Description | Default | Example |
+|-----------|------|-------------|---------|---------|
+| `tvk` | String | **Required.** Taxon Version Key from NBN Atlas | - | `NHMSYS0000458183` |
+| `w` | Integer | Map width in pixels (max: 800) | 800 | `600` |
+| `h` | Integer | Map height in pixels | 600 | `400` |
+| `retina` | Integer | Retina display factor (1 or 2) | 1 | `2` |
+| `cachedays` | Integer | Cache duration in days (0 = no cache) | 30 | `7` |
+| `format` | String | Response format: `html` or `json` | `html` | `json` |
+
+### Data Filtering Parameters
+
+| Parameter | Type | Description | Default | Example |
+|-----------|------|-------------|---------|---------|
+| `ds` | String | Dataset filter (comma-separated list) | All datasets | `ds123,ds456` |
+
+### Map Appearance Parameters
+
+| Parameter | Type | Description | Default | Example |
+|-----------|------|-------------|---------|---------|
+| `gd` / `res` | String | Grid resolution for occurrence display | `10km` | `100km`, `50km`, `10km`, `2km`, `1km` |
+| `bg` | String | Background map layer | - | `VC` |
+
+### Date Band Parameters
+
+| Parameter | Type | Description | Default | Example |
+|-----------|------|-------------|---------|---------|
+| `b0from` | String | Start date for first date band (YYYY-MM-DD) | - | `2000-01-01` |
+| `b0to` | String | End date for first date band (YYYY-MM-DD) | - | `2010-12-31` |
+| `b0fill` | String | Color for first date band (hex without #) | `df4a21` | `FF0000` |
+| `b1from` | String | Start date for second date band (YYYY-MM-DD) | - | `2011-01-01` |
+| `b1to` | String | End date for second date band (YYYY-MM-DD) | - | `2020-12-31` |
+| `b1fill` | String | Color for second date band (hex without #) | - | `00FF00` |
+| `b2from` | String | Start date for third date band (YYYY-MM-DD) | - | `2021-01-01` |
+| `b2to` | String | End date for third date band (YYYY-MM-DD) | - | `2023-12-31` |
+| `b2fill` | String | Color for third date band (hex without #) | - | `0000FF` |
+
+### Map Extent and Zoom Parameters
+
+| Parameter | Type | Description | Default | Example |
+|-----------|------|-------------|---------|---------|
+| `zoom` | String | Predefined zoom area | Auto-calculated | `england`, `scotland`, `wales`, `highland`, `sco-mainland`, `outer-heb` |
+| `vc` | String | Vice-county number (1-112) | - | `21` |
+| `bl` | String | Bottom left grid reference | - | `TQ123456` |
+| `tr` | String | Top right grid reference | - | `TQ789012` |
+| `blCoord` | String | Bottom left coordinates (Easting,Northing) | - | `523456,178901` |
+| `trCoord` | String | Top right coordinates (Easting,Northing) | - | `578901,223456` |
+
+### Additional Parameters
+
+| Parameter | Type | Description | Default | Example |
+|-----------|------|-------------|---------|---------|
+| `terms` | String | Terms and conditions text | - | `Custom terms` |
+| `ref` | String | Reference information | - | `Survey ref` |
+| `link` | String | Custom link URL | - | `https://example.com` |
+| `css` | String | Custom CSS styling | - | `color:red` |
+
+---
+
+## Changing Map Appearance
+
+### Background Layers
+
+The EasyMap service supports background map layers through the `bg` parameter:
+
+```bash
+# Vice County background
+GET /EasyMap?tvk=NHMSYS0000458183&bg=VC
+```
+
+### Grid Resolution
+
+Control how occurrence data is displayed using the grid resolution parameter:
+
+#### Supported Grid Resolutions
+
+| Resolution | Description | Use Case |
+|------------|-------------|----------|
+| `1km` | Very fine grid | Detailed local data |
+| `2km` | Fine grid | Local patterns |
+| `10km` | Standard grid | General distribution |
+| `50km` | Coarse grid | Regional patterns |
+| `100km` | Very coarse grid | National overview |
+
+#### Examples
+
+```bash
+# Large grid squares for overview
+GET /EasyMap?tvk=NHMSYS0000458183&gd=100km&w=800
+
+# Standard resolution
+GET /EasyMap?tvk=NHMSYS0000458183&gd=10km&w=800
+
+# High detail view
+GET /EasyMap?tvk=NHMSYS0000458183&gd=1km&w=800
+```
+
+---
+
+## Zooming and Map Extents
+
+### Automatic Zoom Calculation
+
+By default, EasyMap automatically calculates the optimal zoom level and center point based on the distribution of occurrence data:
+
+```bash
+# Auto-zoom to fit all occurrences
+GET /EasyMap?tvk=NHMSYS0000458183
+```
+
+### Predefined Zoom Areas
+
+#### Setting Specific Zoom Areas
+
+```bash
+# England
+GET /EasyMap?tvk=NHMSYS0000458183&zoom=england
+
+# Scotland
+GET /EasyMap?tvk=NHMSYS0000458183&zoom=scotland
+
+# Wales
+GET /EasyMap?tvk=NHMSYS0000458183&zoom=wales
+
+# Scottish Highlands
+GET /EasyMap?tvk=NHMSYS0000458183&zoom=highland
+
+# Scottish Mainland
+GET /EasyMap?tvk=NHMSYS0000458183&zoom=sco-mainland
+
+# Outer Hebrides
+GET /EasyMap?tvk=NHMSYS0000458183&zoom=outer-heb
+```
+
+### Vice-County Zoom
+
+#### Zoom to Specific Vice-County
+
+```bash
+# Surrey (VC 17)
+GET /EasyMap?tvk=NHMSYS0000458183&vc=17
+
+# Middlesex (VC 21)
+GET /EasyMap?tvk=NHMSYS0000458183&vc=21
+
+# West Cornwall (VC 1)
+GET /EasyMap?tvk=NHMSYS0000458183&vc=1
+```
+
+### Grid Reference Bounds
+
+#### Setting Specific Grid Reference Bounds
+
+```bash
+# Using grid references (both bl and tr required)
+GET /EasyMap?tvk=NHMSYS0000458183&bl=TQ123456&tr=TQ789012
+
+# 10km grid squares
+GET /EasyMap?tvk=NHMSYS0000458183&bl=TQ12&tr=TQ78
+
+# 1km grid squares
+GET /EasyMap?tvk=NHMSYS0000458183&bl=TQ1234567890&tr=TQ7890123456
+```
+
+### Coordinate Bounds
+
+#### Setting Specific Coordinate Bounds
+
+```bash
+# Using British National Grid coordinates (Easting,Northing)
+GET /EasyMap?tvk=NHMSYS0000458183&blCoord=523456,178901&trCoord=578901,223456
+
+# London area example
+GET /EasyMap?tvk=NHMSYS0000458183&blCoord=530000,180000&trCoord=535000,185000
+```
+
+---
+
+## Displaying Date Bands
+
+Date bands allow you to visualize temporal patterns in species occurrence data by displaying different time periods in different colors.
+
+### Basic Date Band Usage
+
+#### Single Date Band
+
+```bash
+# Show records from 2000-2023 in red
+GET /EasyMap?tvk=NHMSYS0000458183&b0from=2000-01-01&b0to=2023-12-31&b0fill=FF0000
+```
+
+#### Multiple Date Bands
+
+```bash
+# Three time periods with different colors
+GET /EasyMap?tvk=NHMSYS0000458183
+  &b0from=1900-01-01&b0to=1950-12-31&b0fill=df4a21
+  &b1from=1951-01-01&b1to=2000-12-31&b1fill=00FF00
+  &b2from=2001-01-01&b2to=2023-12-31&b2fill=0000FF
+```
+
+### Date Band Format
+
+Each date band requires:
+
+- **bXfrom**: Starting date (YYYY-MM-DD format)
+- **bXto**: Ending date (YYYY-MM-DD format)
+- **bXfill**: Point fill color (6-digit hex without #)
+
+Where X is the band number (0, 1, or 2).
+
+### Common Date Band Patterns
+
+#### Historical Analysis
+
+```bash
+# Victorian era vs Modern records
+GET /EasyMap?tvk=NHMSYS0000458183
+  &b0from=1837-01-01&b0to=1901-12-31&b0fill=8B4513
+  &b1from=2000-01-01&b1to=2023-12-31&b1fill=FF0000
+```
+
+#### Decadal Breakdown
+
+```bash
+# Decade-by-decade analysis
+GET /EasyMap?tvk=NHMSYS0000458183
+  &b0from=1990-01-01&b0to=1999-12-31&b0fill=FF0000
+  &b1from=2000-01-01&b1to=2009-12-31&b1fill=00FF00
+  &b2from=2010-01-01&b2to=2019-12-31&b2fill=0000FF
+```
+
+#### Conservation Timeline
+
+```bash
+# Before and after conservation efforts
+GET /EasyMap?tvk=NHMSYS0000458183
+  &b0from=1950-01-01&b0to=1979-12-31&b0fill=FF0000
+  &b1from=1980-01-01&b1to=1999-12-31&b1fill=FFAA00
+  &b2from=2000-01-01&b2to=2023-12-31&b2fill=00FF00
+```
+
+### Combining Date Bands with Other Parameters
+
+#### Date Bands with Grid Resolution
+
+```bash
+# Show historical patterns at different resolutions
+GET /EasyMap?tvk=NHMSYS0000458183&gd=50km
+  &b0from=1900-01-01&b0to=1950-12-31&b0fill=FF0000
+  &b1from=1951-01-01&b1to=2000-12-31&b1fill=00FF00
+  &b2from=2001-01-01&b2to=2023-12-31&b2fill=0000FF
+```
+
+#### Date Bands with Specific Datasets
+
+```bash
+# Compare different survey periods in specific datasets
+GET /EasyMap?tvk=NHMSYS0000458183&ds=ds123
+  &b0from=1980-01-01&b0to=1990-12-31&b0fill=FF0000
+  &b1from=2000-01-01&b1to=2010-12-31&b1fill=00FF00
+  &b2from=2020-01-01&b2to=2023-12-31&b2fill=0000FF
+```
+
+### Date Band Examples by Use Case
+
+#### Climate Change Studies
+
+```bash
+# Pre- and post-climate change periods
+GET /EasyMap?tvk=NHMSYS0000458183
+  &b0from=1960-01-01&b0to=1989-12-31&b0fill=0066CC
+  &b1from=1990-01-01&b1to=2023-12-31&b1fill=CC3300
+```
+
+#### Species Recovery Programs
+
+```bash
+# Conservation timeline
+GET /EasyMap?tvk=NHMSYS0000458183
+  &b0from=1970-01-01&b0to=1989-12-31&b0fill=FF0000
+  &b1from=1990-01-01&b1to=2009-12-31&b1fill=FFAA00
+  &b2from=2010-01-01&b2to=2023-12-31&b2fill=00AA00
+```
+
+#### Survey Effort Analysis
+
+```bash
+# Different atlas periods
+GET /EasyMap?tvk=NHMSYS0000458183
+  &b0from=1968-01-01&b0to=1972-12-31&b0fill=8B4513
+  &b1from=1988-01-01&b1to=1991-12-31&b1fill=FF8C00
+  &b2from=2007-01-01&b2to=2011-12-31&b2fill=32CD32
+```
+
+---
+
+## Legacy EasyMap Compatibility
+
+### Parameter Mapping
+
+The service maintains compatibility with the original NBN Gateway EasyMap parameters:
+
+| Legacy Parameter | Current Parameter | Notes |
+|------------------|-------------------|-------|
+| `tvk` | `tvk` | Unchanged |
+| `w` | `w` | Unchanged |
+| `h` | `h` | Unchanged |
+| `gd` | `gd` or `res` | Both supported |
+| `ds` | `ds` | Unchanged |
+| `style` | `style` | Enhanced options |
+| `zoom` | `zoom` | Unchanged |
+
+### URL Format Compatibility
+
+```bash
+# Original EasyMap format (still supported)
+https://easymap.nbnatlas.org/EasyMap?tvk=NHMSYS0000458183&w=800&gd=10km
+
+# Image export format
+https://easymap.nbnatlas.org/Image?tvk=NHMSYS0000458183&w=800&gd=10km
+
+# New NBN Hub format
+https://nbn-hub.nbnatlas.org/EasyMap?tvk=NHMSYS0000458183&w=800&gd=10km
+```
+
+### Migration Notes
+
+#### Grid Resolution Parameter Issue (`gd` vs `res`)
+
+**Issue**: URLs using the `gd` parameter for grid resolution are not properly handled by the legacy EasyMap_Shim service. This causes unexpected behavior where large grid sizes (e.g., `gd=100km`) display as fine resolution instead.
+
+**Root Cause**:
+- The EasyMap_Shim service (`nbn/EasyMap_Shim/server.py`) expects a `res` parameter for grid resolution, not `gd`
+- When `gd` is used instead of `res`, the service doesn't recognize it and defaults to `10km` resolution
+- This causes URLs like `https://easymap.nbnatlas.org/Image?tvk=NHMSYS0000875492&gd=100km&...` to display with 10km grid resolution instead of the expected 100km ( see https://www.hbrg.org.uk/MainPages/NBNMaps/MapsBWA.html)
+
+**Code Location**:
+```python
+# In server.py line 163-164
+res = self.get_argument('res',default='').lower()
+if not (res=='50km' or res=='10km' or res=='2km' or res=='1km' or res=='100m'): res='10km'
+```
+
+**Expected Behavior**:
+- `gd=100km` should display large grid squares (100km resolution)
+- `gd=10km` should display smaller grid squares (10km resolution)
+
+**Actual Behavior**:
+- Both `gd=100km` and `gd=10km` display the same 10km resolution because `gd` parameter is ignored
+
+**Testing**:
+- Verify `res=100km` works correctly
+- Verify `gd=100km` works after fix (if implementing backward compatibility)
+- Test that cache keys properly differentiate between different grid resolutions
+
+---
+
+## Usage Examples
+
+### Basic Species Distribution Map
+
+```bash
+# Simple distribution map
+GET /EasyMap?tvk=NHMSYS0000458183&w=800
+```
+
+### High-Resolution Map with Date Bands
+
+```bash
+# Detailed map showing temporal patterns
+GET /EasyMap?tvk=NHMSYS0000458183&w=800&retina=2&gd=2km
+  &b0from=1900-01-01&b0to=1950-12-31&b0fill=FF0000
+  &b1from=1951-01-01&b1to=2000-12-31&b1fill=00FF00
+  &b2from=2001-01-01&b2to=2023-12-31&b2fill=0000FF
+```
+
+### Regional Focus with Dataset Filter
+
+```bash
+# Scotland-focused map with specific datasets
+GET /EasyMap?tvk=NHMSYS0000458183&w=600&h=400
+  &zoom=scotland
+  &ds=ds123,ds456
+  &bg=VC
+```
+
+### Vice-County Focus with Grid Reference Bounds
+
+```bash
+# Surrey (VC 17) with 10km grid resolution
+GET /EasyMap?tvk=NHMSYS0000458183&vc=17&gd=10km
+
+# Custom grid reference area with high resolution
+GET /EasyMap?tvk=NHMSYS0000458183&bl=TQ123456&tr=TQ789012&gd=1km
+```
+
+### JSON Data Export
+
+```bash
+# Get raw data for custom visualization
+GET /EasyMap.json?tvk=NHMSYS0000458183
+  &b0from=2020-01-01&b0to=2023-12-31
+```
+
+### Complex Example with Multiple Parameters
+
+```bash
+# Comprehensive example showing conservation timeline in specific area
+GET /EasyMap?tvk=NHMSYS0000458183
+  &w=800&h=600&retina=2
+  &zoom=highland
+  &gd=2km
+  &ds=ds123,ds456
+  &b0from=1970-01-01&b0to=1989-12-31&b0fill=FF0000
+  &b1from=1990-01-01&b1to=2009-12-31&b1fill=FFAA00
+  &b2from=2010-01-01&b2to=2023-12-31&b2fill=00AA00
+  &cachedays=7
+```
+
+---
+
 ## Configuration
 
 ### Environment Variables
@@ -345,434 +766,3 @@ Exception → Fallback to Mock Data → Error Response (if mock fails)
 - ✅ Controller endpoints
 
 ---
-
-## Refactoring Guidelines
-
-### Creating a New Grails Project
-
-#### 1. Project Setup
-
-```bash
-# Create new Grails project
-grails create-app easymap-service --profile=web
-
-# Navigate to project
-cd easymap-service
-```
-
-#### 2. Dependencies
-
-Add to `build.gradle`:
-
-```groovy
-dependencies {
-    // Core Grails dependencies
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.grails:grails-core"
-    compile "org.grails:grails-web-boot"
-
-    // HTTP client for external APIs
-    compile "org.apache.httpcomponents:httpclient:4.5.6"
-
-    // JSON processing
-    compile "org.grails:grails-plugin-converters"
-
-    // Testing
-    testCompile "org.grails:grails-plugin-testing"
-    testCompile "org.spockframework:spock-core"
-}
-```
-
-#### 3. Configuration Structure
-
-**application.yml**:
-```yaml
-grails:
-    profile: web
-    codegen:
-        defaultPackage: uk.org.nbn.easymap
-
-easymap:
-    services:
-        biocache:
-            baseUrl: "https://records-ws.nbnatlas.org"
-        bie:
-            baseUrl: "https://species-ws.nbnatlas.org"
-
-    mock:
-        enabled: false
-
-    cache:
-        defaultDays: 30
-
-    map:
-        defaults:
-            latitude: 54.5
-            longitude: -3.0
-            zoom: 6
-            width: 800
-            height: 600
-```
-
-### File Migration Strategy
-
-#### 1. Core Components
-
-**Controllers**:
-```
-src/
-├── grails-app/
-│   ├── controllers/
-│   │   └── uk/org/nbn/easymap/
-│   │       └── EasyMapController.groovy
-```
-
-**Services**:
-```
-src/
-├── grails-app/
-│   ├── services/
-│   │   └── uk/org/nbn/easymap/
-│   │       ├── EasyMapService.groovy
-│   │       └── WebServicesService.groovy
-```
-
-**Views**:
-```
-src/
-├── grails-app/
-│   ├── views/
-│   │   └── easyMap/
-│   │       ├── map.gsp
-│   │       ├── error.gsp
-│   │       └── notFound.gsp
-```
-
-#### 2. Configuration Files
-
-**URL Mappings** (`grails-app/controllers/UrlMappings.groovy`):
-```groovy
-class UrlMappings {
-    static mappings = {
-        // EasyMap API endpoints
-        "/api/easymap"(controller: 'easyMap', action: 'easyMap')
-        "/api/easymap.json"(controller: 'easyMap', action: 'easyMapJson')
-        "/api/easymap/health"(controller: 'easyMap', action: 'health')
-
-        // Legacy NBN Atlas compatibility
-        "/EasyMap"(controller: 'easyMap', action: 'easyMap')
-        "/EasyMap.json"(controller: 'easyMap', action: 'easyMapJson')
-
-        // Error pages
-        "500"(view: '/error')
-        "404"(view: '/notFound')
-    }
-}
-```
-
-#### 3. Test Migration
-
-**Test Structure**:
-```
-src/
-├── test/
-│   └── groovy/
-│       └── uk/org/nbn/easymap/
-│           ├── EasyMapServiceSpec.groovy
-│           ├── EasyMapControllerSpec.groovy
-│           └── integration/
-│               └── EasyMapIntegrationSpec.groovy
-```
-
-### Refactoring Improvements
-
-#### 1. Enhanced Configuration Management
-
-Create a dedicated configuration service:
-
-```groovy
-@Service
-class EasyMapConfigService {
-
-    @Value('${easymap.services.biocache.baseUrl}')
-    String biocacheBaseUrl
-
-    @Value('${easymap.services.bie.baseUrl}')
-    String bieBaseUrl
-
-    @Value('${easymap.mock.enabled:false}')
-    Boolean mockEnabled
-
-    @Value('${easymap.cache.defaultDays:30}')
-    Integer defaultCacheDays
-
-    Map getMapDefaults() {
-        return [
-            latitude: grailsApplication.config.getProperty('easymap.map.defaults.latitude', Double, 54.5),
-            longitude: grailsApplication.config.getProperty('easymap.map.defaults.longitude', Double, -3.0),
-            zoom: grailsApplication.config.getProperty('easymap.map.defaults.zoom', Integer, 6),
-            width: grailsApplication.config.getProperty('easymap.map.defaults.width', Integer, 800),
-            height: grailsApplication.config.getProperty('easymap.map.defaults.height', Integer, 600)
-        ]
-    }
-}
-```
-
-#### 2. Enhanced Error Handling
-
-Create custom exception classes:
-
-```groovy
-class EasyMapException extends RuntimeException {
-    EasyMapException(String message) { super(message) }
-    EasyMapException(String message, Throwable cause) { super(message, cause) }
-}
-
-class InvalidTVKException extends EasyMapException {
-    InvalidTVKException(String tvk) {
-        super("Invalid TVK format: ${tvk}")
-    }
-}
-
-class SpeciesNotFoundException extends EasyMapException {
-    SpeciesNotFoundException(String tvk) {
-        super("Species not found for TVK: ${tvk}")
-    }
-}
-```
-
-#### 3. Enhanced Caching
-
-Add caching annotations:
-
-```groovy
-@Service
-class EasyMapService {
-
-    @Cacheable(value = "speciesInfo", key = "#tvk")
-    Map getSpeciesInfo(String tvk) {
-        // Implementation
-    }
-
-    @Cacheable(value = "occurrenceData", key = "#tvk")
-    List getOccurrenceData(String tvk) {
-        // Implementation
-    }
-}
-```
-
-#### 4. API Versioning
-
-Support multiple API versions:
-
-```groovy
-class UrlMappings {
-    static mappings = {
-        // Version 1 API
-        "/api/v1/easymap"(controller: 'easyMap', action: 'easyMap')
-        "/api/v1/easymap.json"(controller: 'easyMap', action: 'easyMapJson')
-
-        // Version 2 API (future)
-        "/api/v2/easymap"(controller: 'easyMapV2', action: 'easyMap')
-
-        // Default to latest version
-        "/api/easymap"(controller: 'easyMap', action: 'easyMap')
-    }
-}
-```
-
-#### 5. Enhanced Validation
-
-Create validation service:
-
-```groovy
-@Service
-class ValidationService {
-
-    boolean isValidTVK(String tvk) {
-        if (!tvk) return false
-        return tvk.matches(/^[A-Z0-9]{10,}$/)
-    }
-
-    boolean isValidCoordinate(Double lat, Double lng) {
-        return lat != null && lng != null &&
-               lat >= -90 && lat <= 90 &&
-               lng >= -180 && lng <= 180
-    }
-
-    Map validateParameters(Map params) {
-        Map errors = [:]
-
-        if (!isValidTVK(params.tvk)) {
-            errors.tvk = "Invalid TVK format"
-        }
-
-        if (params.w && !params.w.isInteger()) {
-            errors.width = "Width must be an integer"
-        }
-
-        return errors
-    }
-}
-```
-
----
-
-## Migration Checklist
-
-### Pre-Migration
-
-- [ ] **Backup current implementation**
-- [ ] **Document current configuration**
-- [ ] **Export test data and expected results**
-- [ ] **Review dependencies and versions**
-
-### Project Setup
-
-- [ ] **Create new Grails project**
-- [ ] **Configure build.gradle dependencies**
-- [ ] **Set up application.yml configuration**
-- [ ] **Configure logging**
-
-### Code Migration
-
-- [ ] **Migrate EasyMapController**
-  - [ ] Update package declarations
-  - [ ] Update dependency injection
-  - [ ] Update configuration references
-
-- [ ] **Migrate EasyMapService**
-  - [ ] Update package declarations
-  - [ ] Update configuration access
-  - [ ] Update external service calls
-
-- [ ] **Migrate Views**
-  - [ ] Copy GSP templates
-  - [ ] Update asset references
-  - [ ] Update JavaScript/CSS paths
-
-- [ ] **Migrate URL Mappings**
-  - [ ] Update controller references
-  - [ ] Add API versioning if needed
-
-- [ ] **Migrate Configuration**
-  - [ ] Convert to application.yml format
-  - [ ] Update property names if needed
-  - [ ] Add environment-specific configs
-
-### Testing Migration
-
-- [ ] **Migrate Unit Tests**
-  - [ ] Update package references
-  - [ ] Update mock configurations
-  - [ ] Verify test coverage
-
-- [ ] **Create Integration Tests**
-  - [ ] End-to-end API testing
-  - [ ] External service integration
-  - [ ] Performance testing
-
-- [ ] **Validate Test Results**
-  - [ ] Compare with original test results
-  - [ ] Verify mock data functionality
-  - [ ] Test error scenarios
-
-### Deployment Preparation
-
-- [ ] **Environment Configuration**
-  - [ ] Development environment setup
-  - [ ] Staging environment setup
-  - [ ] Production environment setup
-
-- [ ] **Documentation**
-  - [ ] API documentation
-  - [ ] Deployment guide
-  - [ ] Configuration guide
-
-- [ ] **Monitoring Setup**
-  - [ ] Health check endpoints
-  - [ ] Logging configuration
-  - [ ] Performance monitoring
-
-### Post-Migration
-
-- [ ] **Functional Testing**
-  - [ ] Test all endpoints
-  - [ ] Verify data accuracy
-  - [ ] Test error handling
-
-- [ ] **Performance Testing**
-  - [ ] Load testing
-  - [ ] Response time validation
-  - [ ] Memory usage monitoring
-
-- [ ] **Security Testing**
-  - [ ] Input validation
-  - [ ] XSS prevention
-  - [ ] CSRF protection
-
-- [ ] **Documentation Updates**
-  - [ ] Update API documentation
-  - [ ] Update deployment procedures
-  - [ ] Update troubleshooting guides
-
-### Rollback Plan
-
-- [ ] **Backup Strategy**
-  - [ ] Database backup procedures
-  - [ ] Configuration backup
-  - [ ] Code rollback procedures
-
-- [ ] **Rollback Testing**
-  - [ ] Test rollback procedures
-  - [ ] Verify data integrity
-  - [ ] Test service restoration
-
----
-
-## Best Practices for New Project
-
-### 1. **Separation of Concerns**
-- Keep controllers thin (only request/response handling)
-- Put business logic in services
-- Use separate classes for validation
-- Create dedicated configuration services
-
-### 2. **Error Handling**
-- Use custom exception classes
-- Implement global exception handlers
-- Provide meaningful error messages
-- Log errors appropriately
-
-### 3. **Testing Strategy**
-- Maintain >80% test coverage
-- Use integration tests for external APIs
-- Mock external dependencies
-- Test error scenarios
-
-### 4. **Configuration Management**
-- Use environment-specific configurations
-- Externalize all configurable values
-- Use type-safe configuration access
-- Document all configuration options
-
-### 5. **Security**
-- Validate all inputs
-- Use parameterized queries
-- Implement rate limiting
-- Add CORS headers if needed
-
-### 6. **Performance**
-- Implement caching where appropriate
-- Use connection pooling for external APIs
-- Monitor response times
-- Optimize database queries
-
-### 7. **Monitoring**
-- Add health check endpoints
-- Implement structured logging
-- Add metrics collection
-- Set up alerting
-
-This documentation provides a comprehensive guide for understanding the current EasyMap implementation and successfully refactoring it into a new, standalone Grails project with improved architecture and maintainability.
