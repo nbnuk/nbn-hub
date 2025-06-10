@@ -688,7 +688,44 @@ bie.baseUrl=https://species-ws.nbnatlas.org
 # Download URLs
 download.url=https://records.nbnatlas.org/occurrences/download
 download.doi.url=https://records.nbnatlas.org/occurrences/download
+
+### EasyMap Configuration
+4. `easymap.defaultBounds` - Default map bounds
+5. `easymap.defaultZoom` - Default zoom level (Integer, default: 6)
+6. `easymap.defaultLatitude` - Default map latitude (Double, default: 54.5)
+7. `easymap.defaultLongitude` - Default map longitude (Double, default: -3.0)
+
+### Tile Layer Configuration
+8. `easymap.tileLayer.minimal.url` - URL for minimal tile layer
+9. `easymap.tileLayer.minimal.attribution` - Attribution text for minimal tile layer
+10. `easymap.tileLayer.minimal.subdomains` - Subdomains for minimal tile layer
+11. `easymap.tileLayer.minimal.maxZoom` - Maximum zoom for minimal tile layer
+12. `easymap.tileLayer.osm.url` - URL for OpenStreetMap tile layer
+13. `easymap.tileLayer.osm.attribution` - Attribution text for OSM tile layer
+14. `easymap.tileLayer.osm.maxZoom` - Maximum zoom for OSM tile layer
+
+### Grid Configuration
+15. `easymap.grid.defaultColor` - Default grid color (default: 'df4a21')
+16. `easymap.grid.opacity` - Grid opacity (default: '0.8')
+17. `easymap.grid.layers` - Grid layers configuration (default: 'ALA:occurrences')
+18. `easymap.grid.format` - Grid format (default: 'image/png')
+19. `easymap.grid.colourMode` - Grid color mode (default: 'osgrid')
+20. `easymap.grid.gridLabels` - Grid labels setting (default: 'false')
+
+### Biocache Configuration
+21. `easymap.biocache.fallbackUrl` - Fallback URL for biocache services
+
+### NBN Atlas Layers Service Configuration
+22. `nbnatlas.layers.baseUrl` - Base URL for NBN Atlas layers service (default: 'https://layers.nbnatlas.org/ws')
+
+### Layer IDs
+23. `layer.uk_countries` - Layer ID for UK countries (default: 'cl2')
+24. `layer.vice_county` - Layer ID for vice counties (default: 'cl254')
+
 ```
+
+
+
 
 ### Mock Data Toggle
 
