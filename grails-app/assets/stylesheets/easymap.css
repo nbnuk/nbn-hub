@@ -1,0 +1,40 @@
+/*
+*= require leaflet/leaflet
+*= require_self
+*/
+
+/* EasyMap specific styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.easymap-container {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.leaflet-popup-content {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.leaflet-popup-content strong {
+    color: #333;
+}
+
+/* Style the map controls to match NBN Atlas theme */
+.leaflet-control-layers {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 5px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+}
+
+.leaflet-control-scale-line {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid #777;
+    border-top: none;
+    color: #333;
+}

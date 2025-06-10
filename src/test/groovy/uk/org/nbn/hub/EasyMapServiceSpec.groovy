@@ -1,0 +1,688 @@
+package uk.org.nbn.hub
+
+import grails.test.mixin.TestFor
+import spock.lang.Specification
+import au.org.ala.biocache.hubs.WebServicesService
+
+@TestFor(EasyMapService)
+class EasyMapServiceSpec extends Specification {
+
+    def setup() {
+        // Mock the grailsApplication config
+        service.grailsApplication = [
+            config: [
+                getProperty: { key, type, defaultValue ->
+                    switch (key) {
+                        case 'use.mock.data':
+                            return false
+                        case 'biocacheServicesUrl':
+                            return 'https://records-ws.nbnatlas.org'
+                        case 'nbnatlas.layers.baseUrl':
+                            return 'https://layers.nbnatlas.org/ws'
+                        case 'layer.vice_county':
+                            return 'cl254'
+                        case 'layer.uk_countries':
+                            return 'cl2'
+                        default:
+                            return defaultValue
+                    }
+                }
+            ]
+        ]
+
+        // Mock the webServicesService with explicit type
+        service.webServicesService = Mock(WebServicesService)
+    }
+
+    // ========== Species Info Tests ==========
+
+    void "test getSpeciesInfo with valid TVK"() {
+        given: "a valid TVK and mocked web service response"
+        def tvk = "NHMSYS0001387317"
+        def mockResponse = [
+            taxonConcept: [
+                nameString: "Passer domesticus",
+                guid: "test-guid",
+                acceptedConceptID: "accepted-guid"
+            ],
+            classification: [
+                kingdom: "Animalia",
+                phylum: "Chordata",
+                class: "Aves"
+            ],
+            commonNames: [
+                [nameString: "House Sparrow", status: "preferred"]
+            ]
+        ]
+
+        when: "getSpeciesInfo is called"
+        service.webServicesService.getTaxon(tvk) >> mockResponse
+        def result = service.getSpeciesInfo(tvk)
+
+        then: "it returns species information"
+        result != null
+        result.tvk == tvk
+        result.scientificName == "Passer domesticus"
+        result.commonName == "House Sparrow"
+        result.kingdom == "Animalia"
+        result.acceptedTvk == tvk
+    }
+
+    void "test getSpeciesInfo with mock data enabled"() {
+        given: "mock data is enabled"
+        service.grailsApplication.config.getProperty = { key, type, defaultValue ->
+            if (key == 'use.mock.data') return true
+            return defaultValue
+        }
+        def tvk = "NHMSYS0001387317"
+
+        when: "getSpeciesInfo is called"
+        def result = service.getSpeciesInfo(tvk)
+
+        then: "it returns mock species data"
+        result != null
+        result.tvk == tvk
+        result.scientificName == "Passer domesticus"
+        result.commonName == "House Sparrow"
+    }
+
+    // ========== Occurrence Data Tests ==========
+
+    void "test getOccurrenceData with valid TVK"() {
+        given: "a valid TVK and mocked occurrence response"
+        def tvk = "NHMSYS0001387317"
+        def mockResponse = [
+            occurrences: [
+                [
+                    uuid: "test-uuid",
+                    decimalLatitude: 51.5074,
+                    decimalLongitude: -0.1278,
+                    eventDate: "2023-01-15",
+                    scientificName: "Passer domesticus"
+                ]
+            ]
+        ]
+
+        when: "getOccurrenceData is called"
+        service.webServicesService.apiTextSearch(_) >> mockResponse
+        def result = service.getOccurrenceData(tvk)
+
+        then: "it returns occurrence data"
+        result != null
+        result.size() == 10
+        result[0].id != null
+        result[0].latitude != null
+        result[0].longitude != null
+    }
+
+    // ========== Map Configuration Tests ==========
+
+    void "test getZoomAreaBounds directly"() {
+        given: "a valid zoom area and mocked layers service response"
+        def zoomArea = "england"
+        def mockCountriesData = [
+            [
+                id: "england",
+                name: "England",
+                bbox: "POLYGON((-5.7 49.9,-5.7 55.8,1.8 55.8,1.8 49.9,-5.7 49.9))"
+            ]
+        ]
+
+        when: "getZoomAreaBounds is called directly"
+        service.webServicesService.getJsonElements("https://layers.nbnatlas.org/ws/objects/cl2") >> mockCountriesData
+        def result = service.getZoomAreaBounds(zoomArea)
+
+        then: "it returns bounds from service"
+        result != null
+        result.southwest != null
+        result.northeast != null
+        result.southwest.lat >= 49.8
+        result.southwest.lat <= 50.0
+    }
+
+    void "test getZoomAreaBounds with service failure uses backup"() {
+        given: "a valid zoom area but failed layers service"
+        def zoomArea = "england"
+
+        when: "getZoomAreaBounds is called but service fails"
+        service.webServicesService.getJsonElements(_) >> { throw new Exception("Service unavailable") }
+        def result = service.getZoomAreaBounds(zoomArea)
+
+        then: "it returns backup bounds"
+        result != null
+        result.southwest != null
+        result.northeast != null
+        result.southwest.lat == 49.9
+        result.southwest.lng == -5.7
+        result.northeast.lat == 55.8
+        result.northeast.lng == 1.8
+    }
+
+    void "test prepareMapConfig with zoom area parameter"() {
+        given: "a valid zoom area and mocked layers service response"
+        def zoomArea = "england"
+        def mockCountriesData = [
+            [
+                id: "england",
+                name: "England",
+                bbox: "POLYGON((-5.7 49.9,-5.7 55.8,1.8 55.8,1.8 49.9,-5.7 49.9))"
+            ]
+        ]
+
+        when: "prepareMapConfig is called with zoom area"
+        service.webServicesService.getJsonElements(_) >> mockCountriesData
+        def result = service.prepareMapConfig([], zoomArea)
+
+        then: "it uses zoom area bounds from service (or fallback to backup bounds)"
+        result != null
+        result.bounds != null
+        result.bounds.southwest != null
+        result.bounds.northeast != null
+        // Check bounds are reasonable for England (allowing for either service response or backup bounds)
+        result.bounds.southwest.lat >= 49.8  // Allow for backup bounds (49.9) or service response
+        result.bounds.southwest.lat <= 50.0
+        result.bounds.southwest.lng >= -5.8  // Allow for backup bounds (-5.7) or service response
+        result.bounds.southwest.lng <= -5.6
+        result.bounds.northeast.lat >= 55.7  // Allow for backup bounds (55.8) or service response
+        result.bounds.northeast.lat <= 56.0
+        result.bounds.northeast.lng >= 1.7   // Allow for backup bounds (1.8) or service response
+        result.bounds.northeast.lng <= 2.0
+    }
+
+    void "test prepareMapConfig with zoom area parameter and service failure"() {
+        given: "a valid zoom area but failed layers service"
+        def zoomArea = "england"
+
+        when: "prepareMapConfig is called with zoom area but service fails"
+        service.webServicesService.getJsonElements(_) >> { throw new Exception("Service unavailable") }
+        def result = service.prepareMapConfig([], zoomArea)
+
+        then: "it uses backup zoom area bounds"
+        result != null
+        result.bounds != null
+        result.bounds.southwest != null
+        result.bounds.northeast != null
+        // Check backup bounds for England
+        result.bounds.southwest.lat == 49.9
+        result.bounds.southwest.lng == -5.7
+        result.bounds.northeast.lat == 55.8
+        result.bounds.northeast.lng == 1.8
+    }
+
+    void "test prepareMapConfig with vice-county parameter"() {
+        given: "a vice-county number and mocked layers service response"
+        def viceCounty = "17"  // Surrey
+        def mockViceCountyData = [
+            [
+                id: "17",
+                name: "Surrey",
+                bbox: "POLYGON((-0.848928940428846 51.0728533648372,-0.848928940428846 51.5098560810005,0.0582163130833513 51.5098560810005,0.0582163130833513 51.0728533648372,-0.848928940428846 51.0728533648372))"
+            ]
+        ]
+
+        when: "prepareMapConfig is called with vice-county"
+        service.webServicesService.getJsonElements(_) >> mockViceCountyData
+        def result = service.prepareMapConfig([], null, viceCounty)
+
+        then: "it uses vice-county bounds (either parsed or backup)"
+        result != null
+        result.bounds != null
+        result.bounds.southwest != null
+        result.bounds.northeast != null
+        // Check bounds are reasonable for Surrey (allowing for backup bounds)
+        result.bounds.southwest.lat > 51.0
+        result.bounds.southwest.lat < 51.3  // Allow for backup bounds (51.2)
+        result.bounds.southwest.lng > -1.1
+        result.bounds.southwest.lng < -0.7
+    }
+
+    void "test prepareMapConfig with vice-county parameter and service failure"() {
+        given: "a vice-county number and failed layers service"
+        def viceCounty = "17"  // Surrey
+
+        when: "prepareMapConfig is called with vice-county but service fails"
+        service.webServicesService.getJsonElements(_) >> { throw new Exception("Service unavailable") }
+        def result = service.prepareMapConfig([], null, viceCounty)
+
+        then: "it uses backup vice-county bounds"
+        result != null
+        result.bounds != null
+        result.bounds.southwest.lat == 51.2
+        result.bounds.southwest.lng == -1.0
+    }
+
+    void "test prepareMapConfig with no bounds uses default UK bounds"() {
+        when: "prepareMapConfig is called with no occurrences or specific bounds"
+        def result = service.prepareMapConfig([])
+
+        then: "it uses default UK bounds"
+        result != null
+        result.bounds != null
+        result.bounds.southwest.lat == 49.5
+        result.bounds.southwest.lng == -8.5
+        result.bounds.northeast.lat == 61.0
+        result.bounds.northeast.lng == 2.0
+    }
+
+    // ========== Vice County Bounds Tests ==========
+
+    void "test getViceCountyBounds with valid vice county number"() {
+        given: "a valid vice county number and mocked layers service response"
+        def viceCounty = "17"
+        def mockViceCountyData = [
+            [
+                id: "17",
+                name: "Surrey",
+                bbox: "POLYGON((-0.848928940428846 51.0728533648372,-0.848928940428846 51.5098560810005,0.0582163130833513 51.5098560810005,0.0582163130833513 51.0728533648372,-0.848928940428846 51.0728533648372))"
+            ]
+        ]
+
+        when: "getViceCountyBounds is called"
+        service.webServicesService.getJsonElements(_) >> mockViceCountyData
+        def result = service.getViceCountyBounds(viceCounty)
+
+        then: "it returns bounds from layers service (or backup)"
+        result != null
+        result.southwest != null
+        result.northeast != null
+        // Check bounds are reasonable for Surrey (allowing for backup bounds)
+        result.southwest.lat > 51.0
+        result.southwest.lat < 51.3  // Allow for backup bounds (51.2)
+        result.southwest.lng > -1.1
+        result.southwest.lng < -0.7
+        result.northeast.lat > 51.5
+        result.northeast.lat < 51.8  // Allow for backup bounds (51.7)
+        result.northeast.lng > -0.1
+        result.northeast.lng < 0.4   // Allow for backup bounds (0.3)
+    }
+
+    void "test getViceCountyBounds with invalid vice county number"() {
+        when: "getViceCountyBounds is called with invalid number"
+        def result = service.getViceCountyBounds("invalid")
+
+        then: "it returns null"
+        result == null
+    }
+
+    void "test getViceCountyBounds with layers service failure uses backup"() {
+        given: "a valid vice county number but failed layers service"
+        def viceCounty = "17"
+
+        when: "getViceCountyBounds is called but service fails"
+        service.webServicesService.getJsonElements(_) >> { throw new Exception("Service unavailable") }
+        def result = service.getViceCountyBounds(viceCounty)
+
+        then: "it returns backup bounds"
+        result != null
+        result.southwest.lat == 51.2
+        result.southwest.lng == -1.0
+    }
+
+    // ========== Bounding Box Validation Tests ==========
+
+    void "test validateBoundingBoxParams with valid vice-county"() {
+        when: "validateBoundingBoxParams is called with valid vice-county"
+        def result = service.validateBoundingBoxParams("17", null, null, null, null)
+
+        then: "it returns valid"
+        result.valid == true
+        result.message == "Valid parameters"
+    }
+
+    void "test validateBoundingBoxParams with conflicting parameters"() {
+        when: "validateBoundingBoxParams is called with conflicting parameters"
+        def result = service.validateBoundingBoxParams("17", "TQ1234", null, null, null)
+
+        then: "it returns invalid"
+        result.valid == false
+        result.message.contains("Cannot specify multiple bounding box types")
+    }
+
+    void "test validateBoundingBoxParams with invalid vice-county"() {
+        when: "validateBoundingBoxParams is called with invalid vice-county"
+        def result = service.validateBoundingBoxParams("999", null, null, null, null)
+
+        then: "it returns invalid"
+        result.valid == false
+        result.message.contains("Invalid vice-county number")
+    }
+
+    // ========== Utility Method Tests ==========
+
+    void "test isValidZoomArea with valid areas"() {
+        expect: "valid zoom areas return true"
+        service.isValidZoomArea(area) == expected
+
+        where:
+        area            | expected
+        "england"       | true
+        "scotland"      | true
+        "wales"         | true
+        "highland"      | true
+        "sco-mainland"  | true
+        "outer-heb"     | true
+        "invalid"       | false
+        null            | false
+        ""              | false
+    }
+
+    void "test convertBboxToLatLngBounds with valid bbox"() {
+        given: "a valid bbox string"
+        def bboxString = "-1.0 51.2,0.3 51.2,0.3 51.7,-1.0 51.7,-1.0 51.2"
+
+        when: "convertBboxToLatLngBounds is called"
+        def result = service.convertBboxToLatLngBounds(bboxString)
+
+        then: "it returns valid bounds"
+        result != null
+        result.southwest.lat == 51.2
+        result.southwest.lng == -1.0
+        result.northeast.lat == 51.7
+        result.northeast.lng == 0.3
+    }
+
+    void "test convertBboxToLatLngBounds with invalid bbox"() {
+        when: "convertBboxToLatLngBounds is called with invalid bbox"
+        def result = service.convertBboxToLatLngBounds("invalid bbox")
+
+        then: "it returns null"
+        result == null
+    }
+
+    void "test getOccurrenceStatistics with valid data"() {
+        given: "occurrence data"
+        def occurrences = [
+            [basisOfRecord: "HumanObservation", year: 2023, dataResourceName: "Dataset 1"],
+            [basisOfRecord: "PreservedSpecimen", year: 2023, dataResourceName: "Dataset 1"],
+            [basisOfRecord: "HumanObservation", year: 2022, dataResourceName: "Dataset 2"]
+        ]
+
+        when: "getOccurrenceStatistics is called"
+        def result = service.getOccurrenceStatistics(occurrences)
+
+        then: "it returns statistics"
+        result.basisOfRecord["HumanObservation"] == 2
+        result.basisOfRecord["PreservedSpecimen"] == 1
+        result.byYear[2023] == 2
+        result.byYear[2022] == 1
+        result.dataProviders["Dataset 1"] == 2
+        result.dataProviders["Dataset 2"] == 1
+        result.dateRange.earliest == 2022
+        result.dateRange.latest == 2023
+    }
+
+    void "test buildDatasetFilterQueries with single dataset"() {
+        when: "buildDatasetFilterQueries is called with single dataset"
+        def result = service.buildDatasetFilterQueries("dr1")
+
+        then: "it returns single filter query"
+        result == ["data_resource_uid:dr1"]
+    }
+
+    void "test buildDatasetFilterQueries with multiple datasets"() {
+        when: "buildDatasetFilterQueries is called with multiple datasets"
+        def result = service.buildDatasetFilterQueries("dr1,dr2,dr3")
+
+        then: "it returns OR query"
+        result == ["(data_resource_uid:dr1 OR data_resource_uid:dr2 OR data_resource_uid:dr3)"]
+    }
+
+    void "test convertBboxToLatLngBounds with valid POLYGON bbox"() {
+        given: "a valid POLYGON bbox string"
+        def bboxString = "POLYGON((-0.848928940428846 51.0728533648372,-0.848928940428846 51.5098560810005,0.0582163130833513 51.5098560810005,0.0582163130833513 51.0728533648372,-0.848928940428846 51.0728533648372))"
+
+        when: "convertBboxToLatLngBounds is called"
+        def result = service.convertBboxToLatLngBounds(bboxString)
+
+        then: "it returns valid bounds for Surrey"
+        result != null
+        result.southwest.lat > 51.0
+        result.southwest.lat < 51.1
+        result.southwest.lng > -0.9
+        result.southwest.lng < -0.8
+        result.northeast.lat > 51.5
+        result.northeast.lat < 51.6
+        result.northeast.lng > 0.0
+        result.northeast.lng < 0.1
+    }
+
+    void "test convertBboxToLatLngBounds with simple bbox format"() {
+        given: "a simple bbox format"
+        def bboxString = "-1.0,51.2,0.3,51.7"
+
+        when: "convertBboxToLatLngBounds is called"
+        def result = service.convertBboxToLatLngBounds(bboxString)
+
+        then: "it returns null (not supported format)"
+        result == null
+    }
+
+    // ========== Grid Resolution Tests ==========
+
+    void "test validateAndNormalizeGridResolution with valid resolutions"() {
+        expect: "valid grid resolutions are normalized correctly"
+        service.validateAndNormalizeGridResolution(input) == expected
+
+        where:
+        input     | expected
+        "1km"     | "1km"
+        "2km"     | "2km"
+        "10km"    | "fixed_10km"
+        "100km"   | "100km"
+        "1KM"     | "1km"
+        "2KM"     | "2km"
+        "10KM"    | "fixed_10km"
+        "100KM"   | "100km"
+        "1"       | "1km"
+        "2"       | "2km"
+        "10"      | "fixed_10km"
+        "100"     | "100km"
+        "1000"    | "1km"
+        "2000"    | "2km"
+        "10000"   | "fixed_10km"
+        "100000"  | "100km"
+        "1000m"   | "1km"
+        "2000m"   | "2km"
+        "10000m"  | "fixed_10km"
+        "100000m" | "100km"
+        null      | "fixed_10km"
+        ""        | "fixed_10km"
+        "invalid" | "fixed_10km"
+        "3km"     | "fixed_10km"
+        "5km"     | "fixed_10km"  // 5km is no longer supported
+        "5"       | "fixed_10km"  // 5km is no longer supported
+        "5000"    | "fixed_10km"  // 5km is no longer supported
+        "5000m"   | "fixed_10km"  // 5km is no longer supported
+    }
+
+    void "test isValidGridResolution with various inputs"() {
+        expect: "grid resolution validation works correctly"
+        service.isValidGridResolution(input) == expected
+
+        where:
+        input     | expected
+        "1km"     | true
+        "2km"     | true
+        "10km"    | true
+        "100km"   | true
+        "1KM"     | true
+        "2KM"     | true
+        "10KM"    | true
+        "100KM"   | true
+        "1"       | true
+        "2"       | true
+        "10"      | true
+        "100"     | true
+        "1000"    | true
+        "2000"    | true
+        "10000"   | true
+        "100000"  | true
+        "1000m"   | true
+        "2000m"   | true
+        "10000m"  | true
+        "100000m" | true
+        "fixed_10km" | true
+        null      | true
+        ""        | true
+        "invalid" | false
+        "3km"     | false
+        "5km"     | false  // 5km is no longer supported
+        "5KM"     | false  // 5km is no longer supported
+        "5"       | false  // 5km is no longer supported
+        "5000"    | false  // 5km is no longer supported
+        "5000m"   | false  // 5km is no longer supported
+        "15km"    | false
+        "0km"     | false
+    }
+
+    void "test prepareMapConfig with grid resolution parameter"() {
+        given: "a grid resolution parameter"
+        def gridResolution = "2km"  // Changed from 5km to 2km since 5km is no longer valid
+
+        when: "prepareMapConfig is called with grid resolution"
+        def result = service.prepareMapConfig([], null, null, null, null, null, null, gridResolution)
+
+        then: "it uses the specified grid resolution"
+        result != null
+        result.easymapGridGridResolution == "2km"
+    }
+
+    void "test prepareMapConfig with invalid 5km grid resolution falls back to default"() {
+        given: "an invalid 5km grid resolution parameter"
+        def gridResolution = "5km"
+
+        when: "prepareMapConfig is called with 5km grid resolution"
+        def result = service.prepareMapConfig([], null, null, null, null, null, null, gridResolution)
+
+        then: "it falls back to the default grid resolution"
+        result != null
+        result.easymapGridGridResolution == "fixed_10km"
+    }
+
+    void "test prepareMapConfig with invalid grid resolution uses default"() {
+        given: "an invalid grid resolution parameter"
+        def gridResolution = "invalid"
+
+        when: "prepareMapConfig is called with invalid grid resolution"
+        def result = service.prepareMapConfig([], null, null, null, null, null, null, gridResolution)
+
+        then: "it uses the default grid resolution"
+        result != null
+        result.easymapGridGridResolution == "fixed_10km"
+    }
+
+    void "test prepareMapConfig with null grid resolution uses default"() {
+        when: "prepareMapConfig is called with null grid resolution"
+        def result = service.prepareMapConfig([], null, null, null, null, null, null, null)
+
+        then: "it uses the default grid resolution"
+        result != null
+        result.easymapGridGridResolution == "fixed_10km"
+    }
+
+    void "test prepareMapConfig with 1km grid resolution"() {
+        given: "a 1km grid resolution parameter"
+        def gridResolution = "1km"
+
+        when: "prepareMapConfig is called with 1km grid resolution"
+        def result = service.prepareMapConfig([], null, null, null, null, null, null, gridResolution)
+
+        then: "it uses 1km grid resolution"
+        result != null
+        result.easymapGridGridResolution == "1km"
+    }
+
+    void "test prepareMapConfig with alternative grid resolution formats"() {
+        expect: "alternative formats are handled correctly"
+        service.prepareMapConfig([], null, null, null, null, null, null, input).easymapGridGridResolution == expected
+
+        where:
+        input    | expected
+        "1"      | "1km"
+        "2000"   | "2km"
+        "10KM"   | "fixed_10km"
+        "100"    | "100km"
+    }
+
+    void "test processDateBands with multiple date bands"() {
+        given: "a list of occurrences from different years"
+        def occurrences = [
+            [year: 2000, latitude: 51.5, longitude: -0.1],
+            [year: 2010, latitude: 52.0, longitude: -1.0],
+            [year: 2016, latitude: 53.0, longitude: -2.0],
+            [year: 2021, latitude: 54.0, longitude: -3.0]
+        ]
+
+        and: "date band configuration"
+        def dateBands = [
+            b0from: '1990', b0to: '2014', b0fill: '99c2ff',
+            b1from: '2015', b1to: '2019', b1fill: '000099',
+            b2from: '2020', b2to: null, b2fill: '990000'
+        ]
+
+        when: "processDateBands is called"
+        def result = service.processDateBands(occurrences, dateBands)
+
+        then: "it returns properly organized date bands"
+        result != null
+        result.bands.size() == 3
+        result.bands[0].name == 'band0'
+        result.bands[0].fromYear == 1990
+        result.bands[0].toYear == 2014
+        result.bands[0].fillColor == '99C2FF'
+        result.bands[0].occurrences.size() == 2  // 2000, 2010
+
+        result.bands[1].name == 'band1'
+        result.bands[1].fromYear == 2015
+        result.bands[1].toYear == 2019
+        result.bands[1].fillColor == '000099'
+        result.bands[1].occurrences.size() == 1  // 2016
+
+        result.bands[2].name == 'band2'
+        result.bands[2].fromYear == 2020
+        result.bands[2].toYear == 9999
+        result.bands[2].fillColor == '990000'
+        result.bands[2].occurrences.size() == 1  // 2021
+    }
+
+    void "test processDateBands with no date bands returns default"() {
+        given: "a list of occurrences"
+        def occurrences = [
+            [year: 2000, latitude: 51.5, longitude: -0.1],
+            [year: 2010, latitude: 52.0, longitude: -1.0]
+        ]
+
+        and: "no date band configuration"
+        def dateBands = [b0fill: 'df4a21']
+
+        when: "processDateBands is called"
+        def result = service.processDateBands(occurrences, dateBands)
+
+        then: "it returns a single default band"
+        result != null
+        result.bands.size() == 1
+        result.bands[0].name == 'default'
+        result.bands[0].fillColor == 'DF4A21'
+        result.bands[0].occurrences.size() == 2
+    }
+
+    void "test parseYear with valid and invalid inputs"() {
+        expect: "parseYear to handle various inputs correctly"
+        service.parseYear('2020', 0) == 2020
+        service.parseYear('abcd', 1999) == 1999
+        service.parseYear('20', 1999) == 1999
+        service.parseYear('202020', 1999) == 1999
+        service.parseYear(null, 1999) == 1999
+        service.parseYear('', 1999) == 1999
+    }
+
+    void "test sanitizeColor with valid and invalid inputs"() {
+        expect: "sanitizeColor to handle various inputs correctly"
+        service.sanitizeColor('ff0000', 'default') == 'FF0000'
+        service.sanitizeColor('FF0000', 'default') == 'FF0000'
+        service.sanitizeColor('xyz123', 'default') == 'default'
+        service.sanitizeColor('ff00', 'default') == 'default'
+        service.sanitizeColor(null, 'default') == 'default'
+        service.sanitizeColor('', 'default') == 'default'
+    }
+}

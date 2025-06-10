@@ -16,6 +16,12 @@ class UrlMappings {
         "/savedSearch/list"(controller: 'savedSearch', action: 'list')
         "/savedSearch/save"(controller: 'savedSearch', action: 'save', method: 'POST')
         "/accessControl/filterEditor/$dpuid/$filterUserId/$filterId?"(controller: 'accessControl', action: 'filterEditor')
+
+        // EasyMap URLs - NBN Atlas compatible
+        "/EasyMap"(controller: 'easyMap', action: 'easyMap')
+        "/EasyMap.json"(controller: 'easyMap', action: 'easyMapJson')
+        "/easymap/health"(controller: 'easyMap', action: 'health')
+
         "500"(view:'/error')
         "404"(view:'/notFound')
     }
