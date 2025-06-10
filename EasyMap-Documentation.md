@@ -746,6 +746,8 @@ GET /EasyMap?tvk=NHMSYS0000458183
 
 ### Custom CSS Styling
 
+To change the appearance and layout of the text returned by the service, the full path to your Cascading Style Sheet can be included in the query string. For example
+
 #### Usage
 
 ```bash
