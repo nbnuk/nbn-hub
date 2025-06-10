@@ -797,8 +797,6 @@
         //change the call depending on which layer is active....
         $.ajax({
             url: MAP_VAR.mappingUrl + "/osgrid/feature.json" + mapQuery + MAP_VAR.removeFqs,
-            jsonp: "callback",
-            dataType: "jsonp",
             data: {
                 zoom: MAP_VAR.map.getZoom(),
                 lat: e.latlng.lat,
@@ -858,8 +856,6 @@
 
         $.ajax({
             url: MAP_VAR.mappingUrl + "/occurrences/info" + mapQuery + MAP_VAR.removeFqs,
-            jsonp: "callback",
-            dataType: "jsonp",
             timeout: 30000,
             data: {
                 zoom: MAP_VAR.map.getZoom(),
@@ -923,8 +919,6 @@
         // Get the current record details
         $.ajax({
             url: MAP_VAR.mappingUrl + "/occurrences/" + recordUuid + ".json",
-            jsonp: "callback",
-            dataType: "jsonp",
             success: function(record) {
                 MAP_VAR.map.spin(false);
 
@@ -1007,8 +1001,6 @@
         //console.log("MAP_VAR.query", MAP_VAR.query);
         $.ajax({
             url: "${alatag.getBiocacheAjaxUrl()}/occurrences/info" + MAP_VAR.query,
-            jsonp: "callback",
-            dataType: "jsonp",
             success: function(response) {
             }
         });
