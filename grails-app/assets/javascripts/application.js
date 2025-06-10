@@ -184,7 +184,7 @@ if (typeof jQuery !== 'undefined') {
                 var publicResolutionInMeters = $(this).data("publicresolutioninmeters");
                 var dataProviderName = $(this).data("dataprovidername");
                 var content = "Location has been generalised to " + publicResolutionInMeters + "m. To gain access to the supplied resolution, please contact the Data Provider: " +
-                    "<a href='https://registry.legacy.nbnatlas.org/public/show/" + dataProviderUid +
+                    "<a href='https://registry.nbnatlas.org/public/show/" + dataProviderUid +
                     "' target='_blank' title='More details on the data provider page'>" + dataProviderName + "</a>";
 
                 return content;
