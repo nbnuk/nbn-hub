@@ -311,6 +311,9 @@ GET /EasyMap?tvk=NHMSYS0000458183&ds=ds123,ds456&w=800
 
 ### Display Control Parameters
 
+Along with the map the service returns a title containing the species name and link to terms and conditions, acknowledgement list of data providers, link to NBN Gateway interactive map and NBN Gateway logo. You can supress or show these using the following:
+
+
 | Parameter | Type | Description | Default | Example |
 |-----------|------|-------------|---------|---------|
 | `title` | String | Title display mode: `sci` (scientific name), `com` (common name), or `0` (no title) | `sci` | `com`, `0` |
