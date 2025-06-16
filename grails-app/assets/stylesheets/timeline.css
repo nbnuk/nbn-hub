@@ -1,0 +1,338 @@
+/* Timeline Control Styles */
+.timeline-container {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 15px;
+    margin-bottom: 10px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    max-width: 350px;
+    min-width: 300px;
+    display: block !important; /* Force visibility for debugging */
+    position: relative;
+    z-index: 1000;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.timeline-header h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.timeline-header .fa-clock-o {
+    color: #337ab7;
+    margin-right: 8px;
+}
+
+#timelineToggle {
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+.timeline-content {
+    padding-top: 10px;
+}
+
+/* Date Inputs */
+.timeline-date-inputs {
+    margin-bottom: 15px;
+}
+
+.timeline-date-inputs .input-group {
+    font-size: 12px;
+}
+
+.timeline-date-inputs .input-group-addon {
+    padding: 6px 8px;
+    font-size: 12px;
+    background-color: #f5f5f5;
+    border-color: #ccc;
+}
+
+.timeline-date-inputs .form-control {
+    height: 28px;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/* Timeline Slider */
+.timeline-slider-container {
+    margin: 20px 0;
+}
+
+.timeline-slider {
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    position: relative;
+    margin: 10px 0;
+}
+
+.timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #666;
+    margin-top: 8px;
+}
+
+.timeline-min-label,
+.timeline-max-label {
+    font-weight: 500;
+    color: #888;
+}
+
+.timeline-current-label {
+    font-weight: 600;
+    color: #337ab7;
+    text-align: center;
+    flex: 1;
+    margin: 0 10px;
+}
+
+/* jQuery UI Slider Customization */
+#timelineSlider.ui-slider {
+    height: 8px;
+    background: #e9ecef;
+    border: none;
+    border-radius: 4px;
+    position: relative;
+}
+
+#timelineSlider .ui-slider-range {
+    background: #337ab7;
+    border: none;
+    border-radius: 4px;
+    height: 100%;
+}
+
+#timelineSlider .ui-slider-handle {
+    background: #337ab7;
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    top: -5px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+#timelineSlider .ui-slider-handle:hover {
+    background: #2c6aa0;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+}
+
+#timelineSlider .ui-slider-handle:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(51, 122, 183, 0.3);
+}
+
+/* Playback Controls */
+.timeline-playback-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+.timeline-playback-controls .btn-group {
+    margin-right: 10px;
+}
+
+.timeline-playback-controls .btn {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 3px;
+}
+
+.timeline-playback-controls .btn i {
+    margin-right: 4px;
+}
+
+.timeline-speed-control {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.timeline-speed-control label {
+    font-size: 11px;
+    margin: 0;
+    font-weight: normal;
+    color: #666;
+}
+
+.timeline-speed-control select {
+    height: 26px;
+    font-size: 11px;
+    padding: 2px 6px;
+    width: auto;
+    min-width: 70px;
+}
+
+/* Granularity Control */
+.timeline-granularity-control {
+    margin: 15px 0;
+}
+
+.timeline-granularity-control label {
+    font-size: 11px;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #666;
+    display: block;
+}
+
+.timeline-granularity-control .btn-group {
+    width: 100%;
+}
+
+.timeline-granularity-control .btn {
+    font-size: 10px;
+    padding: 4px 8px;
+    flex: 1;
+}
+
+/* Status Messages */
+.timeline-status {
+    margin-top: 15px;
+}
+
+.timeline-status .alert {
+    padding: 8px 12px;
+    margin: 0;
+    font-size: 11px;
+    border-radius: 4px;
+}
+
+.timeline-status .alert-info {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    color: #31708f;
+}
+
+.timeline-status .alert-danger {
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442;
+}
+
+.timeline-status .fa-spinner {
+    margin-right: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .timeline-container {
+        max-width: 280px;
+        min-width: 250px;
+        padding: 12px;
+    }
+
+    .timeline-playback-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .timeline-speed-control {
+        justify-content: space-between;
+    }
+
+    .timeline-granularity-control .btn {
+        font-size: 9px;
+        padding: 3px 6px;
+    }
+}
+
+/* Integration with existing map controls */
+.timeline-control-container {
+    margin-bottom: 10px;
+    display: block !important; /* Force visibility */
+    position: relative;
+    z-index: 1000;
+}
+
+.timeline-control-container.leaflet-control-layers {
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    border: none;
+    display: block !important; /* Force visibility */
+}
+
+/* Debug styles to make timeline more visible */
+#timelineControlContainer {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#timelineControl {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Animation for timeline toggle */
+.timeline-content {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Loading state */
+.timeline-loading .timeline-slider,
+.timeline-loading .timeline-playback-controls,
+.timeline-loading .timeline-granularity-control {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Success state indicators */
+.timeline-active #timelineToggle {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.timeline-playing #playBtn {
+    display: none;
+}
+
+.timeline-playing #pauseBtn {
+    display: inline-block;
+}
+
+/* Hover effects */
+.timeline-container:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+#timelineToggle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Focus styles for accessibility */
+.timeline-container *:focus {
+    outline: 2px solid #337ab7;
+    outline-offset: 2px;
+}
+
+.timeline-container input:focus,
+.timeline-container select:focus,
+.timeline-container button:focus {
+    box-shadow: 0 0 0 2px rgba(51, 122, 183, 0.25);
+}
