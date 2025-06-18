@@ -330,7 +330,7 @@
             <g:if test="${clubView && record.raw.location.decimalLatitude != record.processed.location.decimalLatitude}">
                 ${record.raw.location.decimalLatitude}
             </g:if>
-            <g:elseif test="${record.raw.location.decimalLatitude && record.raw.location.decimalLatitude != record.processed.location.decimalLatitude}">
+            <g:elseif test="${!record.sensitive && (record.raw.location.decimalLatitude && record.raw.location.decimalLatitude != record.processed.location.decimalLatitude)}">
                 ${record.processed.location.decimalLatitude}<br/><span class="originalValue">Supplied as: "${record.raw.location.decimalLatitude}"</span>
             </g:elseif>
             <g:elseif test="${record.processed.location.decimalLatitude}">
@@ -346,7 +346,7 @@
             <g:if test="${clubView && record.raw.location.decimalLongitude != record.processed.location.decimalLongitude}">
                 ${record.raw.location.decimalLongitude}
             </g:if>
-            <g:elseif test="${record.raw.location.decimalLongitude && record.raw.location.decimalLongitude != record.processed.location.decimalLongitude}">
+            <g:elseif test="${!record.sensitive && (record.raw.location.decimalLongitude && record.raw.location.decimalLongitude != record.processed.location.decimalLongitude)}">
                 ${record.processed.location.decimalLongitude}<br/><span class="originalValue">Supplied as: "${record.raw.location.decimalLongitude}"</span>
             </g:elseif>
             <g:elseif test="${record.processed.location.decimalLongitude}">
@@ -1389,7 +1389,7 @@
     <g:if test="${clubView && record.raw.location.decimalLatitude != record.processed.location.decimalLatitude}">
         ${record.raw.location.decimalLatitude}
     </g:if>
-    <g:elseif test="${record.raw.location.decimalLatitude && record.raw.location.decimalLatitude != record.processed.location.decimalLatitude}">
+    <g:elseif test="${!record.sensitive && (record.raw.location.decimalLatitude && record.raw.location.decimalLatitude != record.processed.location.decimalLatitude)}">
         ${record.processed.location.decimalLatitude}<br/><span class="originalValue">Supplied as: "${record.raw.location.decimalLatitude}"</span>
     </g:elseif>
     <g:elseif test="${record.processed.location.decimalLatitude}">
@@ -1405,7 +1405,7 @@
     <g:if test="${clubView && record.raw.location.decimalLongitude != record.processed.location.decimalLongitude}">
         ${record.raw.location.decimalLongitude}
     </g:if>
-    <g:elseif test="${record.raw.location.decimalLongitude && record.raw.location.decimalLongitude != record.processed.location.decimalLongitude}">
+    <g:elseif test="${!record.sensitive && (record.raw.location.decimalLongitude && record.raw.location.decimalLongitude != record.processed.location.decimalLongitude)}">
         ${record.processed.location.decimalLongitude}<br/><span class="originalValue">Supplied as: "${record.raw.location.decimalLongitude}"</span>
     </g:elseif>
     <g:elseif test="${record.processed.location.decimalLongitude}">
