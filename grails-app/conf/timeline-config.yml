@@ -1,0 +1,111 @@
+# Timeline Configuration - Phase 2 Implementation
+# This demonstrates how timeline features will be configured
+
+timeline:
+  # UI Mode Selection
+  ui:
+    mode: 'simple'  # 'simple' (Figma design) or 'advanced' (current full implementation)
+    theme: 'nbn'    # Design system theme
+
+  # Simple Mode Configuration (Figma Design)
+  simple:
+    title: 'Explore changes over time'
+    subtitle: 'Enter a time period to view changes on the map. Press play to view a timeframe to present day.'
+    labels:
+      from: 'From'
+      to: 'To'
+      button: 'View on map'
+    placeholders:
+      startYear: '1977'
+      endYear: '2024'
+    validation:
+      minYear: 1800
+      maxYear: 2024
+      showValidationMessages: true
+
+  # Advanced Mode Configuration (Current Implementation)
+  advanced:
+    showPlaybackControls: true
+    showSpeedControl: true
+    showGranularityControl: true
+    showSlider: true
+    showTimeline: true
+    # Month-based timeline settings for advanced mode
+    monthBased:
+      enabled: true
+      defaultType: 'month'    # Default to month-based behavior as requested
+      allowTypeSwitching: true  # Allow switching between year/month
+      monthStepSize: 1         # Default months to advance per step
+      maxMonthStepSize: 12     # Maximum months per step
+
+  # Default Values (Used by both modes)
+  defaults:
+    playbackSpeed: 1000      # milliseconds between timeline steps
+    granularity: 'month'     # Default to 'month' instead of 'year' as requested
+    timelineType: 'month'    # 'year' or 'month' - Default to month-based behavior
+    autoPlay: false          # Start playing automatically
+    minYear: 1800           # Minimum selectable year
+    maxYear: 2024           # Maximum selectable year
+    # Month-specific defaults
+    monthStepSize: 1        # Default step size in months
+    yearStepSize: 1         # Default step size in years (when in year mode)
+    monthRange: [1, 12]     # Default month range (Jan-Dec)
+
+  # Feature Flags (For gradual rollout)
+  features:
+    enableSimpleMode: true
+    enableAdvancedMode: true
+    enablePlayback: false    # Hide playback in simple mode
+    enableSpeedControl: false # Hide speed control in simple mode
+    enableGranularity: false # Hide granularity in simple mode
+    # New month-based feature flags
+    enableMonthBasedTimeline: true  # Enable month-based timeline
+    enableMonthTypeSwitching: true  # Allow switching between year/month
+    defaultToMonthBased: true       # Start with month-based timeline by default
+
+  # Styling Configuration
+  styling:
+    colors:
+      primary: '#3b82f6'     # Blue for active states
+      secondary: '#111827'   # Dark for buttons
+      success: '#16a34a'     # Green for success messages
+      error: '#dc2626'       # Red for error messages
+      text: '#111827'        # Main text color
+      textSecondary: '#6b7280' # Secondary text color
+    fonts:
+      family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      sizes:
+        title: '16px'
+        subtitle: '13px'
+        label: '12px'
+        input: '14px'
+        button: '14px'
+    spacing:
+      panel: '20px'
+      inputs: '12px'
+      elements: '8px'
+    borders:
+      radius: '6px'
+      width: '1px'
+      color: '#e1e5e9'
+
+  # Environment-specific overrides
+  environments:
+    development:
+      ui:
+        mode: 'simple'  # Use simple mode in development
+      features:
+        enableSimpleMode: true
+        enableAdvancedMode: true  # Allow switching in dev
+    test:
+      ui:
+        mode: 'simple'
+      features:
+        enableSimpleMode: true
+        enableAdvancedMode: false
+    production:
+      ui:
+        mode: 'simple'  # Production uses simple mode only
+      features:
+        enableSimpleMode: true
+        enableAdvancedMode: false  # Hide advanced mode in production

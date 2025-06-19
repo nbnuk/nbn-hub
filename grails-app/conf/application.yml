@@ -25,6 +25,8 @@ grails:
             fixtaglib: true
     databinding:
         convertEmptyStringsToNull: false
+    # Cache configuration removed temporarily to fix build issue
+    # Will be re-added when cache annotations are working properly
 info:
     app:
         name: '@info.app.name@'
@@ -37,6 +39,8 @@ spring:
     groovy:
         template:
             check-template-location: false
+    cache:
+        type: simple
 # Spring Actuator Endpoints are Disabled by Default
 endpoints:
     enabled: true

@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <asset:stylesheet src="map.css"/>
 <asset:stylesheet src="wms-button.css"/>
+<asset:stylesheet src="timeline.css"/>
 
 <div style="margin-bottom: 10px">
     <g:if test="${grailsApplication.config.skin.useAlaSpatialPortal?.toBoolean()}">
@@ -25,6 +26,8 @@
     TODO - Also needs to check if wkt is already specified and remove previous wkt param from query.
     --%>
 </div>
+
+ <g:render template="timeline-simple"/>
 
 <div class="collapse" id="recordLayerControls">
     <table id="mapLayerControls">
@@ -149,6 +152,22 @@
         removeFqs: ''
     };
 
+    // Timeline functionality
+    var TIMELINE_VAR = {
+        enabled: false,
+        playing: false,
+        currentStartYear: null,
+        currentEndYear: null,
+        bounds: { min: 1800, max: 2024 },
+        granularity: 'year',
+        playbackSpeed: 1000,
+        debounceTimer: null,
+        cache: new Map(),
+        originalAdditionalFqs: '',
+        playbackInterval: null,
+        hasTemporalData: false
+    };
+
     var ColourByControl = L.Control.extend({
         options: {
             position: 'topright',
@@ -182,6 +201,56 @@
             L.DomEvent
                 .on(container, 'click', stop)
                 .on(container, 'mousedown', stop);
+            return container;
+        }
+    });
+
+    var SimpleTimelineControl = L.Control.extend({
+        options: {
+            position: 'topright',
+            collapsed: false
+        },
+        onAdd: function (map) {
+            console.log('DEBUG: SimpleTimelineControl onAdd called');
+            console.log('DEBUG: timelineSimpleControl element exists?', $('#timelineSimpleControl').length > 0);
+
+            // create the control container for simple timeline toggle button only
+            var container = L.DomUtil.create('div', 'leaflet-control-layers simple-timeline-control-container');
+            var $container = $(container);
+            $container.attr("id", "simpleTimelineControlContainer");
+
+            // Move only the toggle button to the map control container
+            var toggleElement = $('#timelineSimpleToggleContainer');
+            if (toggleElement.length > 0) {
+                toggleElement.appendTo($container);
+                toggleElement.show();
+                console.log('DEBUG: Simple timeline toggle button moved to map control and shown');
+            } else {
+                console.error('ERROR: timelineSimpleToggleContainer element not found!');
+            }
+
+            // Keep the dialog content separate - it will be positioned as an overlay
+            var dialogElement = $('#timelineSimpleControl');
+            if (dialogElement.length > 0) {
+                // Move dialog to map container but position it as overlay
+                dialogElement.appendTo($('#leafletMap'));
+                dialogElement.show();
+                // Ensure content starts hidden
+                $('#timelineSimpleContent').removeClass('show').hide();
+                console.log('DEBUG: Simple timeline dialog moved to map as overlay');
+            } else {
+                console.error('ERROR: timelineSimpleControl element not found!');
+            }
+
+            console.log('DEBUG: SimpleTimelineControl container created');
+
+            // Prevent map events from propagating
+            var stop = L.DomEvent.stopPropagation;
+            L.DomEvent
+                .on(container, 'click', stop)
+                .on(container, 'mousedown', stop)
+                .on(container, 'touchstart', stop);
+
             return container;
         }
     });
@@ -262,6 +331,7 @@
 
         MAP_VAR.map.addControl(new RecordLayerControl());
         MAP_VAR.map.addControl(new ColourByControl());
+        MAP_VAR.map.addControl(new SimpleTimelineControl());
 
         L.Util.requestAnimFrame(MAP_VAR.map.invalidateSize, MAP_VAR.map, !1, MAP_VAR.map._container);
         L.Browser.any3d = false; // FF bug prevents selects working properly
@@ -382,6 +452,7 @@
             }
             $('.leaflet-draw-toolbar a').tooltip(opts);
             //$('.leaflet-draw-toolbar').first().attr('title',jQuery.i18n.prop('advancedsearch.js.choosetool')).tooltip({placement:'right'}).tooltip('show');
+
         });
 
         // Hide help tooltip on first click event
@@ -1301,6 +1372,8 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
+        // Initialize timeline functionality
+        initializeTimeline();
 
         // restrict search to current map bounds/view
         $('#wktFromMapBounds').click(function(e) {
@@ -1372,4 +1445,317 @@
         $('#downloadMap').modal('hide');
         document.location.href = downloadUrlNew;
     }
+
+    // Initialize timeline functionality
+    function initializeTimeline() {
+        // Store original additional FQs
+        TIMELINE_VAR.originalAdditionalFqs = MAP_VAR.additionalFqs;
+
+        // Always set up basic event handlers
+        setupTimelineEventHandlers();
+
+        // Check if current search has temporal data
+        fetchTemporalBounds().then(function(bounds) {
+            console.log('Timeline bounds response:', bounds);
+            if (bounds.hasTemporalData) {
+                TIMELINE_VAR.hasTemporalData = true;
+                TIMELINE_VAR.bounds = bounds;
+                setupTimelineUI();
+                console.log('Timeline initialized with bounds:', bounds);
+                console.log('Timeline control should now be visible');
+            } else {
+                console.log('No temporal data available for timeline - bounds:', bounds);
+            }
+        }).catch(function(error) {
+            console.error('Error initializing timeline:', error);
+            console.error('Error details:', error.responseText);
+        });
+    }
+
+    function fetchTemporalBounds() {
+        var url = "${createLink(controller:'occurrence', action:'timelineBounds')}" + MAP_VAR.query;
+        console.log('Fetching temporal bounds from URL:', url);
+
+        return $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            timeout: 10000
+        }).then(function(data) {
+            console.log('Raw timeline bounds response:', data);
+            if (data.success && data.hasTemporalData) {
+                console.log('Timeline data available - years:', data.minYear, 'to', data.maxYear);
+                return {
+                    min: data.minYear,
+                    max: data.maxYear,
+                    totalYears: data.totalYears,
+                    hasTemporalData: data.hasTemporalData
+                };
+            } else {
+                console.log('No timeline data - success:', data.success, 'hasTemporalData:', data.hasTemporalData);
+                return {
+                    min: null,
+                    max: null,
+                    totalYears: 0,
+                    hasTemporalData: false
+                };
+            }
+        }).fail(function(xhr, status, error) {
+            console.error('AJAX request failed:', status, error);
+            console.error('Response text:', xhr.responseText);
+        });
+    }
+
+    function setupTimelineUI() {
+        // Set up date inputs
+        $('#startYear').attr('min', TIMELINE_VAR.bounds.min)
+                      .attr('max', TIMELINE_VAR.bounds.max)
+                      .val(TIMELINE_VAR.bounds.min);
+
+        $('#endYear').attr('min', TIMELINE_VAR.bounds.min)
+                    .attr('max', TIMELINE_VAR.bounds.max)
+                    .val(TIMELINE_VAR.bounds.max);
+
+        // Update labels
+        $('#timelineMinLabel').text(TIMELINE_VAR.bounds.min);
+        $('#timelineMaxLabel').text(TIMELINE_VAR.bounds.max);
+        $('#currentPeriod').text('Current: All Records (' + TIMELINE_VAR.bounds.min + '-' + TIMELINE_VAR.bounds.max + ')');
+
+        // Initialize jQuery UI slider
+        $("#timelineSlider").slider({
+            range: true,
+            min: TIMELINE_VAR.bounds.min,
+            max: TIMELINE_VAR.bounds.max,
+            values: [TIMELINE_VAR.bounds.min, TIMELINE_VAR.bounds.max],
+            slide: function(event, ui) {
+                updateTimelineInputs(ui.values[0], ui.values[1]);
+                updateTimelineFilter(ui.values[0], ui.values[1], false);
+            },
+            stop: function(event, ui) {
+                updateTimelineFilter(ui.values[0], ui.values[1], true);
+            }
+        });
+
+        // Set initial values
+        TIMELINE_VAR.currentStartYear = TIMELINE_VAR.bounds.min;
+        TIMELINE_VAR.currentEndYear = TIMELINE_VAR.bounds.max;
+    }
+
+    function setupTimelineEventHandlers() {
+        // Timeline toggle button
+        $('#timelineToggle').off('click').on('click', function() {
+            console.log('Timeline toggle clicked');
+            var $content = $('#timelineContent');
+            var $icon = $(this).find('i');
+            var $text = $(this);
+
+            if ($content.is(':visible')) {
+                $content.slideUp();
+                $icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                $text.html('<i class="fa fa-eye"></i> Show Timeline');
+                console.log('Timeline content hidden');
+            } else {
+                if (!TIMELINE_VAR.hasTemporalData) {
+                    // Show message if no temporal data
+                    $('#timelineContent').html('<div class="alert alert-info"><i class="fa fa-info-circle"></i> No temporal data available for this search. Try removing year filters or searching for different species.</div>');
+                }
+                $content.slideDown();
+                $icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                $text.html('<i class="fa fa-eye-slash"></i> Hide Timeline');
+                console.log('Timeline content shown');
+            }
+        });
+
+        // Date input handlers
+        $('#startYear, #endYear').on('change input', function() {
+            var startYear = parseInt($('#startYear').val());
+            var endYear = parseInt($('#endYear').val());
+
+            if (startYear && endYear && startYear <= endYear) {
+                $("#timelineSlider").slider('values', [startYear, endYear]);
+                updateTimelineFilter(startYear, endYear, false);
+            }
+        });
+
+        // Playback controls
+        $('#playBtn').click(startTimelinePlayback);
+        $('#pauseBtn').click(pauseTimelinePlayback);
+        $('#resetBtn').click(resetTimeline);
+
+        // Speed control
+        $('#playbackSpeed').change(function() {
+            TIMELINE_VAR.playbackSpeed = parseInt($(this).val());
+        });
+
+        // Granularity control
+        $('input[name="timelineGranularity"]').change(function() {
+            TIMELINE_VAR.granularity = $(this).val();
+            if (TIMELINE_VAR.enabled) {
+                // Refresh timeline with new granularity
+                updateTimelineFilter(TIMELINE_VAR.currentStartYear, TIMELINE_VAR.currentEndYear, true);
+            }
+        });
+    }
+
+    function updateTimelineInputs(startYear, endYear) {
+        $('#startYear').val(startYear);
+        $('#endYear').val(endYear);
+        $('#currentPeriod').text('Current: ' + startYear + '-' + endYear);
+
+        TIMELINE_VAR.currentStartYear = startYear;
+        TIMELINE_VAR.currentEndYear = endYear;
+    }
+
+    function updateTimelineFilter(startYear, endYear, immediate) {
+        console.log('Updating timeline filter:', startYear, '-', endYear, 'immediate:', immediate);
+
+        if (TIMELINE_VAR.debounceTimer) {
+            clearTimeout(TIMELINE_VAR.debounceTimer);
+        }
+
+        var delay = immediate ? 0 : 300; // 300ms debounce
+
+        TIMELINE_VAR.debounceTimer = setTimeout(function() {
+            applyTemporalFilter(startYear, endYear);
+        }, delay);
+    }
+
+    function applyTemporalFilter(startYear, endYear) {
+        console.log('Applying temporal filter:', startYear, '-', endYear);
+
+        showTimelineLoading();
+
+        // Check if we're showing all data (full range)
+        var isFullRange = (startYear === TIMELINE_VAR.bounds.min && endYear === TIMELINE_VAR.bounds.max);
+
+        if (isFullRange) {
+            // Reset to original query without temporal filter
+            MAP_VAR.additionalFqs = TIMELINE_VAR.originalAdditionalFqs;
+            TIMELINE_VAR.enabled = false;
+        } else {
+            // Apply temporal filter
+            var temporalFilter = 'year:[' + startYear + ' TO ' + endYear + ']';
+            MAP_VAR.additionalFqs = TIMELINE_VAR.originalAdditionalFqs + '&fq=' + encodeURIComponent(temporalFilter);
+            TIMELINE_VAR.enabled = true;
+        }
+
+        // Update map layer
+        addQueryLayer(true);
+
+        // Update current period display
+        updateTimelineInputs(startYear, endYear);
+
+        // Fetch occurrence count for this period
+        fetchTemporalCount(startYear, endYear).then(function(result) {
+            var countText = isFullRange ? 'All Records' : result.count.toLocaleString() + ' records';
+            $('#currentPeriod').text('Current: ' + startYear + '-' + endYear + ' (' + countText + ')');
+            hideTimelineLoading();
+        }).catch(function(error) {
+            console.error('Error fetching temporal count:', error);
+            $('#currentPeriod').text('Current: ' + startYear + '-' + endYear);
+            hideTimelineLoading();
+        });
+    }
+
+    function fetchTemporalCount(startYear, endYear) {
+        var url = "${createLink(controller:'occurrence', action:'timelineCount')}" + MAP_VAR.query +
+                  '&startYear=' + startYear + '&endYear=' + endYear;
+
+        return $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            timeout: 10000
+        });
+    }
+
+    function startTimelinePlayback() {
+        if (TIMELINE_VAR.playing) return;
+
+        console.log('Starting timeline playback');
+        TIMELINE_VAR.playing = true;
+        $('#playBtn').hide();
+        $('#pauseBtn').show();
+
+        var speed = parseInt($('#playbackSpeed').val());
+        var granularity = TIMELINE_VAR.granularity;
+        var stepSize = getStepSize(granularity);
+        var windowSize = getWindowSize(granularity);
+
+        var currentStart = TIMELINE_VAR.bounds.min;
+
+        function playStep() {
+            if (!TIMELINE_VAR.playing || currentStart > TIMELINE_VAR.bounds.max) {
+                pauseTimelinePlayback();
+                return;
+            }
+
+            var currentEnd = Math.min(currentStart + windowSize - 1, TIMELINE_VAR.bounds.max);
+
+            // Update slider and apply filter
+            $("#timelineSlider").slider('values', [currentStart, currentEnd]);
+            updateTimelineFilter(currentStart, currentEnd, true);
+
+            currentStart += stepSize;
+        }
+
+        // Start immediately, then continue with intervals
+        playStep();
+        TIMELINE_VAR.playbackInterval = setInterval(playStep, speed);
+    }
+
+    function pauseTimelinePlayback() {
+        console.log('Pausing timeline playback');
+        TIMELINE_VAR.playing = false;
+        $('#playBtn').show();
+        $('#pauseBtn').hide();
+
+        if (TIMELINE_VAR.playbackInterval) {
+            clearInterval(TIMELINE_VAR.playbackInterval);
+            TIMELINE_VAR.playbackInterval = null;
+        }
+    }
+
+    function resetTimeline() {
+        console.log('Resetting timeline');
+        pauseTimelinePlayback();
+
+        // Reset to full range
+        $("#timelineSlider").slider('values', [TIMELINE_VAR.bounds.min, TIMELINE_VAR.bounds.max]);
+        updateTimelineFilter(TIMELINE_VAR.bounds.min, TIMELINE_VAR.bounds.max, true);
+    }
+
+    function getStepSize(granularity) {
+        switch(granularity) {
+            case 'year': return 1;
+            case '5year': return 5;
+            case 'decade': return 10;
+            default: return 1;
+        }
+    }
+
+    function getWindowSize(granularity) {
+        switch(granularity) {
+            case 'year': return 1;
+            case '5year': return 5;
+            case 'decade': return 10;
+            default: return 1;
+        }
+    }
+
+    function showTimelineLoading() {
+        $('#timelineLoading').show();
+        $('#timelineError').hide();
+    }
+
+    function hideTimelineLoading() {
+        $('#timelineLoading').hide();
+    }
+
+    function showTimelineError(message) {
+        $('#timelineErrorMessage').text(message);
+        $('#timelineError').show();
+        $('#timelineLoading').hide();
+    }
+
 </script>

@@ -17,6 +17,15 @@ class UrlMappings {
         "/savedSearch/save"(controller: 'savedSearch', action: 'save', method: 'POST')
         "/accessControl/filterEditor/$dpuid/$filterUserId/$filterId?"(controller: 'accessControl', action: 'filterEditor')
 
+        // Timeline endpoints
+        "/occurrence/timelineBounds"(controller: 'occurrence', action: 'timelineBounds')
+        "/occurrence/timelineDistribution"(controller: 'occurrence', action: 'timelineDistribution')
+        "/occurrence/timelineCount"(controller: 'occurrence', action: 'timelineCount')
+        "/occurrence/timelineConfig"(controller: 'occurrence', action: 'timelineConfig')
+
+        // Month-based timeline endpoints
+        "/occurrence/monthlyCount"(controller: 'occurrence', action: 'monthlyCount')
+
         // EasyMap URLs - NBN Atlas compatible
         "/EasyMap"(controller: 'easyMap', action: 'easyMap')
         "/EasyMap.json"(controller: 'easyMap', action: 'easyMapJson')
