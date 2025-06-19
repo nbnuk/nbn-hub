@@ -2,229 +2,132 @@
 
 ## Overview
 
-The NBN Atlas Timeline feature adds temporal data visualization and filtering capabilities to the occurrence map view. Users can explore species observations across time using an interactive timeline control with playback functionality.
+The NBN Atlas Timeline feature provides a simple, intuitive way for users to explore temporal patterns in species occurrence data. The feature emphasizes ease of use with a clean, modern interface that allows users to filter occurrence data by time periods and discover seasonal patterns.
 
-## Features
+## Key Features
 
-### 🕒 **Timeline Control**
-- Interactive slider for selecting date ranges
-- Manual year input fields for precise control
-- Real-time map updates as temporal filters are applied
+### 🎯 **Simple Timeline Interface**
+- **Clean, modern design** following Figma specifications
+- **Two timeline modes**: Year-based chronological filtering and Month-based seasonal analysis
+- **One-click filtering** with "View on map" button
+- **Real-time map updates** when temporal filters are applied
 
-### ▶️ **Playback Mode**
-- Play/Pause controls for animated timeline progression
-- Adjustable playback speed (Slow/Normal/Fast)
-- Visual progression through time periods
+### 📅 **Timeline Modes**
 
-### 📊 **Temporal Granularity**
-- **Yearly**: View data year by year
-- **5-Year**: Aggregate data into 5-year periods
-- **Decade**: View data by decades
+#### **Year-Based Timeline**
+- Filter occurrences by date ranges (e.g., 1990-2010)
+- Simple from/to year inputs
+- Optional playback to animate through time periods
+- Perfect for studying long-term trends and changes
 
-### 💾 **Performance Optimizations**
-- Intelligent caching of temporal queries
-- Debounced API calls to prevent request flooding
-- Efficient Solr facet queries using existing year field
+#### **Month-Based Seasonal Timeline**
+- **Seasonal pattern analysis** - aggregates data across all years by month
+- **Cross-year aggregation**: January shows ALL January data from all years combined
+- **Ecological insights**: Reveals breeding seasons, migration patterns, and climate effects
+- **Month selection**: Choose specific months or seasonal ranges (Spring, Summer, etc.)
+- **Educational value**: Helps understand seasonal behaviors across species
 
-## User Journey
+## User Experience
 
-### 1. **Timeline Availability**
-- Timeline automatically appears when temporal data is available for the current search
-- Requires minimum of 2 years of data to activate
-- Hidden for searches without sufficient temporal coverage
+### 1. **Accessing the Timeline**
+- Timeline button appears on the map when temporal data is available
+- Clean, minimal interface that doesn't overwhelm the user
+- Automatically hidden for searches without sufficient temporal data
 
-### 2. **Timeline Interaction**
+### 2. **Basic Usage**
 ```
-Map Page → Timeline Control Appears → User Interactions:
-├── Toggle timeline panel visibility
-├── Adjust date range via slider or inputs
-├── Select temporal granularity
-├── Use playback controls
-└── Reset to view all data
-```
-
-### 3. **Map Updates**
-- Map automatically refreshes with temporal filters applied
-- Occurrence count updates in real-time
-- Visual feedback during loading states
-
-## Technical Implementation
-
-### Backend Components
-
-#### **TimelineService.groovy**
-```groovy
-// Core service handling temporal data operations
-- getTemporalBounds(): Determine min/max years for search
-- getTemporalDistribution(): Get occurrence counts by time period
-- getTemporalOccurrenceCount(): Count records for specific date range
-- hasTimelineData(): Check if timeline should be available
+Map Page → Timeline Button → Choose Mode:
+├── Year Mode: Enter start/end years → "View on map"
+├── Month Mode: Select months → Play seasonal patterns
+└── Close: Return to normal map view
 ```
 
-#### **OccurrenceController Endpoints**
-```
-GET /occurrence/timelineBounds - Get temporal bounds for search
-GET /occurrence/timelineDistribution - Get temporal distribution data
-GET /occurrence/timelineCount - Get count for specific period
-```
+### 3. **Year-Based Filtering**
+1. **Select Year Mode** (if not already selected)
+2. **Enter dates**: Input start year (e.g., 1990) and end year (e.g., 2010)
+3. **View results**: Click "View on map" to filter occurrences
+4. **Optional playback**: Use play button for animated progression through years
 
-#### **Caching Strategy**
-```yaml
-temporalBoundsCache: 15 min TTL, 100 entries
-temporalDistributionCache: 15 min TTL, 200 entries
-temporalCountCache: 10 min TTL, 500 entries
-```
+### 4. **Seasonal Analysis (Month Mode)**
+1. **Select Month Mode** (default setting)
+2. **Choose months**:
+   - Select individual months using checkboxes
+   - Use quick buttons: All, Spring, Summer, Autumn, Winter, None
+3. **Play seasonal patterns**: Click play to cycle through selected months
+4. **Jump to specific month**: Use dropdown to view a particular month
+5. **Understand the data**: Each month shows aggregated data across all years
 
-### Frontend Components
+## What Makes It Simple
 
-#### **HTML Structure**
-- Timeline control panel with collapsible content
-- Date range inputs and jQuery UI slider
-- Playback controls and granularity selector
-- Status indicators and loading states
+### **Intuitive Design**
+- **Minimal inputs**: Only essential controls are visible
+- **Clear labeling**: Obvious field labels and button text
+- **Visual feedback**: Loading states and success messages
+- **Progressive disclosure**: Advanced options hidden by default
 
-#### **JavaScript Functionality**
-- `TIMELINE_VAR`: Global state management
-- Debounced filter updates (300ms delay)
-- AJAX integration with backend endpoints
-- Automatic map layer refresh
+### **Smart Defaults**
+- **Month-based mode**: Default to seasonal analysis (most educational)
+- **All months selected**: Start with complete seasonal view
+- **Reasonable year ranges**: 1800-2024 boundaries with sensible defaults
 
-#### **CSS Styling**
-- Responsive design for desktop and mobile
-- Integration with existing Leaflet map controls
-- Accessibility-focused interaction design
+### **No Complex Configuration**
+- **No granularity controls**: System automatically chooses appropriate level
+- **No speed adjustments**: Sensible playback speed pre-configured
+- **No slider complexity**: Simple input fields and buttons only
 
-## API Integration
+## Technical Integration
 
-### Solr Query Enhancement
-```
-Original: ?q=lsid:NHMSYS0000503827
-With Timeline: ?q=lsid:NHMSYS0000503827&fq=year:[1990 TO 2000]
-```
+### **Backend Services**
+- **Temporal bounds detection**: Automatically determines available date ranges
+- **Fast filtering**: Efficient Solr queries using existing indexed fields
+- **Smart caching**: Reduces server load for repeated queries
 
-### Biocache Integration
-- Leverages existing `year` field in Solr index
-- Uses standard facet queries for temporal distribution
-- Compatible with existing WMS layer rendering
+### **Map Integration**
+- **Seamless filtering**: Uses existing biocache WMS infrastructure
+- **Instant updates**: Map refreshes automatically with new temporal filters
+- **Filter preservation**: Timeline filters work alongside other search criteria
+
+### **Performance Optimized**
+- **Lightweight queries**: Uses existing `year` and `month` fields in Solr
+- **Debounced updates**: Prevents excessive requests during user interaction
+- **Cached responses**: Common temporal queries cached for faster response
+
+## Browser Support
+
+- **Modern browsers**: Full functionality on Chrome, Firefox, Safari, Edge
+- **Mobile responsive**: Touch-friendly controls on tablets and phones
+- **Accessibility**: Keyboard navigation and screen reader support
 
 ## Configuration
 
-### Cache Settings
+The timeline feature is configured through `timeline-config.yml`:
+
 ```yaml
-grails:
-  cache:
-    enabled: true
-    caches:
-      temporalBoundsCache:
-        timeToLiveSeconds: 900  # 15 minutes
-      temporalDistributionCache:
-        timeToLiveSeconds: 900  # 15 minutes
-      temporalCountCache:
-        timeToLiveSeconds: 600  # 10 minutes
+timeline:
+  ui:
+    mode: 'simple'  # Clean, Figma-designed interface
+  defaults:
+    timelineType: 'month'  # Start with seasonal analysis
+  features:
+    enableSimpleMode: true
+    enableAdvancedMode: false  # Hide complex controls
 ```
 
-### Dependencies
-```gradle
-// Already included in existing NBN Atlas setup:
-compile "org.grails.plugins:cache:4.0.0"
-compile "org.grails.plugins:cache-ehcache:3.0.0"
-```
+## When Timeline Appears
 
-## Performance Considerations
+The timeline automatically appears when:
+- ✅ Search results contain temporal data (year or month fields)
+- ✅ Minimum 2 years of data available
+- ✅ Current search has sufficient occurrence records
 
-### **Caching Benefits**
-- Repeated temporal queries cached for 10-15 minutes
-- Reduces Solr query load during user interactions
-- Improves response times for common date ranges
+The timeline is hidden when:
+- ❌ No temporal data in search results
+- ❌ Insufficient data for meaningful temporal analysis
+- ❌ User explicitly closes the timeline panel
 
-### **Debouncing**
-- 300ms delay prevents excessive API calls during slider movement
-- Immediate updates only on final user actions
-- Balances responsiveness with performance
-
-### **Query Optimization**
-- Uses efficient Solr facet queries on indexed `year` field
-- Minimal additional load on existing biocache infrastructure
-- Leverages existing WMS caching mechanisms
-
-## Browser Compatibility
-
-- **Modern Browsers**: Full functionality with ES5+ support
-- **Mobile**: Responsive design with touch-friendly controls
-- **Accessibility**: Keyboard navigation and screen reader support
-
-## Testing
-
-### Unit Tests
-```bash
-./gradlew test --tests "*TimelineServiceSpec"
-```
-
-### Integration Testing
-1. Search for species with temporal data
-2. Verify timeline control appears
-3. Test slider interactions and playback
-4. Confirm map updates correctly
-5. Validate performance under load
-
-## Troubleshooting
-
-### Timeline Not Appearing
-- Check if search results contain `year` field data
-- Verify minimum 2 years of data available
-- Check browser console for JavaScript errors
-
-### Slow Performance
-- Monitor cache hit rates in logs
-- Check Solr query performance
-- Verify network latency to biocache services
-
-### Map Not Updating
-- Verify temporal filter parameters in network tab
-- Check WMS layer refresh functionality
-- Confirm JavaScript event handlers are attached
-
-## Future Enhancements
-
-### Potential Improvements
-- **Month-level granularity** for detailed temporal analysis
-- **Temporal heatmaps** showing intensity over time
-- **Seasonal patterns** visualization
-- **Species comparison** across multiple taxa
-- **Export functionality** for temporal data
-
-### Data Enhancements
-- Integration with `month` field for finer temporal resolution
-- Support for date ranges (e.g., breeding seasons)
-- Historical data quality indicators
-
-## Security Considerations
-
-- All temporal queries inherit existing search permissions
-- No additional authentication required
-- Cached data respects original query constraints
-- XSS protection through parameterized queries
 
 ---
 
-## Developer Notes
+## Summary
 
-### Adding New Temporal Granularities
-```groovy
-// In TimelineService.processTemporalData()
-case 'month':
-    // Implementation for monthly aggregation
-```
-
-### Customizing Cache TTL
-```yaml
-# Adjust based on data update frequency and server capacity
-temporalBoundsCache:
-  timeToLiveSeconds: 1800  # 30 minutes for slower-changing bounds
-```
-
-### Frontend Customization
-```javascript
-// Modify TIMELINE_VAR defaults for different behaviors
-TIMELINE_VAR.playbackSpeed = 500;  // Faster default playback
-```
+The NBN Atlas Timeline feature transforms complex temporal data into an intuitive, educational tool. By focusing on simplicity and clear user experience, it makes temporal analysis accessible to both expert researchers and curious nature enthusiasts. The dual-mode approach—seasonal patterns and temporal trends—provides comprehensive insights into species behavior and population changes over time.
