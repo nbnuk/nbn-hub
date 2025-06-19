@@ -132,11 +132,16 @@ class TimelineService {
     /**
      * Get temporal distribution data for timeline visualization
      * @param requestParams The search parameters
-     * @param granularity The temporal granularity ('year', '5year', 'decade')
+     * @param granularity The temporal granularity ('year', '5year', 'decade', 'month')
      * @return Map containing temporal distribution data
      */
     Map getTemporalDistribution(SpatialSearchRequestParams requestParams, String granularity = 'yearly') {
         try {
+            // Handle month-based timeline differently
+            if (granularity == 'month' || granularity == 'monthly') {
+                return getMonthlyDistribution(requestParams)
+            }
+
             def bounds = getTemporalBounds(requestParams)
             if (!bounds.minYear || !bounds.maxYear) {
                 return [distribution: [], bounds: bounds]
@@ -185,18 +190,122 @@ class TimelineService {
     }
 
     /**
-     * Get occurrence count for a specific temporal period
+     * Get monthly distribution data for seasonal pattern analysis
+     * Shows aggregated data for each month across ALL years
      * @param requestParams The search parameters
-     * @param startYear The start year
-     * @param endYear The end year
-     * @return Map containing count and query details
+     * @return Map containing monthly distribution data
      */
-    Map getTemporalOccurrenceCount(SpatialSearchRequestParams requestParams, Integer startYear, Integer endYear) {
+    Map getMonthlyDistribution(SpatialSearchRequestParams requestParams) {
         try {
             def tempParams = requestParams.clone()
 
-            // Add temporal filter
-            def temporalFilter = "year:[${startYear} TO ${endYear}]"
+            // Remove any existing year filters to get data across all years
+            if (tempParams.fq) {
+                def filteredFqs = []
+                def fqList = tempParams.fq instanceof String ? [tempParams.fq] : tempParams.fq
+                fqList.each { fq ->
+                    if (!fq.toString().toLowerCase().contains('year:') && !fq.toString().toLowerCase().contains('month:')) {
+                        filteredFqs.add(fq)
+                    }
+                }
+                if (filteredFqs) {
+                    tempParams.fq = filteredFqs.size() == 1 ? filteredFqs[0] : filteredFqs
+                } else {
+                    tempParams.fq = null
+                }
+            }
+
+            tempParams.facet = true
+            tempParams.facets = ['month'] // Facet by month field
+            tempParams.flimit = 12  // Only 12 months
+            tempParams.pageSize = 0
+
+            log.debug("Monthly distribution query: q=${tempParams.q}, fq=${tempParams.fq}")
+            def result = webServicesService.fullTextSearch(tempParams)
+
+            if (result?.facetResults?.month) {
+                def monthData = result.facetResults.month.findAll {
+                    it.key && it.key.isNumber() && it.count > 0
+                }.collectEntries {
+                    [(it.key as Integer): it.count as Long]
+                }
+
+                def distribution = processMonthlyData(monthData)
+
+                return [
+                    distribution: distribution,
+                    granularity: 'month',
+                    totalRecords: distribution.sum { it.count ?: 0 },
+                    type: 'seasonal'  // Indicates this is seasonal aggregation, not chronological
+                ]
+            }
+
+            return [
+                distribution: [],
+                granularity: 'month',
+                totalRecords: 0,
+                type: 'seasonal'
+            ]
+
+        } catch (Exception e) {
+            log.error("Error fetching monthly distribution", e)
+            return [
+                distribution: [],
+                granularity: 'month',
+                error: e.message,
+                type: 'seasonal'
+            ]
+        }
+    }
+
+    /**
+     * Process monthly data for seasonal pattern display
+     * @param monthData Map of month -> count
+     * @return Processed monthly data with month names
+     */
+    private List processMonthlyData(Map<Integer, Long> monthData) {
+        def monthNames = [
+            1: 'January', 2: 'February', 3: 'March', 4: 'April',
+            5: 'May', 6: 'June', 7: 'July', 8: 'August',
+            9: 'September', 10: 'October', 11: 'November', 12: 'December'
+        ]
+
+        def distribution = []
+        (1..12).each { month ->
+            distribution << [
+                period: monthNames[month],
+                month: month,
+                count: monthData[month] ?: 0,
+                type: 'month'
+            ]
+        }
+
+        return distribution
+    }
+
+    /**
+     * Get occurrence count for a specific temporal period
+     * Supports both year-based and month-based filtering
+     * @param requestParams The search parameters
+     * @param startPeriod The start period (year or month)
+     * @param endPeriod The end period (year or month)
+     * @param timelineType The type of timeline ('year' or 'month')
+     * @return Map containing count and query details
+     */
+    Map getTemporalOccurrenceCount(SpatialSearchRequestParams requestParams, Integer startPeriod, Integer endPeriod, String timelineType = 'year') {
+        try {
+            def tempParams = requestParams.clone()
+
+            // Add temporal filter based on timeline type
+            def temporalFilter
+            if (timelineType == 'month') {
+                // Month-based filter: month:[1 TO 1] for January, etc.
+                temporalFilter = "month:[${startPeriod} TO ${endPeriod}]"
+            } else {
+                // Year-based filter: year:[1990 TO 2000]
+                temporalFilter = "year:[${startPeriod} TO ${endPeriod}]"
+            }
+
             if (tempParams.fq) {
                 tempParams.fq = tempParams.fq + "&${temporalFilter}"
             } else {
@@ -210,20 +319,34 @@ class TimelineService {
 
             return [
                 count: result?.totalRecords ?: 0,
-                startYear: startYear,
-                endYear: endYear,
+                startPeriod: startPeriod,
+                endPeriod: endPeriod,
+                timelineType: timelineType,
                 filter: temporalFilter
             ]
 
         } catch (Exception e) {
-            log.error("Error fetching temporal occurrence count for ${startYear}-${endYear}", e)
+            log.error("Error fetching temporal occurrence count for ${timelineType} ${startPeriod}-${endPeriod}", e)
             return [
                 count: 0,
-                startYear: startYear,
-                endYear: endYear,
+                startPeriod: startPeriod,
+                endPeriod: endPeriod,
+                timelineType: timelineType,
                 error: e.message
             ]
         }
+    }
+
+
+
+    /**
+     * Get month-based occurrence count for seasonal analysis
+     * @param requestParams The search parameters
+     * @param month The month (1-12)
+     * @return Map containing count and query details
+     */
+    Map getMonthOccurrenceCount(SpatialSearchRequestParams requestParams, Integer month) {
+        return getTemporalOccurrenceCount(requestParams, month, month, 'month')
     }
 
     /**

@@ -7,6 +7,7 @@ import grails.converters.JSON
 class OccurrenceController extends au.org.ala.biocache.hubs.OccurrenceController{
 
     def timelineService
+    def timelineConfigService
 
     @Override
     def list(SpatialSearchRequestParams requestParams) {
@@ -94,6 +95,11 @@ class OccurrenceController extends au.org.ala.biocache.hubs.OccurrenceController
                 totalRecords: distribution.totalRecords ?: 0
             ]
 
+            // Add seasonal type indicator for month-based timelines
+            if (distribution.type) {
+                response.type = distribution.type
+            }
+
             if (distribution.error) {
                 response.error = distribution.error
             }
@@ -110,30 +116,60 @@ class OccurrenceController extends au.org.ala.biocache.hubs.OccurrenceController
     }
 
     /**
+     * AJAX endpoint to get timeline configuration
+     */
+    def timelineConfig() {
+        try {
+            def config = timelineConfigService.getConfigAsJson()
+            render(contentType: 'application/json', text: config)
+        } catch (Exception e) {
+            log.error("Error getting timeline configuration: ${e.message}", e)
+            def response = [
+                success: false,
+                error: e.message
+            ]
+            render(contentType: 'application/json', text: response as grails.converters.JSON)
+        }
+    }
+
+    /**
      * AJAX endpoint to get occurrence count for specific temporal period
+     * Supports both year-based and month-based queries
      */
     def timelineCount(SpatialSearchRequestParams requestParams) {
         try {
-            def startYear = params.startYear ? Integer.parseInt(params.startYear) : null
-            def endYear = params.endYear ? Integer.parseInt(params.endYear) : null
+            def timelineType = params.timelineType ?: 'year'
+            def startPeriod = params.startPeriod ? Integer.parseInt(params.startPeriod) : null
+            def endPeriod = params.endPeriod ? Integer.parseInt(params.endPeriod) : null
 
-            if (!startYear || !endYear) {
+            // Legacy support for year-based queries
+            if (!startPeriod && params.startYear) {
+                startPeriod = Integer.parseInt(params.startYear)
+                timelineType = 'year'
+            }
+            if (!endPeriod && params.endYear) {
+                endPeriod = Integer.parseInt(params.endYear)
+                timelineType = 'year'
+            }
+
+            if (!startPeriod || !endPeriod) {
                 def response = [
                     success: false,
-                    error: "startYear and endYear parameters are required"
+                    error: "startPeriod and endPeriod parameters are required"
                 ]
                 render(contentType: 'application/json', text: response as grails.converters.JSON)
                 return
             }
 
-            def result = timelineService.getTemporalOccurrenceCount(requestParams, startYear, endYear)
+            def result = timelineService.getTemporalOccurrenceCount(requestParams, startPeriod, endPeriod, timelineType)
 
             def response = [
                 success: (result.count != null),
-                startYear: result.startYear,
-                endYear: result.endYear,
+                startPeriod: result.startPeriod,
+                endPeriod: result.endPeriod,
+                timelineType: result.timelineType,
                 count: result.count ?: 0,
-                period: "${result.startYear}-${result.endYear}"
+                period: timelineType == 'month' ? getMonthName(result.startPeriod) : "${result.startPeriod}-${result.endPeriod}"
             ]
 
             if (result.error) {
@@ -149,5 +185,59 @@ class OccurrenceController extends au.org.ala.biocache.hubs.OccurrenceController
             ]
             render(contentType: 'application/json', text: response as grails.converters.JSON)
         }
+    }
+
+    /**
+     * AJAX endpoint to get month-based occurrence count for seasonal analysis
+     */
+    def monthlyCount(SpatialSearchRequestParams requestParams) {
+        try {
+            def month = params.month ? Integer.parseInt(params.month) : null
+
+            if (!month || month < 1 || month > 12) {
+                def response = [
+                    success: false,
+                    error: "Valid month parameter (1-12) is required"
+                ]
+                render(contentType: 'application/json', text: response as grails.converters.JSON)
+                return
+            }
+
+            def result = timelineService.getMonthOccurrenceCount(requestParams, month)
+
+            def response = [
+                success: (result.count != null),
+                month: month,
+                monthName: getMonthName(month),
+                count: result.count ?: 0,
+                filter: result.filter,
+                type: 'seasonal'
+            ]
+
+            if (result.error) {
+                response.error = result.error
+            }
+
+            render(contentType: 'application/json', text: response as grails.converters.JSON)
+        } catch (Exception e) {
+            log.error("Error getting monthly count: ${e.message}", e)
+            def response = [
+                success: false,
+                error: e.message
+            ]
+            render(contentType: 'application/json', text: response as grails.converters.JSON)
+        }
+    }
+
+    /**
+     * Helper method to get month name from month number
+     */
+    private String getMonthName(Integer month) {
+        def monthNames = [
+            1: 'January', 2: 'February', 3: 'March', 4: 'April',
+            5: 'May', 6: 'June', 7: 'July', 8: 'August',
+            9: 'September', 10: 'October', 11: 'November', 12: 'December'
+        ]
+        return monthNames[month] ?: "Month ${month}"
     }
 }

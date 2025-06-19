@@ -27,88 +27,7 @@
     --%>
 </div>
 
-<!-- Timeline Control Panel -->
-<div id="timelineControl" class="timeline-container" style="display:none;">
-    <div class="timeline-header">
-        <h4><i class="fa fa-clock-o"></i> Timeline View</h4>
-        <button id="timelineToggle" class="btn btn-sm btn-default" title="Toggle timeline view">
-            <i class="fa fa-eye"></i> Show Timeline
-        </button>
-    </div>
-
-    <div class="timeline-content" id="timelineContent" style="display:none;">
-        <!-- Date Range Inputs -->
-        <div class="timeline-date-inputs">
-            <div class="input-group input-group-sm">
-                <span class="input-group-addon">From:</span>
-                <input type="number" class="form-control" id="startYear" min="1800" max="2024" placeholder="Start Year">
-                <span class="input-group-addon">To:</span>
-                <input type="number" class="form-control" id="endYear" min="1800" max="2024" placeholder="End Year">
-            </div>
-        </div>
-
-        <!-- Timeline Slider -->
-        <div class="timeline-slider-container">
-            <div id="timelineSlider" class="timeline-slider"></div>
-            <div class="timeline-labels">
-                <span class="timeline-min-label" id="timelineMinLabel">1800</span>
-                <span class="timeline-current-label" id="currentPeriod">Current: All Records</span>
-                <span class="timeline-max-label" id="timelineMaxLabel">2024</span>
-            </div>
-        </div>
-
-        <!-- Playback Controls -->
-        <div class="timeline-playback-controls">
-            <div class="btn-group btn-group-sm" role="group">
-                <button id="playBtn" class="btn btn-success" title="Start timeline playback">
-                    <i class="fa fa-play"></i> Play
-                </button>
-                <button id="pauseBtn" class="btn btn-warning" style="display:none;" title="Pause timeline playback">
-                    <i class="fa fa-pause"></i> Pause
-                </button>
-                <button id="resetBtn" class="btn btn-secondary" title="Reset timeline to show all data">
-                    <i class="fa fa-refresh"></i> Reset
-                </button>
-            </div>
-
-            <!-- Speed Control -->
-            <div class="timeline-speed-control">
-                <label class="control-label">Speed:</label>
-                <select id="playbackSpeed" class="form-control input-sm">
-                    <option value="2000">Slow</option>
-                    <option value="1000" selected>Normal</option>
-                    <option value="500">Fast</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Granularity Control -->
-        <div class="timeline-granularity-control">
-            <label class="control-label">Granularity:</label>
-            <div class="btn-group btn-group-sm" data-toggle="buttons">
-                <label class="btn btn-default active">
-                    <input type="radio" name="timelineGranularity" value="year" checked> Yearly
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="timelineGranularity" value="5year"> 5-Year
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="timelineGranularity" value="decade"> Decade
-                </label>
-            </div>
-        </div>
-
-        <!-- Timeline Status -->
-        <div class="timeline-status">
-            <div id="timelineLoading" class="alert alert-info" style="display:none;">
-                <i class="fa fa-spinner fa-spin"></i> Loading timeline data...
-            </div>
-            <div id="timelineError" class="alert alert-danger" style="display:none;">
-                <i class="fa fa-exclamation-triangle"></i> <span id="timelineErrorMessage"></span>
-            </div>
-        </div>
-    </div>
-</div>
+ <g:render template="timeline-simple"/>
 
 <div class="collapse" id="recordLayerControls">
     <table id="mapLayerControls">
@@ -286,24 +205,44 @@
         }
     });
 
-    var TimelineControl = L.Control.extend({
+    var SimpleTimelineControl = L.Control.extend({
         options: {
             position: 'topright',
             collapsed: false
         },
         onAdd: function (map) {
-            // create the control container with a particular class name
-            var container = L.DomUtil.create('div', 'leaflet-control-layers timeline-control-container');
+            console.log('DEBUG: SimpleTimelineControl onAdd called');
+            console.log('DEBUG: timelineSimpleControl element exists?', $('#timelineSimpleControl').length > 0);
+
+            // create the control container for simple timeline toggle button only
+            var container = L.DomUtil.create('div', 'leaflet-control-layers simple-timeline-control-container');
             var $container = $(container);
-            $container.attr("id", "timelineControlContainer");
+            $container.attr("id", "simpleTimelineControlContainer");
 
-                        // Move the timeline control to the map control container
-            $('#timelineControl').appendTo($container);
+            // Move only the toggle button to the map control container
+            var toggleElement = $('#timelineSimpleToggleContainer');
+            if (toggleElement.length > 0) {
+                toggleElement.appendTo($container);
+                toggleElement.show();
+                console.log('DEBUG: Simple timeline toggle button moved to map control and shown');
+            } else {
+                console.error('ERROR: timelineSimpleToggleContainer element not found!');
+            }
 
-            // Ensure it's visible
-            $('#timelineControl').show();
+            // Keep the dialog content separate - it will be positioned as an overlay
+            var dialogElement = $('#timelineSimpleControl');
+            if (dialogElement.length > 0) {
+                // Move dialog to map container but position it as overlay
+                dialogElement.appendTo($('#leafletMap'));
+                dialogElement.show();
+                // Ensure content starts hidden
+                $('#timelineSimpleContent').removeClass('show').hide();
+                console.log('DEBUG: Simple timeline dialog moved to map as overlay');
+            } else {
+                console.error('ERROR: timelineSimpleControl element not found!');
+            }
 
-            console.log('DEBUG: TimelineControl container created with timeline element');
+            console.log('DEBUG: SimpleTimelineControl container created');
 
             // Prevent map events from propagating
             var stop = L.DomEvent.stopPropagation;
@@ -392,7 +331,7 @@
 
         MAP_VAR.map.addControl(new RecordLayerControl());
         MAP_VAR.map.addControl(new ColourByControl());
-        MAP_VAR.map.addControl(new TimelineControl());
+        MAP_VAR.map.addControl(new SimpleTimelineControl());
 
         L.Util.requestAnimFrame(MAP_VAR.map.invalidateSize, MAP_VAR.map, !1, MAP_VAR.map._container);
         L.Browser.any3d = false; // FF bug prevents selects working properly
@@ -514,17 +453,6 @@
             $('.leaflet-draw-toolbar a').tooltip(opts);
             //$('.leaflet-draw-toolbar').first().attr('title',jQuery.i18n.prop('advancedsearch.js.choosetool')).tooltip({placement:'right'}).tooltip('show');
 
-            // DEBUG: Force show timeline control for testing - BEFORE initialization
-            console.log('DEBUG: Timeline control element exists?', $('#timelineControl').length > 0);
-            console.log('DEBUG: Timeline control container exists?', $('#timelineControlContainer').length > 0);
-
-            // Temporarily show timeline control regardless of data
-            $('#timelineControl').show();
-            $('#timelineControlContainer').show();
-            console.log('DEBUG: Timeline control forced to show for testing');
-
-            // Initialize timeline after map is ready
-            initializeTimeline();
         });
 
         // Hide help tooltip on first click event
@@ -1444,6 +1372,8 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
+        // Initialize timeline functionality
+        initializeTimeline();
 
         // restrict search to current map bounds/view
         $('#wktFromMapBounds').click(function(e) {
@@ -1516,19 +1446,10 @@
         document.location.href = downloadUrlNew;
     }
 
-    // Timeline Functions
+    // Initialize timeline functionality
     function initializeTimeline() {
-        console.log('=== Initializing timeline ===');
-        console.log('MAP_VAR.query:', MAP_VAR.query);
-        console.log('MAP_VAR.additionalFqs:', MAP_VAR.additionalFqs);
-
         // Store original additional FQs
         TIMELINE_VAR.originalAdditionalFqs = MAP_VAR.additionalFqs;
-
-        // DEBUG: Keep timeline visible during testing
-        $('#timelineControl').show();
-        $('#timelineControlContainer').show();
-        console.log('DEBUG: Timeline forced visible during initialization');
 
         // Always set up basic event handlers
         setupTimelineEventHandlers();
@@ -1540,24 +1461,14 @@
                 TIMELINE_VAR.hasTemporalData = true;
                 TIMELINE_VAR.bounds = bounds;
                 setupTimelineUI();
-                $('#timelineControl').show();
-                $('#timelineControlContainer').show();
                 console.log('Timeline initialized with bounds:', bounds);
                 console.log('Timeline control should now be visible');
             } else {
                 console.log('No temporal data available for timeline - bounds:', bounds);
-                // DEBUG: Keep visible for testing even without data
-                $('#timelineControl').show();
-                $('#timelineControlContainer').show();
-                console.log('DEBUG: Timeline kept visible despite no temporal data');
             }
         }).catch(function(error) {
             console.error('Error initializing timeline:', error);
             console.error('Error details:', error.responseText);
-            // DEBUG: Keep visible for testing even on error
-            $('#timelineControl').show();
-            $('#timelineControlContainer').show();
-            console.log('DEBUG: Timeline kept visible despite error');
         });
     }
 

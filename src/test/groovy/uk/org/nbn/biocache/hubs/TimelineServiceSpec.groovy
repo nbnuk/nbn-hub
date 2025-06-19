@@ -217,4 +217,139 @@ class TimelineServiceSpec extends Specification implements ServiceUnitTest<Timel
         result['1995-1999'] == 170  // 1995 + 1997
         result['2000-2004'] == 350  // 2000 + 2003
     }
+
+    void "test getMonthlyDistribution returns seasonal data for all months"() {
+        given: "A search request for monthly distribution"
+        service.webServicesService = webServicesService
+        def requestParams = new SpatialSearchRequestParams()
+        requestParams.q = "lsid:NHMSYS0000503827"
+
+        def mockResponse = [
+            facetResults: [
+                month: [
+                    [key: '1', count: 150], // January
+                    [key: '3', count: 200], // March
+                    [key: '6', count: 300], // June
+                    [key: '12', count: 100] // December
+                ]
+            ]
+        ]
+
+        when: "Getting monthly distribution"
+        webServicesService.fullTextSearch(_) >> mockResponse
+        def result = service.getMonthlyDistribution(requestParams)
+
+        then: "Returns seasonal distribution for all 12 months"
+        result.distribution.size() == 12
+        result.granularity == 'month'
+        result.type == 'seasonal'
+        result.distribution[0].period == 'January'
+        result.distribution[0].count == 150
+        result.distribution[2].period == 'March'
+        result.distribution[2].count == 200
+        result.distribution[5].period == 'June'
+        result.distribution[5].count == 300
+        result.distribution[11].period == 'December'
+        result.distribution[11].count == 100
+
+        // Months with no data should have count 0
+        result.distribution[1].period == 'February'
+        result.distribution[1].count == 0
+    }
+
+    void "test getTemporalOccurrenceCount supports month-based filtering"() {
+        given: "A search request for month-based occurrence count"
+        service.webServicesService = webServicesService
+        def requestParams = new SpatialSearchRequestParams()
+        requestParams.q = "lsid:NHMSYS0000503827"
+
+        def mockResponse = [totalRecords: 250]
+
+        when: "Getting occurrence count for January (month 1)"
+        webServicesService.fullTextSearch(_) >> mockResponse
+        def result = service.getTemporalOccurrenceCount(requestParams, 1, 1, 'month')
+
+        then: "Returns month-based count with correct filter"
+        result.count == 250
+        result.startPeriod == 1
+        result.endPeriod == 1
+        result.timelineType == 'month'
+        result.filter == 'month:[1 TO 1]'
+    }
+
+    void "test getMonthOccurrenceCount helper method"() {
+        given: "A search request for specific month"
+        service.webServicesService = webServicesService
+        def requestParams = new SpatialSearchRequestParams()
+        requestParams.q = "lsid:NHMSYS0000503827"
+
+        def mockResponse = [totalRecords: 175]
+
+        when: "Getting occurrence count for June (month 6)"
+        webServicesService.fullTextSearch(_) >> mockResponse
+        def result = service.getMonthOccurrenceCount(requestParams, 6)
+
+        then: "Returns month-specific count"
+        result.count == 175
+        result.startPeriod == 6
+        result.endPeriod == 6
+        result.timelineType == 'month'
+    }
+
+    void "test getTemporalDistribution with month granularity"() {
+        given: "A search request with month granularity"
+        service.webServicesService = webServicesService
+        def requestParams = new SpatialSearchRequestParams()
+        requestParams.q = "lsid:NHMSYS0000503827"
+
+        def mockResponse = [
+            facetResults: [
+                month: [
+                    [key: '4', count: 120], // April
+                    [key: '8', count: 180]  // August
+                ]
+            ]
+        ]
+
+        when: "Getting temporal distribution with month granularity"
+        webServicesService.fullTextSearch(_) >> mockResponse
+        def result = service.getTemporalDistribution(requestParams, 'month')
+
+        then: "Returns monthly distribution via getMonthlyDistribution"
+        result.distribution.size() == 12
+        result.granularity == 'month'
+        result.type == 'seasonal'
+        result.distribution[3].count == 120  // April (index 3)
+        result.distribution[7].count == 180  // August (index 7)
+    }
+
+    void "test monthly distribution filters out year and month filters"() {
+        given: "A search request with existing year and month filters"
+        service.webServicesService = webServicesService
+        def requestParams = new SpatialSearchRequestParams()
+        requestParams.q = "lsid:NHMSYS0000503827"
+        requestParams.fq = ['year:[1990 TO 2000]', 'month:[3 TO 6]', 'species:bird']
+
+        def mockResponse = [
+            facetResults: [
+                month: [
+                    [key: '7', count: 90]  // July
+                ]
+            ]
+        ]
+
+        when: "Getting monthly distribution"
+        webServicesService.fullTextSearch({ params ->
+            // Verify that year and month filters are removed but other filters remain
+            def fqList = params.fq instanceof String ? [params.fq] : params.fq
+            return !fqList.any { it.contains('year:') || it.contains('month:') } &&
+                   fqList.contains('species:bird')
+        }) >> mockResponse
+
+        def result = service.getMonthlyDistribution(requestParams)
+
+        then: "Filters out temporal filters but keeps other filters"
+        result.distribution.size() == 12
+        result.distribution[6].count == 90  // July (index 6)
+    }
 }
