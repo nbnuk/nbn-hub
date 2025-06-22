@@ -260,7 +260,7 @@ $(document).ready(function() {
 
             var status = $("input[name='occurrenceStatus']:checked").val();
             if (status === "All" || status === "Absent") {
-                $(this).append('<input type="hidden" name="disableQualityFilter" id="disableQualityFilter" value="Exlcude absence records">');
+                $(this).append('<input type="hidden" name="disableQualityFilter" id="disableQualityFilter" value="Exclude absence records">');
             }
 
             return true;
