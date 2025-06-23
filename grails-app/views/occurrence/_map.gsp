@@ -28,6 +28,7 @@
 </div>
 
  <g:render template="timeline-simple"/>
+ <g:render template="map-display-options"/>
 
 <div class="collapse" id="recordLayerControls">
     <table id="mapLayerControls">
@@ -255,6 +256,56 @@
         }
     });
 
+    var MapDisplayOptionsControl = L.Control.extend({
+        options: {
+            position: 'topright',
+            collapsed: false
+        },
+        onAdd: function (map) {
+            console.log('DEBUG: MapDisplayOptionsControl onAdd called');
+            console.log('DEBUG: mapDisplayControl element exists?', $('#mapDisplayControl').length > 0);
+
+            // create the control container for map display options toggle button only
+            var container = L.DomUtil.create('div', 'leaflet-control-layers map-display-control-container');
+            var $container = $(container);
+            $container.attr("id", "mapDisplayControlContainer");
+
+            // Move only the toggle button to the map control container
+            var toggleElement = $('#mapDisplayToggleContainer');
+            if (toggleElement.length > 0) {
+                toggleElement.appendTo($container);
+                toggleElement.show();
+                console.log('DEBUG: Map display toggle button moved to map control and shown');
+            } else {
+                console.error('ERROR: mapDisplayToggleContainer element not found!');
+            }
+
+            // Keep the dialog content separate - it will be positioned as an overlay
+            var dialogElement = $('#mapDisplayControl');
+            if (dialogElement.length > 0) {
+                // Move dialog to map container but position it as overlay
+                dialogElement.appendTo($('#leafletMap'));
+                dialogElement.show();
+                // Ensure content starts hidden
+                $('#mapDisplayContent').removeClass('show').hide();
+                console.log('DEBUG: Map display dialog moved to map as overlay');
+            } else {
+                console.error('ERROR: mapDisplayControl element not found!');
+            }
+
+            console.log('DEBUG: MapDisplayOptionsControl container created');
+
+            // Prevent map events from propagating
+            var stop = L.DomEvent.stopPropagation;
+            L.DomEvent
+                .on(container, 'click', stop)
+                .on(container, 'mousedown', stop)
+                .on(container, 'touchstart', stop);
+
+            return container;
+        }
+    });
+
     function initialiseMap(){
         //console.log("initialiseMap", MAP_VAR.map);
         if(MAP_VAR.map != null){
@@ -332,6 +383,7 @@
         MAP_VAR.map.addControl(new RecordLayerControl());
         MAP_VAR.map.addControl(new ColourByControl());
         MAP_VAR.map.addControl(new SimpleTimelineControl());
+        MAP_VAR.map.addControl(new MapDisplayOptionsControl());
 
         L.Util.requestAnimFrame(MAP_VAR.map.invalidateSize, MAP_VAR.map, !1, MAP_VAR.map._container);
         L.Browser.any3d = false; // FF bug prevents selects working properly
