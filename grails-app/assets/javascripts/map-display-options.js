@@ -117,6 +117,9 @@ var MapDisplayOptions = {
         this.state.isOpen = false;
 
         console.log('MapDisplayOptions: Panel closed');
+
+        // Emit event for button bar integration
+        $(document).trigger('mapDisplayDialogClosed');
     },
 
     /**

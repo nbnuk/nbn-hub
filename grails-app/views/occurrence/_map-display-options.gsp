@@ -32,16 +32,24 @@
                 <div class="form-group">
                     <label class="control-label map-display-section-label">Basemap style</label>
                     <div class="map-display-basemap-grid">
-                        <div class="map-display-basemap-option map-display-basemap-minimal active" data-basemap="Minimal">
+                        <div class="map-display-basemap-container">
+                            <div class="map-display-basemap-option map-display-basemap-minimal active basemap-btn" data-basemap="Minimal">
+                            </div>
                             <div class="map-display-basemap-label">Minimal</div>
                         </div>
-                        <div class="map-display-basemap-option map-display-basemap-road" data-basemap="Road">
+                        <div class="map-display-basemap-container">
+                            <div class="map-display-basemap-option map-display-basemap-road basemap-btn" data-basemap="Road">
+                            </div>
                             <div class="map-display-basemap-label">Road</div>
                         </div>
-                        <div class="map-display-basemap-option map-display-basemap-terrain" data-basemap="Terrain">
+                        <div class="map-display-basemap-container">
+                            <div class="map-display-basemap-option map-display-basemap-terrain basemap-btn" data-basemap="Terrain">
+                            </div>
                             <div class="map-display-basemap-label">Terrain</div>
                         </div>
-                        <div class="map-display-basemap-option map-display-basemap-satellite" data-basemap="Satellite">
+                        <div class="map-display-basemap-container">
+                            <div class="map-display-basemap-option map-display-basemap-satellite basemap-btn" data-basemap="Satellite">
+                            </div>
                             <div class="map-display-basemap-label">Satellite</div>
                         </div>
                     </div>
@@ -96,7 +104,7 @@
 
                 <!-- Apply Button Section -->
                 <div class="form-group" style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
-                    <button id="applyMapDisplayBtn" class="btn btn-default" style="background: white !important; border: 2px solid #000 !important; color: #000 !important; padding: 10px 30px; font-weight: 500; border-radius: 8px !important;">
+                    <button id="applyMapDisplayBtn" class="btn btn-primary" style="background: #007bff !important; border: none !important; color: white !important; padding: 12px 40px; font-weight: 500; border-radius: 8px !important; width: 100%;">
                         Apply
                     </button>
                 </div>

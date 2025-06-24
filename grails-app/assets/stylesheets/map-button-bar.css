@@ -1,0 +1,156 @@
+/* Map Button Bar CSS - Semi-transparent bar across top of map */
+
+/* Ensure map container has relative positioning */
+#leafletMap {
+    position: relative !important;
+}
+
+.map-button-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-family: Arial, sans-serif;
+    pointer-events: auto;
+}
+
+.map-button-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.map-button-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Button styling */
+.map-button-bar-btn {
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #333 !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    text-transform: none !important;
+    min-height: 34px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.map-button-bar-btn:hover,
+.map-button-bar-btn:focus {
+    background: rgba(255, 255, 255, 1) !important;
+    color: #333 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    text-decoration: none !important;
+}
+
+.map-button-bar-btn:active {
+    transform: translateY(0);
+}
+
+.map-button-bar-btn.active {
+    background: rgba(0, 0, 0, 0.9) !important;
+    color: white !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.map-button-bar-btn i {
+    font-size: 14px;
+}
+
+/* Icon buttons on the right */
+.map-button-bar-icon-btn {
+    background: transparent !important;
+    color: rgba(0, 0, 0, 0.7) !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 8px !important;
+    font-size: 16px !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    width: 34px;
+    height: 34px;
+}
+
+.map-button-bar-icon-btn:hover,
+.map-button-bar-icon-btn:focus {
+    background: rgba(0, 0, 0, 0.1) !important;
+    color: rgba(0, 0, 0, 0.9) !important;
+    text-decoration: none !important;
+}
+
+.map-button-bar-icon-btn:active {
+    background: rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Hide original timeline and map display toggle containers */
+#timelineSimpleToggleContainer,
+#mapDisplayToggleContainer {
+    display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .map-button-bar {
+        left: 0;
+        right: 0;
+        padding: 0 12px;
+        height: 45px;
+    }
+
+    .map-button-bar-btn {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+        min-height: 30px;
+    }
+
+    .map-button-bar-icon-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 14px !important;
+    }
+
+    .map-button-bar-left {
+        gap: 6px;
+    }
+
+    .map-button-bar-right {
+        gap: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .map-button-bar-btn span {
+        display: none;
+    }
+
+    .map-button-bar-btn {
+        padding: 8px !important;
+        min-width: 34px;
+        justify-content: center;
+    }
+}

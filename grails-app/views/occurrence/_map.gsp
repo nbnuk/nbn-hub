@@ -87,7 +87,9 @@
     </table>
 </div>
 
-<div id="leafletMap" class="col-md-12" style="height:600px;"></div>
+<div id="leafletMap" class="col-md-12" style="height:600px;">
+    <g:render template="map-button-bar"/>
+</div>
 
 <div id="template" style="display:none">
     <div class="colourbyTemplate">
@@ -320,7 +322,7 @@
             scrollWheelZoom: false,
             fullscreenControl: true,
             fullscreenControlOptions: {
-                position: 'topleft'
+                position: 'bottomleft'
             },
             worldCopyJump: true
         });
@@ -332,6 +334,7 @@
 
         // Initialise the draw control and pass it the FeatureGroup of editable layers
         MAP_VAR.drawControl = new L.Control.Draw({
+            position: 'bottomleft',
             edit: {
                 featureGroup: MAP_VAR.drawnItems
             },
@@ -375,13 +378,14 @@
 
         L.control.coordinates({position:"bottomright", useLatLngOrder: true}).addTo(MAP_VAR.map); // coordinate plugin
 
-        MAP_VAR.layerControl = L.control.layers(MAP_VAR.baseLayers, MAP_VAR.overlays, {collapsed:true, position:'topleft'});
+        MAP_VAR.layerControl = L.control.layers(MAP_VAR.baseLayers, MAP_VAR.overlays, {collapsed:true, position:'bottomleft'});
         MAP_VAR.layerControl.addTo(MAP_VAR.map);
 
         addQueryLayer(true);
 
-        MAP_VAR.map.addControl(new RecordLayerControl());
-        MAP_VAR.map.addControl(new ColourByControl());
+        // Map legend and layer controls temporarily disabled - code preserved for future replacement controls
+        // MAP_VAR.map.addControl(new RecordLayerControl());
+        // MAP_VAR.map.addControl(new ColourByControl());
         MAP_VAR.map.addControl(new SimpleTimelineControl());
         MAP_VAR.map.addControl(new MapDisplayOptionsControl());
 
