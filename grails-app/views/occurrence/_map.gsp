@@ -111,8 +111,6 @@
 
 <asset:script type="text/javascript">
 
-    //var mbAttr = 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, imagery &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
-	//var mbUrl = 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
     var defaultBaseLayer = L.tileLayer("${grailsApplication.config.map.minimal.url}", {
             attribution: "${raw(grailsApplication.config.map.minimal.attr)}",
             subdomains: "${grailsApplication.config.map.minimal.subdomains}",
@@ -383,9 +381,6 @@
 
         addQueryLayer(true);
 
-        // Map legend and layer controls temporarily disabled - code preserved for future replacement controls
-        // MAP_VAR.map.addControl(new RecordLayerControl());
-        // MAP_VAR.map.addControl(new ColourByControl());
         MAP_VAR.map.addControl(new SimpleTimelineControl());
         MAP_VAR.map.addControl(new MapDisplayOptionsControl());
 
@@ -414,35 +409,7 @@
             return false;
         });
 
-        $( "#sizeslider" ).slider({
-            min:1,
-            max:6,
-            value: Number($('#sizeslider-val').text()),
-            tooltip: 'hide'
-        }).on('slideStop', function(ev){
-            $('#sizeslider-val').html(ev.value);
-            addQueryLayer(true);
-        });
 
-        $( "#opacityslider" ).slider({
-            min: 0.1,
-            max: 1.0,
-            step: 0.1,
-            value: Number($('#opacityslider-val').text()),
-            tooltip: 'hide'
-        }).on('slideStop', function(ev){
-            var value = parseFloat(ev.value).toFixed(1); // prevent values like 0.30000000004 appearing
-            $('#opacityslider-val').html(value);
-            if (MAP_VAR.currentLayers.length == 1) {
-                MAP_VAR.currentLayers[0].setOpacity(value);
-            } else {
-                addQueryLayer(true);
-            }
-        });
-
-        $('#outlineDots').click(function(e) {
-            addQueryLayer(true);
-        });
 
         fitMapToBounds(); // zoom map if points are contained within Australia
         //drawCircleRadius(); // draw circle around lat/lon/radius searches
