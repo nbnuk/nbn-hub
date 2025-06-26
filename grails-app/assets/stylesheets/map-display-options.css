@@ -1,0 +1,535 @@
+/* Map Display Options CSS - Matching Timeline Simple Design */
+
+/* Map Control Container - For Toggle Button */
+.leaflet-control-map-display {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* Map Display Dialog Overlay */
+.map-display-container {
+    position: fixed;
+    top: 20px;
+    right: 10px;
+    z-index: 1000;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: none;
+    width: 400px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    display: none !important;
+}
+
+/* Only show when content is visible */
+.map-display-container.show {
+    display: block !important;
+}
+
+/* Dialog backdrop when open */
+.map-display-container.show::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Toggle Button Container */
+.map-display-toggle-container {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* Map Display Container */
+.map-display-container {
+    position: relative;
+    z-index: 1000;
+}
+
+/* Map Control Integration - For Toggle Button Only */
+.map-display-control-container {
+    max-width: 200px !important;
+}
+
+.map-display-control-container .leaflet-control-layers {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* Ensure toggle button is visible in map control */
+.map-display-control-container .map-display-toggle-container {
+    display: block !important;
+}
+
+/* Black Toggle Button - Matching Timeline Design */
+.map-display-black-toggle-btn {
+    background: #000 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    text-transform: none !important;
+}
+
+.map-display-black-toggle-btn:hover,
+.map-display-black-toggle-btn:focus {
+    background: #333 !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+    text-decoration: none !important;
+}
+
+.map-display-black-toggle-btn:active {
+    background: #000 !important;
+    transform: translateY(0);
+}
+
+.map-display-black-toggle-btn.active {
+    background: #000 !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.map-display-black-toggle-btn i {
+    font-size: 16px;
+}
+
+/* Bootstrap Panel Override for Figma Design */
+.map-display-panel {
+    border-radius: 12px !important;
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+    margin-top: 0;
+    margin-bottom: 0 !important;
+    overflow: visible;
+    height: 100%;
+}
+
+/* Remove any default Bootstrap panel borders */
+.map-display-panel .panel-body {
+    border: none !important;
+    border-bottom: none !important;
+    padding: 20px !important;
+    padding-bottom: 50px !important;
+}
+
+.map-display-panel .panel-footer {
+    border: none !important;
+    border-top: none !important;
+    background: transparent !important;
+}
+
+/* Figma Header Styling */
+.map-display-figma-header {
+    background: white !important;
+    border: none !important;
+    border-bottom: 1px solid #000 !important;
+    border-radius: 12px 12px 0 0 !important;
+    padding: 16px 20px !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.map-display-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.map-display-menu-icon {
+    font-size: 16px;
+    color: #666;
+}
+
+.map-display-figma-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #1a1a1a !important;
+    margin: 0 !important;
+    line-height: 1.2;
+}
+
+.map-display-header-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+
+
+/* Close Button - More Prominent */
+.map-display-close-btn {
+    padding: 6px 8px !important;
+    color: #666 !important;
+    border: none !important;
+    background: transparent !important;
+    font-size: 16px !important;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.map-display-close-btn:hover,
+.map-display-close-btn:focus {
+    color: #333 !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+    text-decoration: none !important;
+}
+
+.map-display-close-btn:active {
+    color: #000 !important;
+}
+
+.map-display-close-btn i {
+    font-size: 16px;
+}
+
+/* Panel Body Styling */
+.map-display-panel .panel-body {
+    padding: 20px 20px 30px 20px !important;
+    background: white !important;
+    border-radius: 0 0 12px 12px !important;
+    overflow: hidden;
+}
+
+/* Section Labels */
+.map-display-section-label {
+    font-size: 14px !important;
+    font-weight: normal !important;
+    color: #1a1a1a !important;
+    margin: 0 0 12px 0 !important;
+    line-height: 1.2;
+}
+
+/* Basemap Style Options */
+.map-display-basemap-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.map-display-basemap-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.map-display-basemap-option {
+    width: 100%;
+    height: 60px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+}
+
+.map-display-basemap-option.active {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.map-display-basemap-option:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.map-display-basemap-label {
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+}
+
+/* Basemap Style Classes */
+.map-display-basemap-minimal {
+    background-image: url('minimal.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.map-display-basemap-road {
+    background-image: url('road.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.map-display-basemap-terrain {
+    background-image: url('terrian.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.map-display-basemap-satellite {
+    background-image: url('satellite.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Dropdown Styling */
+.map-display-dropdown {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    margin-bottom: 20px;
+    transition: border-color 0.2s ease;
+    position: relative;
+    z-index: 1001;
+    height: auto;
+    min-height: 44px;
+    line-height: 1.4;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 40px;
+}
+
+.map-display-dropdown:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Horizontal Controls Layout - Size and Opacity side by side */
+.map-display-controls-horizontal-container {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+.map-display-control-column {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Responsive layout for smaller screens */
+@media (max-width: 450px) {
+    .map-display-controls-horizontal-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+/* Button Control Styling - Replacing Slider Styling */
+.map-display-button-control-container {
+    margin-bottom: 20px;
+}
+
+.map-display-button-control-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    padding: 4px;
+    transition: border-color 0.2s ease;
+}
+
+.map-display-button-control-row:hover {
+    border-color: #007bff;
+}
+
+.map-display-decrement-btn,
+.map-display-increment-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.map-display-decrement-btn:hover,
+.map-display-increment-btn:hover {
+    background: #f8f9fa;
+    color: #007bff;
+}
+
+.map-display-decrement-btn:focus,
+.map-display-increment-btn:focus {
+    outline: none;
+    background: #f8f9fa;
+    color: #007bff;
+}
+
+.map-display-decrement-btn:active,
+.map-display-increment-btn:active {
+    background: #e9ecef;
+    transform: translateY(1px);
+}
+
+.map-display-value-display {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    min-width: 50px;
+    text-align: center;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+}
+
+/* Legacy Slider Styling - Keep for backward compatibility but hide */
+.map-display-slider-container {
+    margin-bottom: 20px;
+    display: none !important; /* Hide old slider implementation */
+}
+
+.map-display-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.map-display-slider {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: #ddd;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.map-display-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.map-display-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.map-display-slider-label {
+    font-size: 12px;
+    color: #666;
+    min-width: 40px;
+    text-align: center;
+}
+
+/* Checkbox Styling */
+.map-display-checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    padding: 14px 16px;
+    transition: border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.map-display-checkbox-container:hover {
+    border-color: #007bff;
+}
+
+.map-display-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #007bff;
+    cursor: pointer;
+    margin: 0;
+    vertical-align: middle;
+}
+
+.map-display-checkbox-label {
+    font-size: 14px;
+    font-weight: normal !important;
+    color: #1a1a1a;
+    cursor: pointer;
+    flex: 1;
+    line-height: 18px;
+    margin: 0;
+}
+
+/* Ensure FontAwesome icons in content area are not affected */
+.map-display-content .fa,
+.map-display-content [class*="fa-"] {
+    font-family: FontAwesome !important;
+}
+
+.map-display-content.show {
+    display: block !important;
+}
+
+#mapDisplayContent {
+    display: none !important;
+}
+
+.map-display-container #mapDisplayContent {
+    display: none !important;
+}
+
+.map-display-container #mapDisplayContent.show {
+    display: block !important;
+}
+
+#mapDisplayControl {
+    display: none;
+}
+
+#mapDisplayControl.show {
+    display: block !important;
+}
+
+/* Override any conflicting styles */
+.map-display-header {
+    background: white !important;
+    border-bottom: 1px solid #000 !important;
+}

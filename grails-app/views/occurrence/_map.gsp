@@ -28,6 +28,7 @@
 </div>
 
  <g:render template="timeline-simple"/>
+ <g:render template="map-display-options"/>
 
 <div class="collapse" id="recordLayerControls">
     <table id="mapLayerControls">
@@ -86,7 +87,9 @@
     </table>
 </div>
 
-<div id="leafletMap" class="col-md-12" style="height:600px;"></div>
+<div id="leafletMap" class="col-md-12" style="height:600px;">
+    <g:render template="map-button-bar"/>
+</div>
 
 <div id="template" style="display:none">
     <div class="colourbyTemplate">
@@ -108,8 +111,6 @@
 
 <asset:script type="text/javascript">
 
-    //var mbAttr = 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, imagery &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
-	//var mbUrl = 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
     var defaultBaseLayer = L.tileLayer("${grailsApplication.config.map.minimal.url}", {
             attribution: "${raw(grailsApplication.config.map.minimal.attr)}",
             subdomains: "${grailsApplication.config.map.minimal.subdomains}",
@@ -255,6 +256,56 @@
         }
     });
 
+    var MapDisplayOptionsControl = L.Control.extend({
+        options: {
+            position: 'topright',
+            collapsed: false
+        },
+        onAdd: function (map) {
+            console.log('DEBUG: MapDisplayOptionsControl onAdd called');
+            console.log('DEBUG: mapDisplayControl element exists?', $('#mapDisplayControl').length > 0);
+
+            // create the control container for map display options toggle button only
+            var container = L.DomUtil.create('div', 'leaflet-control-layers map-display-control-container');
+            var $container = $(container);
+            $container.attr("id", "mapDisplayControlContainer");
+
+            // Move only the toggle button to the map control container
+            var toggleElement = $('#mapDisplayToggleContainer');
+            if (toggleElement.length > 0) {
+                toggleElement.appendTo($container);
+                toggleElement.show();
+                console.log('DEBUG: Map display toggle button moved to map control and shown');
+            } else {
+                console.error('ERROR: mapDisplayToggleContainer element not found!');
+            }
+
+            // Keep the dialog content separate - it will be positioned as an overlay
+            var dialogElement = $('#mapDisplayControl');
+            if (dialogElement.length > 0) {
+                // Move dialog to map container but position it as overlay
+                dialogElement.appendTo($('#leafletMap'));
+                dialogElement.show();
+                // Ensure content starts hidden
+                $('#mapDisplayContent').removeClass('show').hide();
+                console.log('DEBUG: Map display dialog moved to map as overlay');
+            } else {
+                console.error('ERROR: mapDisplayControl element not found!');
+            }
+
+            console.log('DEBUG: MapDisplayOptionsControl container created');
+
+            // Prevent map events from propagating
+            var stop = L.DomEvent.stopPropagation;
+            L.DomEvent
+                .on(container, 'click', stop)
+                .on(container, 'mousedown', stop)
+                .on(container, 'touchstart', stop);
+
+            return container;
+        }
+    });
+
     function initialiseMap(){
         //console.log("initialiseMap", MAP_VAR.map);
         if(MAP_VAR.map != null){
@@ -269,7 +320,7 @@
             scrollWheelZoom: false,
             fullscreenControl: true,
             fullscreenControlOptions: {
-                position: 'topleft'
+                position: 'bottomleft'
             },
             worldCopyJump: true
         });
@@ -281,6 +332,7 @@
 
         // Initialise the draw control and pass it the FeatureGroup of editable layers
         MAP_VAR.drawControl = new L.Control.Draw({
+            position: 'bottomleft',
             edit: {
                 featureGroup: MAP_VAR.drawnItems
             },
@@ -324,14 +376,13 @@
 
         L.control.coordinates({position:"bottomright", useLatLngOrder: true}).addTo(MAP_VAR.map); // coordinate plugin
 
-        MAP_VAR.layerControl = L.control.layers(MAP_VAR.baseLayers, MAP_VAR.overlays, {collapsed:true, position:'topleft'});
+        MAP_VAR.layerControl = L.control.layers(MAP_VAR.baseLayers, MAP_VAR.overlays, {collapsed:true, position:'bottomleft'});
         MAP_VAR.layerControl.addTo(MAP_VAR.map);
 
         addQueryLayer(true);
 
-        MAP_VAR.map.addControl(new RecordLayerControl());
-        MAP_VAR.map.addControl(new ColourByControl());
         MAP_VAR.map.addControl(new SimpleTimelineControl());
+        MAP_VAR.map.addControl(new MapDisplayOptionsControl());
 
         L.Util.requestAnimFrame(MAP_VAR.map.invalidateSize, MAP_VAR.map, !1, MAP_VAR.map._container);
         L.Browser.any3d = false; // FF bug prevents selects working properly
@@ -358,35 +409,7 @@
             return false;
         });
 
-        $( "#sizeslider" ).slider({
-            min:1,
-            max:6,
-            value: Number($('#sizeslider-val').text()),
-            tooltip: 'hide'
-        }).on('slideStop', function(ev){
-            $('#sizeslider-val').html(ev.value);
-            addQueryLayer(true);
-        });
 
-        $( "#opacityslider" ).slider({
-            min: 0.1,
-            max: 1.0,
-            step: 0.1,
-            value: Number($('#opacityslider-val').text()),
-            tooltip: 'hide'
-        }).on('slideStop', function(ev){
-            var value = parseFloat(ev.value).toFixed(1); // prevent values like 0.30000000004 appearing
-            $('#opacityslider-val').html(value);
-            if (MAP_VAR.currentLayers.length == 1) {
-                MAP_VAR.currentLayers[0].setOpacity(value);
-            } else {
-                addQueryLayer(true);
-            }
-        });
-
-        $('#outlineDots').click(function(e) {
-            addQueryLayer(true);
-        });
 
         fitMapToBounds(); // zoom map if points are contained within Australia
         //drawCircleRadius(); // draw circle around lat/lon/radius searches

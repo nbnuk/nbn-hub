@@ -642,6 +642,25 @@ var TimelineSimple = {
         container.removeClass('show');
         toggle.removeClass('active');
         console.log('Timeline closed');
+
+        // Emit event for button bar integration
+        $(document).trigger('timelineDialogClosed');
+    },
+
+    /**
+     * Open the timeline panel
+     */
+    openPanel: function() {
+        var content = $('#timelineSimpleContent');
+        var container = $('#timelineSimpleControl');
+        var toggle = $('#timelineSimpleToggle');
+
+        content.addClass('show').slideDown(200, function() {
+            TimelineSimple.attachCloseButtonHandler();
+        });
+        container.addClass('show');
+        toggle.addClass('active');
+        console.log('Timeline opened');
     },
 
     /**
