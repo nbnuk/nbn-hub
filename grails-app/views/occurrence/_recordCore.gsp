@@ -1363,9 +1363,8 @@
 <!-- Habitat -->
 <alatag:occurrenceTableRow annotate="true" section="geospatial" fieldCode="habitat" fieldName="Habitat">
     ${fieldsMap.put("habitat", true)}
-    ${record.processed.location.habitat}
-    <g:if test="${record.raw.location.habitat && record.raw.location.habitat != record.processed.location.habitat}">
-        <br/><span class="originalValue"><g:message code="recordcore.span03" default="Supplied as"/> "${record.raw.location.habitat}"</span>
+    <g:if test="${record.raw.location.habitat}">
+        ${record.raw.location.habitat}
     </g:if>
 </alatag:occurrenceTableRow>
 <!-- Latitude -->
