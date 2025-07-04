@@ -1547,6 +1547,77 @@
 </table>
 </div>
 </g:if>
+
+<g:if test="${record.raw.dnaDerivedData}">
+    <div id="dnaDerivedData">
+        <h3><g:message code="recordcore.dnaderiveddata.title" default="Dna derived data"/></h3>
+        <table class="occurrenceTable table table-bordered table-striped table-condensed" id="dnaDerivedDataTable">
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="env_broad_scale" fieldName="env_broad_scale">
+                ${fieldsMap.put("env_broad_scale", true)}
+                ${record.raw.dnaDerivedData.env_broad_scale}
+            </alatag:occurrenceTableRow>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="env_local_scale" fieldName="env_local_scale">
+                ${fieldsMap.put("env_local_scale", true)}
+                ${record.raw.dnaDerivedData.env_local_scale}
+            </alatag:occurrenceTableRow>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="env_medium" fieldName="env_medium">
+                ${fieldsMap.put("env_medium", true)}
+                ${record.raw.dnaDerivedData.env_medium}
+            </alatag:occurrenceTableRow>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="target_gene" fieldName="target_gene">
+                ${fieldsMap.put("target_gene", true)}
+                ${record.raw.dnaDerivedData.target_gene}
+            </alatag:occurrenceTableRow>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="target_subfragment" fieldName="target_subfragment">
+                ${fieldsMap.put("target_subfragment", true)}
+                ${record.raw.dnaDerivedData.target_subfragment}
+            </alatag:occurrenceTableRow>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="otu_class_appr" fieldName="otu_class_appr">
+                ${fieldsMap.put("otu_class_appr", true)}
+                ${record.raw.dnaDerivedData.otu_class_appr}
+            </alatag:occurrenceTableRow>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="otu_seq_comp_appr" fieldName="otu_seq_comp_appr">
+                ${fieldsMap.put("otu_seq_comp_appr", true)}
+                ${record.raw.dnaDerivedData.otu_seq_comp_appr}
+            </alatag:occurrenceTableRow>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="otu_db" fieldName="otu_db">
+                ${fieldsMap.put("otu_db", true)}
+                ${record.raw.dnaDerivedData.otu_db}
+            </alatag:occurrenceTableRow>
+            <g:if test="${record.raw.dnaDerivedData.dna_sequence}">
+                <tr id="dna_sequence">
+                    <td class="dwcLabel dna_sequence"><g:message code="dna_sequence" default="DNA sequence" /></td>
+                    <td class="value">
+                        <div style="overflow:auto; width:600px">
+                            ${record.raw.dnaDerivedData.dna_sequence}
+                        </div>
+                    </td>
+                </tr>
+            </g:if>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="pcr_primer_forward" fieldName="pcr_primer_forward">
+                ${fieldsMap.put("pcr_primer_forward", true)}
+                ${record.raw.dnaDerivedData.pcr_primer_forward}
+            </alatag:occurrenceTableRow>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="pcr_primer_reverse" fieldName="pcr_primer_reverse">
+                ${fieldsMap.put("pcr_primer_reverse", true)}
+                ${record.raw.dnaDerivedData.pcr_primer_reverse}
+            </alatag:occurrenceTableRow>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="pcr_primer_name_forward" fieldName="pcr_primer_name_forward">
+                ${fieldsMap.put("pcr_primer_name_forward", true)}
+                ${record.raw.dnaDerivedData.pcr_primer_name_forward}
+            </alatag:occurrenceTableRow>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="pcr_primer_name_reverse" fieldName="pcr_primer_name_reverse">
+                ${fieldsMap.put("pcr_primer_name_reverse", true)}
+                ${record.raw.dnaDerivedData.pcr_primer_name_reverse}
+            </alatag:occurrenceTableRow>
+            <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="pcr_primer_reference" fieldName="pcr_primer_reference">
+                ${fieldsMap.put("pcr_primer_reference", true)}
+                ${record.raw.dnaDerivedData.pcr_primer_reference}
+            </alatag:occurrenceTableRow>
+        </table>
+    </div>
+</g:if>
+
 <g:if test="${record.raw.miscProperties}">
     <div id="additionalProperties">
         <h3><g:message code="recordcore.div.addtionalproperties.title" default="Additional properties"/></h3>
