@@ -1,6 +1,7 @@
 language: groovy
 jdk:
 - openjdk8
+dist: xenial
 sudo: false
 branches:
   only:
