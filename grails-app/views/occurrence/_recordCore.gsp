@@ -1550,7 +1550,7 @@
 
 <g:if test="${record.raw.dnaDerivedData}">
     <div id="dnaDerivedData">
-        <h3><g:message code="recordcore.dnaderiveddata.title" default="Dna derived data"/></h3>
+        <h3><g:message code="recordcore.dnaderiveddata.title" default="DNA derived data"/></h3>
         <table class="occurrenceTable table table-bordered table-striped table-condensed" id="dnaDerivedDataTable">
             <alatag:occurrenceTableRow annotate="false" section="dnaDerivedData" fieldCode="env_broad_scale" fieldName="env_broad_scale">
                 ${fieldsMap.put("env_broad_scale", true)}
