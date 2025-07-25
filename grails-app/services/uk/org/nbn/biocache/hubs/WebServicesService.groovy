@@ -16,7 +16,7 @@ class WebServicesService extends au.org.ala.biocache.hubs.WebServicesService{
         if (requestParams.nbnRequiredFacets){
             def facetsAsList = requestParams.facets as List
             def requiredFacetsAsList = requestParams.nbnRequiredFacets as List
-            requestParams.facets = (facetsAsList << requiredFacetsAsList).flatten()
+            requestParams.facets = (facetsAsList + requiredFacetsAsList).unique()
         }
         def url = "${grailsApplication.config.biocache.baseUrl}/occurrences/search?${requestParams.getEncodedParams()}"
         getJsonElements(url)
