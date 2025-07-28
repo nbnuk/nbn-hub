@@ -52,8 +52,9 @@
                                 <g:if test="${facetResult.fieldResult.size() > 0}">
                                   %{-- the test 'fieldResult.size > 1' is to exclude single-value filters
                                     -- For testing show 1 fieldResult, e.g. geospatial_kosher --}%
-                                    <option value="${facetResult.fieldName}" ${Defaultselected}>
+                                    <option value="${facetResult.fieldName}" ${Defaultselected} <g:if test="${(facetResult.fieldName.equals("year") ||facetResult.fieldName.equals("decade")) && facetResult.fieldResult.size()>30}">disabled</g:if>>
                                         <alatag:formatDynamicFacetName fieldName="${facetResult.fieldName}"/>
+                                        <g:if test="${(facetResult.fieldName.equals("year") ||facetResult.fieldName.equals("decade")) && facetResult.fieldResult.size()>30}">(too many ${facetResult.fieldName}s, please filter)</g:if>
                                     </option>
                                 </g:if>
                             </g:each>
