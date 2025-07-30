@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <asset:stylesheet src="map.css"/>
 <asset:stylesheet src="wms-button.css"/>
+<asset:javascript src="nbn/leaflet-easyPrint.js" />
 
 <div style="margin-bottom: 10px">
     <g:if test="${grailsApplication.config.skin.useAlaSpatialPortal?.toBoolean()}">
@@ -10,8 +11,10 @@
            href="${grailsApplication.config.spatial.baseUrl}${spatialPortalLink}${spatialPortalUrlParams}" title="Continue analysis in the Spatial Portal">
             <i class="fa fa-map-marker"></i>&nbsp&nbsp;<g:message code="map.spatialportal.btn.label" default="View in spatial portal"/></a>
     </g:if>
-    <a href="#downloadMap" role="button" data-toggle="modal" class="btn btn-default btn-sm tooltips" title="Download image file (single colour mode)">
-        <i class="fa fa-download"></i>&nbsp&nbsp;<g:message code="map.downloadmaps.btn.label" default="Download map"/></a>
+%{--    <a href="#downloadMap" role="button" data-toggle="modal" class="btn btn-default btn-sm tooltips" title="Download image file (single colour mode)">--}%
+%{--        <i class="fa fa-download"></i>&nbsp&nbsp;<g:message code="map.downloadmaps.btn.label" default="Download map"/></a>--}%
+    <a href="#" role="button" onclick="manualPrint(); return false;" class="btn btn-default btn-sm tooltips" title="Download image file">
+        <i class="fa fa-download"></i>&nbsp&nbsp;<g:message code="map.downloadmapsv2.btn.label" default="Download map NEW"/></a>
     <alatag:wmsButton targetSelector="#mapView .fa-download"/>
     <g:if test="${params.wkt}">
         <a href="#downloadWKT" role="button" class="btn btn-default btn-sm tooltips" title="Download WKT file" onclick="downloadPolygon(); return false;">
@@ -187,7 +190,7 @@
         }
     });
 
-    function initialiseMap(){
+    function initialiseMap(){ console.log('boo2');
         //console.log("initialiseMap", MAP_VAR.map);
         if(MAP_VAR.map != null){
             return;
@@ -263,6 +266,15 @@
 
         MAP_VAR.map.addControl(new RecordLayerControl());
         MAP_VAR.map.addControl(new ColourByControl());
+
+        // Initialize easyPrint
+        printer = L.easyPrint({
+            tileLayer: defaultBaseLayer,
+            sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
+            filename: 'myMap',
+            exportOnly: true,
+            hideControlContainer: true
+        }).addTo(MAP_VAR.map);
 
         L.Util.requestAnimFrame(MAP_VAR.map.invalidateSize, MAP_VAR.map, !1, MAP_VAR.map._container);
         L.Browser.any3d = false; // FF bug prevents selects working properly
@@ -393,6 +405,29 @@
                 once = false;
             }
         });
+    }
+
+    // Global printer variable
+    var printer;
+
+    function manualPrint() {
+        if (!MAP_VAR.map) {
+            console.error('Map not initialized');
+            alert('Map not ready. Please wait for the map to load and try again.');
+            return;
+        }
+        
+        if (printer) {
+            try {
+                printer.printMap('CurrentSize', 'MyMapV2');
+            } catch (error) {
+                console.error('Print operation failed:', error);
+                alert('Print operation failed. Please try again.');
+            }
+        } else {
+            console.error('Printer not initialized');
+            alert('Print functionality not available. Please refresh the page and try again.');
+        }
     }
 
     // helper to remove tooltips from map
@@ -1158,6 +1193,22 @@
             <a href="#" class="btn btn-default btn-xs"><g:message code="search.map.popup.viewRecord" default="View record"/></a>
         </div>
     </div>
+</div>
+
+<div id="downloadMapV2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="downloadsMapLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3><g:message code="map.downloadmap.title" default="Download map as image file"/></h3>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true"><g:message code="map.downloadmap.button02.label" default="Close"/></button>
+%{--            <button id="submitDownloadMap" class="btn btn-primary"><g:message code="map.downloadmap.button01.label" default="Download map"/></button>--}%
+        </div>
+        </div>
 </div>
 
 <div id="downloadMap" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="downloadsMapLabel">
