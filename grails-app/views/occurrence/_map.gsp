@@ -1,7 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <asset:stylesheet src="map.css"/>
 <asset:stylesheet src="wms-button.css"/>
-<asset:javascript src="nbn/leaflet-easyPrint.js" />
 
 <div style="margin-bottom: 10px">
     <g:if test="${grailsApplication.config.skin.useAlaSpatialPortal?.toBoolean()}">
@@ -11,10 +10,8 @@
            href="${grailsApplication.config.spatial.baseUrl}${spatialPortalLink}${spatialPortalUrlParams}" title="Continue analysis in the Spatial Portal">
             <i class="fa fa-map-marker"></i>&nbsp&nbsp;<g:message code="map.spatialportal.btn.label" default="View in spatial portal"/></a>
     </g:if>
-%{--    <a href="#downloadMap" role="button" data-toggle="modal" class="btn btn-default btn-sm tooltips" title="Download image file (single colour mode)">--}%
-%{--        <i class="fa fa-download"></i>&nbsp&nbsp;<g:message code="map.downloadmaps.btn.label" default="Download map"/></a>--}%
-    <a href="#" role="button" onclick="manualPrint(); return false;" class="btn btn-default btn-sm tooltips" title="Download image file">
-        <i class="fa fa-download"></i>&nbsp&nbsp;<g:message code="map.downloadmapsv2.btn.label" default="Download map NEW"/></a>
+        <a href="#downloadMap" role="button" data-toggle="modal" class="btn btn-default btn-sm tooltips" title="Download image file (single colour mode)">
+            <i class="fa fa-download"></i>&nbsp&nbsp;<g:message code="map.downloadmaps.btn.label" default="Download map"/></a>
     <alatag:wmsButton targetSelector="#mapView .fa-download"/>
     <g:if test="${params.wkt}">
         <a href="#downloadWKT" role="button" class="btn btn-default btn-sm tooltips" title="Download WKT file" onclick="downloadPolygon(); return false;">
@@ -190,7 +187,7 @@
         }
     });
 
-    function initialiseMap(){ console.log('boo2');
+    function initialiseMap(){
         //console.log("initialiseMap", MAP_VAR.map);
         if(MAP_VAR.map != null){
             return;
@@ -266,15 +263,6 @@
 
         MAP_VAR.map.addControl(new RecordLayerControl());
         MAP_VAR.map.addControl(new ColourByControl());
-
-        // Initialize easyPrint
-        printer = L.easyPrint({
-            tileLayer: defaultBaseLayer,
-            sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
-            filename: 'myMap',
-            exportOnly: true,
-            hideControlContainer: true
-        }).addTo(MAP_VAR.map);
 
         L.Util.requestAnimFrame(MAP_VAR.map.invalidateSize, MAP_VAR.map, !1, MAP_VAR.map._container);
         L.Browser.any3d = false; // FF bug prevents selects working properly
@@ -405,29 +393,6 @@
                 once = false;
             }
         });
-    }
-
-    // Global printer variable
-    var printer;
-
-    function manualPrint() {
-        if (!MAP_VAR.map) {
-            console.error('Map not initialized');
-            alert('Map not ready. Please wait for the map to load and try again.');
-            return;
-        }
-        
-        if (printer) {
-            try {
-                printer.printMap('CurrentSize', 'MyMapV2');
-            } catch (error) {
-                console.error('Print operation failed:', error);
-                alert('Print operation failed. Please try again.');
-            }
-        } else {
-            console.error('Printer not initialized');
-            alert('Print functionality not available. Please refresh the page and try again.');
-        }
     }
 
     // helper to remove tooltips from map
@@ -1195,25 +1160,11 @@
     </div>
 </div>
 
-<div id="downloadMapV2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="downloadsMapLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3><g:message code="map.downloadmap.title" default="Download map as image file"/></h3>
-        </div>
-        <div class="modal-body">
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true"><g:message code="map.downloadmap.button02.label" default="Close"/></button>
-%{--            <button id="submitDownloadMap" class="btn btn-primary"><g:message code="map.downloadmap.button01.label" default="Download map"/></button>--}%
-        </div>
-        </div>
-</div>
 
 <div id="downloadMap" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="downloadsMapLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+
             <form id="downloadMapForm" class="form-horizontal" role="form">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -1344,17 +1295,17 @@
 
 <script type="text/javascript">
 
-    $(document).ready(function(){
+    $(document).ready(function () {
 
         // restrict search to current map bounds/view
-        $('#wktFromMapBounds').click(function(e) {
+        $('#wktFromMapBounds').click(function (e) {
             e.preventDefault();
             var b = MAP_VAR.map.getBounds();
             var wkt = "POLYGON ((" + b.getWest() + " " + b.getSouth() + ", " +
-                    b.getEast()  + " " + b.getSouth() + ", " +
-                    b.getEast()  + " " + b.getNorth() + ", " +
-                    b.getWest()  + " " + b.getNorth() + ", " +
-                    b.getWest() + " " + b.getSouth() + "))";
+                b.getEast() + " " + b.getSouth() + ", " +
+                b.getEast() + " " + b.getNorth() + ", " +
+                b.getWest() + " " + b.getNorth() + ", " +
+                b.getWest() + " " + b.getSouth() + "))";
             //console.log('wkt', wkt);
             var url = "${g.createLink(uri:'/occurrences/search')}" + MAP_VAR.query + "&wkt=" + encodeURIComponent(wkt);
             //console.log('new url', url);
@@ -1362,24 +1313,24 @@
         });
     });
 
-    $('#submitDownloadMap').click(function(e){
+    $('#submitDownloadMap').click(function (e) {
         e.preventDefault();
         downloadMapNow();
     });
 
-    function downloadMapNow(){
+    function downloadMapNow() {
 
         var bounds = MAP_VAR.map.getBounds();
-        var ne =  bounds.getNorthEast();
-        var sw =  bounds.getSouthWest();
-        var extents = sw.lng + ',' + sw.lat + ',' + ne.lng + ','+ ne.lat;
+        var ne = bounds.getNorthEast();
+        var sw = bounds.getSouthWest();
+        var extents = sw.lng + ',' + sw.lat + ',' + ne.lng + ',' + ne.lat;
 
         var baseMapValue = $('#baseMap').val();
         var baseLayer = "";
         var baseMap = "";
-        if (baseMapValue.startsWith("basemap")){
+        if (baseMapValue.startsWith("basemap")) {
             baseMap = baseMapValue.substring(8);
-        } else if (baseMapValue.startsWith("baselayer")){
+        } else if (baseMapValue.startsWith("baselayer")) {
             baseLayer = baseMapValue.substring(10);
         }
 
@@ -1389,7 +1340,7 @@
             '&dpi=' + $('#dpi').val() +
             '&pradiusmm=' + $('#pradiusmm').val() +
             '&popacity=' + $('#popacity').val() +
-            '&pcolour=' + $(':input[name=pcolour]').val().replace('#','').toUpperCase() +
+            '&pcolour=' + $(':input[name=pcolour]').val().replace('#', '').toUpperCase() +
             '&widthmm=' + $('#widthmm').val() +
             '&scale=' + $(':input[name=scale]:checked').val() +
             '&outline=' + $(':input[name=outline]:checked').val() +
@@ -1397,23 +1348,28 @@
             '&baselayer=' + baseLayer +
             '&baseMap=' + baseMap;
 
-        var downloadUrl =  $('#mapDownloadUrl').val() +
-                '${raw(sr.urlParameters)}' +
-                mapLayout +
-                '&fileName=' + $('#fileName').val()+'.'+$('#format').val().toLowerCase();
+        var downloadUrl = $('#mapDownloadUrl').val() +
+            '${raw(sr.urlParameters)}' +
+            mapLayout +
+            '&fileName=' + $('#fileName').val() + '.' + $('#format').val().toLowerCase();
 
 
         var downloadUrlNew = '/download?' +
-                'searchParams=' + encodeURIComponent('${raw(sr.urlParameters)}') +
-                '&targetUri=/occurrences/search' +
-                '&totalRecords=1' + //needed?
-                '&downloadType=map' +
-                '&mapLayoutParams=' + encodeURIComponent(mapLayout) +
-                '&file=' + $('#fileName').val();
+            'searchParams=' + encodeURIComponent('${raw(sr.urlParameters)}') +
+            '&targetUri=/occurrences/search' +
+            '&totalRecords=1' + //needed?
+            '&downloadType=map' +
+            '&mapLayoutParams=' + encodeURIComponent(mapLayout) +
+            '&file=' + $('#fileName').val();
 
 
         //console.log('downloadUrl', downloadUrl);
         $('#downloadMap').modal('hide');
         document.location.href = downloadUrlNew;
     }
+
 </script>
+
+<g:if test="${grailsApplication.config.feature.nbnMapDownload?.toString()?.toBoolean()}">
+    <g:render template="nbnMapDownload" />
+</g:if>
