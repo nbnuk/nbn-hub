@@ -6,21 +6,21 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
                 <h3>
-                    Download Map
+                    <g:message code="map.downloadmap.title" default="Download map as image file"/>
                 </h3>
             </div>
             <div class="modal-body">
                 <!-- Download options form -->
                 <div class="form-group">
-                    <label for="downloadFilename">Filename:</label>
-                    <input type="text" id="downloadFilename" class="form-control" value="map_export" placeholder="Enter filename">
+                    <label for="downloadFilename"><g:message code="map.downloadmap.field10.label" default="File name (without extension)"/></label>
+                    <input type="text" id="downloadFilename" class="form-control" value="<g:message code="map.downloadmap.default.filename" default="MyMap"/>">
                 </div>
 
                 <div class="form-group">
-                    <label for="downloadFormat">Image Format:</label>
+                    <label for="downloadFormat"><g:message code="map.downloadmap.field01.label" default="Format"/></label>
                     <select id="downloadFormat" class="form-control">
-                        <option value="png">PNG</option>
-                        <option value="jpeg">JPEG</option>
+                        <option value="jpg"><g:message code="map.downloadmap.field01.option01" default="JPEG"/></option>
+                        <option value="png"><g:message code="map.downloadmap.field01.option02" default="PNG"/></option>
 %{--                        <option value="webp">WebP</option>--}%
                     </select>
                 </div>
@@ -29,11 +29,11 @@
 
                 <div class="list-group">
                     <a id="downloadMapImage" href="#" class="list-group-item list-group-item-info">
-                        <i  class="fa fa-download"></i> Download map image
+                        <i  class="fa fa-download"></i> <g:message code="map.downloadmap.nbn.downloadimage.label" default="Download map image"/>
                     </a>
 
                         <a id="downloadCitationsAndReadme" href="#" class="list-group-item list-group-item-info">
-                        <i class="fa fa-download"></i> Download citations and README
+                        <i class="fa fa-download"></i> <g:message code="map.downloadmap.nbn.downloadcitation.label" default="Download citations and README"/>
                         </a>
 
                 </div>
@@ -41,7 +41,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal"><g:message code="download.button.close" default="Close"/></button>
             </div>
         </div>
     </div>
