@@ -82,7 +82,7 @@ Loading GeoJSON data...</textarea>
 <script>
 $(document).ready(function() {
     // Add WMS button after target selector
-    $('${targetSelector}').parent().after(
+    $('${targetSelector}').after(
         $('<a>').attr({
             'href': '#wmsModal',
             'role': 'button',
