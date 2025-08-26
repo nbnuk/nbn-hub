@@ -1160,11 +1160,9 @@
     </div>
 </div>
 
-
 <div id="downloadMap" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="downloadsMapLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-
             <form id="downloadMapForm" class="form-horizontal" role="form">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -1295,17 +1293,17 @@
 
 <script type="text/javascript">
 
-    $(document).ready(function () {
+    $(document).ready(function(){
 
         // restrict search to current map bounds/view
-        $('#wktFromMapBounds').click(function (e) {
+        $('#wktFromMapBounds').click(function(e) {
             e.preventDefault();
             var b = MAP_VAR.map.getBounds();
             var wkt = "POLYGON ((" + b.getWest() + " " + b.getSouth() + ", " +
-                b.getEast() + " " + b.getSouth() + ", " +
-                b.getEast() + " " + b.getNorth() + ", " +
-                b.getWest() + " " + b.getNorth() + ", " +
-                b.getWest() + " " + b.getSouth() + "))";
+                    b.getEast()  + " " + b.getSouth() + ", " +
+                    b.getEast()  + " " + b.getNorth() + ", " +
+                    b.getWest()  + " " + b.getNorth() + ", " +
+                    b.getWest() + " " + b.getSouth() + "))";
             //console.log('wkt', wkt);
             var url = "${g.createLink(uri:'/occurrences/search')}" + MAP_VAR.query + "&wkt=" + encodeURIComponent(wkt);
             //console.log('new url', url);
@@ -1313,24 +1311,24 @@
         });
     });
 
-    $('#submitDownloadMap').click(function (e) {
+    $('#submitDownloadMap').click(function(e){
         e.preventDefault();
         downloadMapNow();
     });
 
-    function downloadMapNow() {
+    function downloadMapNow(){
 
         var bounds = MAP_VAR.map.getBounds();
-        var ne = bounds.getNorthEast();
-        var sw = bounds.getSouthWest();
-        var extents = sw.lng + ',' + sw.lat + ',' + ne.lng + ',' + ne.lat;
+        var ne =  bounds.getNorthEast();
+        var sw =  bounds.getSouthWest();
+        var extents = sw.lng + ',' + sw.lat + ',' + ne.lng + ','+ ne.lat;
 
         var baseMapValue = $('#baseMap').val();
         var baseLayer = "";
         var baseMap = "";
-        if (baseMapValue.startsWith("basemap")) {
+        if (baseMapValue.startsWith("basemap")){
             baseMap = baseMapValue.substring(8);
-        } else if (baseMapValue.startsWith("baselayer")) {
+        } else if (baseMapValue.startsWith("baselayer")){
             baseLayer = baseMapValue.substring(10);
         }
 
@@ -1340,7 +1338,7 @@
             '&dpi=' + $('#dpi').val() +
             '&pradiusmm=' + $('#pradiusmm').val() +
             '&popacity=' + $('#popacity').val() +
-            '&pcolour=' + $(':input[name=pcolour]').val().replace('#', '').toUpperCase() +
+            '&pcolour=' + $(':input[name=pcolour]').val().replace('#','').toUpperCase() +
             '&widthmm=' + $('#widthmm').val() +
             '&scale=' + $(':input[name=scale]:checked').val() +
             '&outline=' + $(':input[name=outline]:checked').val() +
@@ -1348,26 +1346,25 @@
             '&baselayer=' + baseLayer +
             '&baseMap=' + baseMap;
 
-        var downloadUrl = $('#mapDownloadUrl').val() +
-            '${raw(sr.urlParameters)}' +
-            mapLayout +
-            '&fileName=' + $('#fileName').val() + '.' + $('#format').val().toLowerCase();
+        var downloadUrl =  $('#mapDownloadUrl').val() +
+                '${raw(sr.urlParameters)}' +
+                mapLayout +
+                '&fileName=' + $('#fileName').val()+'.'+$('#format').val().toLowerCase();
 
 
         var downloadUrlNew = '/download?' +
-            'searchParams=' + encodeURIComponent('${raw(sr.urlParameters)}') +
-            '&targetUri=/occurrences/search' +
-            '&totalRecords=1' + //needed?
-            '&downloadType=map' +
-            '&mapLayoutParams=' + encodeURIComponent(mapLayout) +
-            '&file=' + $('#fileName').val();
+                'searchParams=' + encodeURIComponent('${raw(sr.urlParameters)}') +
+                '&targetUri=/occurrences/search' +
+                '&totalRecords=1' + //needed?
+                '&downloadType=map' +
+                '&mapLayoutParams=' + encodeURIComponent(mapLayout) +
+                '&file=' + $('#fileName').val();
 
 
         //console.log('downloadUrl', downloadUrl);
         $('#downloadMap').modal('hide');
         document.location.href = downloadUrlNew;
     }
-
 </script>
 
 <g:if test="${grailsApplication.config.feature.nbnMapDownload?.toString()?.toBoolean()}">
