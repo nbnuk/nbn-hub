@@ -106,6 +106,8 @@ var getUrlParameterArray_nbn = function getUrlParameterArray(sParam) {
     return matches;
 };
 
+//on search page, when a user clicks a facet, show the modal
+//https://nbnatlas.atlassian.net/browse/ATLASDEV-2285
 $(document).on('click', '.facetsGroup ul.facets a', function (e) {
 
     e.preventDefault();
