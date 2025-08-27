@@ -42,7 +42,7 @@
                         </optgroup>
                         <g:set var="maxNumPoints" value="${grailsApplication.config.getProperty('feature.enforceMaxPointsOnMap.maxPoints', Long, 500000L)}"/>
                         <g:set var="pointsGroupLabel">
-                            <g:if test="${grailsApplication.config.feature.enforceMaxPointsOnMap?.toString().toBoolean() && sr.totalRecords > maxNumPoints}">
+                            <g:if test="${grailsApplication.config.feature?.enforceMaxPointsOnMap = "true" && sr.totalRecords > maxNumPoints}">
                                 Display as points (DISABLED as > ${maxNumPoints} records)
                             </g:if>
                             <g:else>
@@ -50,7 +50,7 @@
                             </g:else>
                         </g:set>
                         <g:set var="pointsGroupDisabled">
-                            <g:if test="${grailsApplication.config.feature.enforceMaxPointsOnMap?.toString().toBoolean() && sr.totalRecords > maxNumPoints}">
+                            <g:if test="${grailsApplication.config.feature?.enforceMaxPointsOnMap = "true" && sr.totalRecords > maxNumPoints}">
                                 disabled
                             </g:if>
                         </g:set>
