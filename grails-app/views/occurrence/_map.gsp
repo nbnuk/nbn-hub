@@ -1388,3 +1388,5 @@
 <g:if test="${grailsApplication.config.feature.nbnMapDownload?.toString()?.toBoolean()}">
     <g:render template="nbnMapDownload" />
 </g:if>
+
+<g:render template="nbnMapTemporalControl" />
