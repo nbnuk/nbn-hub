@@ -1,44 +1,83 @@
-<div id="nbnTemporalControlModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="downloadsMapLabel">
-    <div class="modal-dialog" role="document">
+<div id="nbnTemporalControlModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">×</button>
-                <h3><g:message code="map.temporalcontrol.title" default="Explore changes over time"/></h3>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="fa fa-clock-o"></i>
+                    <g:message code="map.temporalcontrol.title" default="Timeline Control"/>
+                </h4>
             </div>
-            <div class="modal-body">
-
-                <div class="slider-container">
-                    <div data-slider="range"></div>
-                    <div class="slider-labels">
-                        <span data-display="min">1600</span>
-                        <span data-display="max">2024</span>
+            <div class="modal-body" data-temporal-control="main">
+                <!-- Year Range Slider -->
+                <div class="form-group">
+                    <label class="control-label">Year Range</label>
+                    <div data-slider="range" style="margin: 10px 0;"></div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <small class="text-muted" data-display="min">1600</small>
+                        </div>
+                        <div class="col-xs-6 text-right">
+                            <small class="text-muted" data-display="max">2024</small>
+                        </div>
                     </div>
-                    <div class="slider-value" data-display="range"></div>
+                    <div class="text-center">
+                        <strong data-display="range">1600 - 2024</strong>
+                    </div>
                 </div>
 
-                <!-- Playback controls -->
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <button class="btn btn-default btn-small" data-control="play">
-                        <i class="fa fa-play"></i>
-                    </button>
-                    <button class="btn btn-default btn-small" data-control="pause" disabled>
-                        <i class="fa fa-pause"></i>
-                    </button>
-                    <button class="btn btn-default btn-small" data-control="stop" disabled>
-                        <i class="fa fa-stop"></i>
-                    </button>
-                    <button class="btn btn-default btn-small" data-control="rewind" disabled>
-                        <i class="fa fa-fast-backward"></i>
-                    </button>
+                <!-- Playback Controls -->
+                <div class="form-group">
+                    <label class="control-label">Playback Controls</label>
+                    <div class="btn-group btn-group-justified" role="group">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default" data-control="rewind" disabled title="Rewind to start">
+                                <i class="fa fa-fast-backward"></i>
+                            </button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-success" data-control="play" title="Play animation">
+                                <i class="fa fa-play"></i>
+                            </button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-warning" data-control="pause" disabled title="Pause animation">
+                                <i class="fa fa-pause"></i>
+                            </button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-danger" data-control="stop" disabled title="Stop animation">
+                                <i class="fa fa-stop"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-                    Year increments: <input type="number" min="1" step="1" max="100" value="1" data-setting="step"/>
-                    Seconds per frame: <input type="number" min="0.5" max="10" step="0.5" value="1" data-setting="speed"/>
-                    Current year: <span data-display="current"></span>
+                <!-- Settings Row -->
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <label class="control-label">Year Step</label>
+                            <input type="number" class="form-control input-sm" min="1" max="100" value="1" data-setting="step">
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <label class="control-label">Speed (sec)</label>
+                            <input type="number" class="form-control input-sm" min="0.1" max="10" step="0.1" value="1" data-setting="speed">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Year Display -->
+                <div class="alert alert-info text-center" style="margin-bottom: 0;">
+                    <strong>Current Year: <span data-display="current">1600</span></strong>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <asset:javascript src="nbn/draggable-modal.js" />
 <asset:javascript src="nbn/jquery-ui.min.js" />
