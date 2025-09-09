@@ -9,9 +9,15 @@
                 </h4>
             </div>
             <div class="modal-body" data-temporal-control="main">
+                <ul class="nav nav-tabs nav-justified" style="margin-bottom: 30px;">
+                    <li role="presentation" class="active"><a href="#year-tab" data-toggle="tab">Year</a></li>
+                    <li role="presentation"><a href="#month-tab" data-toggle="tab">Month</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="year-tab">
+
                 <!-- Year Range Slider -->
                 <div class="form-group">
-                    <label class="control-label">Year Range</label>
                     <div data-slider="range" style="margin: 10px 0;"></div>
                     <div class="row">
                         <div class="col-xs-6">
@@ -71,8 +77,77 @@
 
                 <!-- Current Year Display -->
                 <div class="alert alert-info text-center" style="margin-bottom: 0;">
-                    <strong>Current Year: <span data-display="current">1600</span></strong>
+                    <strong>Current Year: <span data-display="current">-</span></strong>
                 </div>
+
+
+                </div>
+                <div role="tabpanel" class="tab-pane" id="month-tab">
+                    <!-- Month Range Slider -->
+                    <div class="form-group">
+                        <div data-slider="range" style="margin: 10px 0;"></div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <small class="text-muted" data-display="min">January</small>
+                            </div>
+                            <div class="col-xs-6 text-right">
+                                <small class="text-muted" data-display="max">December</small>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <strong data-display="range">January - December</strong>
+                        </div>
+                    </div>
+
+                    <!-- Playback Controls -->
+                    <div class="form-group">
+                        <label class="control-label">Playback Controls</label>
+                        <div class="btn-group btn-group-justified" role="group">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-default" data-control="rewind" disabled title="Rewind to start">
+                                    <i class="fa fa-fast-backward"></i>
+                                </button>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-success" data-control="play" title="Play animation">
+                                    <i class="fa fa-play"></i>
+                                </button>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-warning" data-control="pause" disabled title="Pause animation">
+                                    <i class="fa fa-pause"></i>
+                                </button>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-danger" data-control="stop" disabled title="Stop animation">
+                                    <i class="fa fa-stop"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Row -->
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label class="control-label">Month Step</label>
+                                <input type="number" class="form-control input-sm" min="1" max="12" value="1" data-setting="step">
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label class="control-label">Speed (sec)</label>
+                                <input type="number" class="form-control input-sm" min="0.1" max="10" step="0.1" value="1" data-setting="speed">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Month Display -->
+                    <div class="alert alert-info text-center" style="margin-bottom: 0;">
+                        <strong>Current Month: <span data-display="current">-</span></strong>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
     </div>
@@ -90,7 +165,11 @@
             this.player = null;
             this.currentValue = "";
             this.isPaused = false;
-            this.mode = 'year';
+            this.mode = selector.includes('month') ? 'month' : 'year';
+            this.monthNames = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
             this.init();
         }
 
@@ -116,6 +195,36 @@
         }
 
         setupSlider() {
+            if (this.mode === 'month') {
+                this.setupMonthSlider();
+            } else {
+                this.setupYearSlider();
+            }
+        }
+
+        setupMonthSlider() {
+            var self = this;
+
+            this.getSlider().slider({
+                range: true,
+                min: 1,
+                max: 12,
+                values: [1, 12],
+                slide: function(event, ui) {
+                    if (ui && ui.values) {
+                        var startMonth = self.monthNames[ui.values[0] - 1];
+                        var endMonth = self.monthNames[ui.values[1] - 1];
+                        self.getDisplay('range').text(startMonth + ' - ' + endMonth);
+                    }
+                }
+            });
+
+            this.getDisplay('min').text('January');
+            this.getDisplay('max').text('December');
+            this.getDisplay('range').text('January - December');
+        }
+
+        setupYearSlider() {
             var currentYear = new Date().getFullYear();
             var self = this;
 
@@ -165,8 +274,14 @@
                     return;
                 }
 
-                self.getDisplay('current').text(self.currentValue);
-                self.displayMapForYear(self.currentValue);
+                if (self.mode === 'month') {
+                    var monthName = self.monthNames[self.currentValue - 1] || 'December';
+                    self.getDisplay('current').text(monthName);
+                } else {
+                    self.getDisplay('current').text(self.currentValue);
+                }
+                
+                self.displayMapForValue(self.currentValue);
             }, speed);
         }
 
@@ -186,8 +301,15 @@
             this.stop();
             this.setButtonStates(false, true, true, true);
             this.currentValue = this.getSlider().slider("values", 0);
-            this.getDisplay('current').text(this.currentValue);
-            this.displayMapForYear(this.currentValue);
+            
+            if (this.mode === 'month') {
+                var monthName = this.monthNames[this.currentValue - 1] || 'January';
+                this.getDisplay('current').text(monthName);
+            } else {
+                this.getDisplay('current').text(this.currentValue);
+            }
+            
+            this.displayMapForValue(this.currentValue);
         }
 
         setButtonStates(play, pause, stop, rewind) {
@@ -197,18 +319,32 @@
             this.getControl('rewind').prop('disabled', rewind);
         }
 
-        displayMapForYear(year) {
-            console.log("show year " + year);
-            // Uncomment when ready:
-            /*
-            var mapUrl = '/getMap?' + MAP_VAR.currentMapParams + '&q=' + encodeURIComponent(MAP_VAR.currentQuery) + '&year=' + year;
-            \$('#map').css('opacity', 0.5);
-            \$.get(mapUrl, function(data) {
-                \$('#map').html(data);
-                \$('#map').css('opacity', 1);
-                MAP_VAR.map.invalidateSize();
-            });
-            */
+        displayMapForValue(value) {
+            if (this.mode === 'month') {
+                console.log("show month " + value + " (" + this.monthNames[value - 1] + ")");
+                // Uncomment when ready for month functionality:
+                /*
+                var mapUrl = '/getMap?' + MAP_VAR.currentMapParams + '&q=' + encodeURIComponent(MAP_VAR.currentQuery) + '&month=' + value;
+                \$('#map').css('opacity', 0.5);
+                \$.get(mapUrl, function(data) {
+                    \$('#map').html(data);
+                    \$('#map').css('opacity', 1);
+                    MAP_VAR.map.invalidateSize();
+                });
+                */
+            } else {
+                console.log("show year " + value);
+                // Uncomment when ready:
+                /*
+                var mapUrl = '/getMap?' + MAP_VAR.currentMapParams + '&q=' + encodeURIComponent(MAP_VAR.currentQuery) + '&year=' + value;
+                \$('#map').css('opacity', 0.5);
+                \$.get(mapUrl, function(data) {
+                    \$('#map').html(data);
+                    \$('#map').css('opacity', 1);
+                    MAP_VAR.map.invalidateSize();
+                });
+                */
+            }
         }
     }
 
@@ -226,7 +362,8 @@ const TemporalSearchControl = L.Control.extend({
 
     // Initialize
     $(document).ready(function() {
-        new TemporalControl('#nbnTemporalControlModal');
+        new TemporalControl('#year-tab');
+        new TemporalControl('#month-tab');
         MAP_VAR.map.addControl(new TemporalSearchControl());
         makeModalDraggable('#nbnTemporalControlModal');
     });
@@ -249,15 +386,15 @@ const TemporalSearchControl = L.Control.extend({
     margin-top: 5px; /* spacing between slider and labels */
 }
 
+#nbnTemporalControlModal .tab-content {border:none !important; padding: 0px !important; margin: 0px !important;}
 
 #temporalControl{
     padding: 6px 10px;
     background-color: #fff;
 }
-#main-content .leaflet-container a.temporalControl, #main-content .leaflet-container a.temporalControl:visited, #main-content .leaflet-container a.temporalControl:hover {
+#main-content .leaflet-container a.temporalControl, #main-content .leaflet-container a.temporalControl a.temporalControl:visited, #main-content .leaflet-container a.temporalControl:hover {
     color: #000;
     text-decoration: none;
 }
 
 </style>
-
