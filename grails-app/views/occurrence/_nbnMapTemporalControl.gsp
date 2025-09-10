@@ -1,3 +1,7 @@
+<script type="application/javascript">
+    BC_CONF.groupedFacetsMap= ${(groupedFacetsMap as grails.converters.JSON).toString().encodeAsRaw()}
+</script>
+
 <div id="nbnTemporalControlModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
@@ -9,7 +13,7 @@
                 </h4>
             </div>
             <div class="modal-body" data-temporal-control="main">
-                <ul class="nav nav-tabs nav-justified" style="margin-bottom: 30px;">
+                <ul class="nav nav-pills nav-justified" style="margin-bottom: 30px;">
                     <li role="presentation" class="active"><a href="#year-tab" data-toggle="tab">Year</a></li>
                     <li role="presentation"><a href="#month-tab" data-toggle="tab">Month</a></li>
                 </ul>
@@ -227,12 +231,13 @@
         setupYearSlider() {
             var currentYear = new Date().getFullYear();
             var self = this;
-
+            var minAndMaxYears = self.getMinMaxYears();
+            console.log(minAndMaxYears);
             this.getSlider().slider({
                 range: true,
-                min: 1600,
-                max: currentYear,
-                values: [1600, currentYear],
+                min: minAndMaxYears.min,
+                max: minAndMaxYears.max,
+                values: [minAndMaxYears.min, minAndMaxYears.max],
                 slide: function(event, ui) {
                     if (ui && ui.values) {
                         self.getDisplay('range').text(ui.values[0] + ' - ' + ui.values[1]);
@@ -240,9 +245,9 @@
                 }
             });
 
-            this.getDisplay('min').text('1600');
-            this.getDisplay('max').text(currentYear);
-            this.getDisplay('range').text('1600 - ' + currentYear);
+            this.getDisplay('min').text(minAndMaxYears.min);
+            this.getDisplay('max').text(minAndMaxYears.max);
+            this.getDisplay('range').text(minAndMaxYears.min +' - ' + minAndMaxYears.max);
         }
 
         bindEvents() {
@@ -334,6 +339,12 @@
                 */
             } else {
                 console.log("show year " + value);
+                MAP_VAR.additionalFqs = '&fq=year:' + value;
+        // clear this variable every time a new colour by is chosen.
+        MAP_VAR.removeFqs = ''
+        //e.preventDefault();
+        //e.stopPropagation();
+        addQueryLayer(true);
                 // Uncomment when ready:
                 /*
                 var mapUrl = '/getMap?' + MAP_VAR.currentMapParams + '&q=' + encodeURIComponent(MAP_VAR.currentQuery) + '&year=' + value;
@@ -345,6 +356,44 @@
                 });
                 */
             }
+        }
+
+        getMinMaxYears(){
+            var minYear = 1600;
+            var maxYear = new Date().getFullYear();
+
+            if (BC_CONF.groupedFacetsMap && BC_CONF.groupedFacetsMap.year) {
+                var yearFacet = BC_CONF.groupedFacetsMap.year;
+                var years = [];
+
+                // Extract years from the facet results
+                if (yearFacet.fieldResult && yearFacet.fieldResult.length > 0) {
+                    years = yearFacet.fieldResult.map(function(item) {
+                        return parseInt(item.label, 10);
+                    }).filter(function(year) {
+                        return !isNaN(year); // Filter out any non-numeric values
+                    });
+                }
+
+
+                // Find actual min and max years from data if available
+                if (years.length > 0) {
+                    var dataMinYear = Math.min.apply(Math, years);
+                    var dataMaxYear = Math.max.apply(Math, years);
+
+                    // Use data values if they exist, otherwise keep defaults
+                    minYear = dataMinYear;
+                    maxYear = dataMaxYear;
+                }
+
+            }
+            console.log('Min year:', minYear);
+            console.log('Max year:', maxYear);
+            return {
+                min:minYear,
+                max:maxYear
+            }
+
         }
     }
 
@@ -362,11 +411,51 @@ const TemporalSearchControl = L.Control.extend({
 
     // Initialize
     $(document).ready(function() {
+        // console.log(MAP_VAR);
         new TemporalControl('#year-tab');
         new TemporalControl('#month-tab');
         MAP_VAR.map.addControl(new TemporalSearchControl());
         makeModalDraggable('#nbnTemporalControlModal');
     });
+
+    if (BC_CONF.groupedFacetsMap && BC_CONF.groupedFacetsMap.year) {
+    var yearFacet = BC_CONF.groupedFacetsMap.year;
+    var years = [];
+
+    // Extract years from the facet results
+    if (yearFacet.fieldResult && yearFacet.fieldResult.length > 0) {
+        years = yearFacet.fieldResult.map(function(item) {
+            return parseInt(item.label, 10);
+        }).filter(function(year) {
+            return !isNaN(year); // Filter out any non-numeric values
+        });
+    }
+
+    // Set defaults
+    var minYear = 1600;
+    var maxYear = new Date().getFullYear();
+
+    // Find actual min and max years from data if available
+    if (years.length > 0) {
+        var dataMinYear = Math.min.apply(Math, years);
+        var dataMaxYear = Math.max.apply(Math, years);
+
+        // Use data values if they exist, otherwise keep defaults
+        minYear = dataMinYear;
+        maxYear = dataMaxYear;
+    }
+
+    console.log('Min year:', minYear);
+    console.log('Max year:', maxYear);
+
+    // You can now use minYear and maxYear as needed
+} else {
+    // No year facet data available, use defaults
+    var minYear = 1600;
+    var maxYear = new Date().getFullYear();
+
+    console.log('No year data available, using defaults - Min year:', minYear, 'Max year:', maxYear);
+}
 </asset:script>
 
 <style>
