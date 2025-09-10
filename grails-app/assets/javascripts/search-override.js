@@ -112,8 +112,8 @@ $(document).on('click', '.facetsGroup ul.facets a', function (e) {
 
     e.preventDefault();
 
-    const $group = $(this).closest('.facetsGroup');
-    const $multi = $group.find('.multipleFacetsLink').first();
+    const $group = $(this).closest('.subnavlist ');
+    const $multi = $group.next().find('.multipleFacetsLink').first();
     if ($multi.length) {
         $multi.trigger('click');
     }
