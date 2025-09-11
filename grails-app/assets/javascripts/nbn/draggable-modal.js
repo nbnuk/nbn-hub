@@ -40,8 +40,36 @@ function makeModalDraggable(modalSelector) {
 
     document.addEventListener('mousemove', (e) => {
         if (!dragging) return;
-        dialog.style.left = (e.clientX - offsetX) + 'px';
-        dialog.style.top  = (e.clientY - offsetY) + 'px';
+
+        // Calculate new position
+        let newLeft = e.clientX - offsetX;
+        let newTop = e.clientY - offsetY;
+
+        // Get viewport dimensions
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        // Get dialog dimensions
+        const dialogRect = dialog.getBoundingClientRect();
+        const dialogWidth = dialogRect.width;
+        const dialogHeight = dialogRect.height;
+
+        // Constrain horizontal position
+        // Keep at least 50px of the dialog visible on the left and right
+        const minLeft = -dialogWidth + 50;
+        const maxLeft = viewportWidth - 50;
+        newLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
+
+        // Constrain vertical position
+        // Keep at least the header (approximately 50px) visible at the top
+        // and at least 50px visible at the bottom
+        const minTop = 0;
+        const maxTop = viewportHeight - 50;
+        newTop = Math.max(minTop, Math.min(newTop, maxTop));
+
+        // Apply the constrained position
+        dialog.style.left = newLeft + 'px';
+        dialog.style.top = newTop + 'px';
     });
 
     document.addEventListener('mouseup', () => {
@@ -50,7 +78,3 @@ function makeModalDraggable(modalSelector) {
         header.style.cursor = 'grab';
     });
 }
-
-
-// initialise once the modal exists in DOM:
-//makeModalDraggable('#myModal');
