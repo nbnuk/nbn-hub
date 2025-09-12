@@ -19,7 +19,12 @@
                 </ul>
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="year-tab">
-
+<g:if test="${sr.activeFacetObj.year}">
+    <div class="alert alert-warning" role="alert">
+        Remove the year filter to explore changes over years.
+    </div>
+</g:if>
+<g:else>
                 <!-- Year Range Slider -->
                 <div class="form-group">
                     <div data-slider="range" style="margin: 10px 0;"></div>
@@ -73,20 +78,24 @@
                     </div>
                     <div class="col-xs-6">
                         <div class="form-group">
-                            <label class="control-label">Speed (sec)</label>
+                            <label class="control-label">Interval (sec)</label>
                             <input type="number" class="form-control input-sm" min="0.1" max="10" step="0.1" value="1" data-setting="speed">
                         </div>
                     </div>
                 </div>
 
-                <!-- Current Year Display -->
-                <div class="alert alert-info text-center" style="margin-bottom: 0;">
-                    <strong>Current Year: <span data-display="current">-</span></strong>
-                </div>
+    <div class="text-center"><strong>Current year: <span data-temporal-control="current">-</span></strong></div>
 
+</g:else>
 
                 </div>
                 <div role="tabpanel" class="tab-pane" id="month-tab">
+<g:if test="${sr.activeFacetObj.month}">
+    <div class="alert alert-warning" role="alert">
+        Remove the month filter to explore changes over month.
+    </div>
+</g:if>
+<g:else>
                     <!-- Month Range Slider -->
                     <div class="form-group">
                         <div data-slider="range" style="margin: 10px 0;"></div>
@@ -146,10 +155,8 @@
                         </div>
                     </div>
 
-                    <!-- Current Month Display -->
-                    <div class="alert alert-info text-center" style="margin-bottom: 0;">
-                        <strong>Current Month: <span data-display="current">-</span></strong>
-                    </div>
+    <div class="text-center"><strong>Current month: <span data-temporal-control="current">-</span></strong></div>
+</g:else>
                 </div>
             </div>
             </div>
@@ -164,12 +171,12 @@
 
 <asset:script type="text/javascript">
     class TemporalControl {
-        constructor(selector) {
+        constructor(selector, mode) {
             this.container = $(selector);
             this.player = null;
             this.currentValue = "";
             this.isPaused = false;
-            this.mode = selector.includes('month') ? 'month' : 'year';
+            this.mode = mode;
             this.monthNames = [
                 'January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'
@@ -187,6 +194,18 @@
 
         getDisplay(type) {
             return this.container.find('[data-display="' + type + '"]');
+        }
+
+        displayCurrentValue(value) {
+            if (this.mode === 'month') {
+                var monthName = this.monthNames[value - 1];
+                $('[data-temporal-control="current"]').text(monthName);
+            } else {
+                $('[data-temporal-control="current"]').text(value);
+            }
+            const totalSteps = ((this.getSlider().slider("values", 1) - this.getSlider().slider("values", 0)) / this.step) + 1;
+            const stepsDone = ((value - this.getSlider().slider("values", 0)) / this.step) + 1;
+            $('[data-temporal-progress="current"].progress-bar').css('width', (stepsDone / totalSteps) * 100+"%");
         }
 
         getSlider() {
@@ -230,9 +249,9 @@
 
         setupYearSlider() {
             var currentYear = new Date().getFullYear();
+            var minAndMaxYears = this._getMinMaxYears();
             var self = this;
-            var minAndMaxYears = self.getMinMaxYears();
-            console.log(minAndMaxYears);
+
             this.getSlider().slider({
                 range: true,
                 min: minAndMaxYears.min,
@@ -259,46 +278,57 @@
         }
 
         play() {
-            var endValue = this.getSlider().slider("values", 1);
-            var step = parseInt(this.getSetting('step').val());
-            var speed = parseFloat(this.getSetting('speed').val()) * 1000;
-            var self = this;
+            this.step = parseInt(this.getSetting('step').val());
+            this.speed = parseFloat(this.getSetting('speed').val()) * 1000;
 
             if (!this.isPaused) {
                 this.currentValue = this.getSlider().slider("values", 0);
             }
 
             this.isPaused = false;
+            this.isPlaying = true;
             this.setButtonStates(true, false, false, false);
 
-            this.player = setInterval(function() {
-                self.currentValue += step;
+            this.loadMap();
 
-                if (self.currentValue > endValue) {
-                    self.stop();
+        }
+        next(){
+            if (this.Playing){
+                return;
+            }
+            this.currentValue += this.step;
+            this.loadMap();
+        }
+
+        loadMap(){
+                this.currentValue += this.step;
+                console.log("load map for " + this.currentValue);
+                if (this.currentValue > this.getSlider().slider("values", 1)) {
+                    this.stop();
                     return;
                 }
 
-                if (self.mode === 'month') {
-                    var monthName = self.monthNames[self.currentValue - 1] || 'December';
-                    self.getDisplay('current').text(monthName);
-                } else {
-                    self.getDisplay('current').text(self.currentValue);
+                if (!this.isPlaying) {
+                    return;
                 }
-                
-                self.displayMapForValue(self.currentValue);
-            }, speed);
+
+                this.displayCurrentValue(this.currentValue);
+                this.displayMapForValue(this.currentValue);
+
+
         }
 
         pause() {
-            clearInterval(this.player);
+            // clearInterval(this.player);
             this.isPaused = true;
             this.setButtonStates(false, true, false, false);
+            this.isPlaying = false;
         }
 
         stop() {
-            clearInterval(this.player);
+            // clearInterval(this.player);
             this.isPaused = false;
+            this.isPlaying = false;
             this.setButtonStates(false, true, true, false);
         }
 
@@ -306,14 +336,8 @@
             this.stop();
             this.setButtonStates(false, true, true, true);
             this.currentValue = this.getSlider().slider("values", 0);
-            
-            if (this.mode === 'month') {
-                var monthName = this.monthNames[this.currentValue - 1] || 'January';
-                this.getDisplay('current').text(monthName);
-            } else {
-                this.getDisplay('current').text(this.currentValue);
-            }
-            
+
+            this.displayCurrentValue(this.currentValue);
             this.displayMapForValue(this.currentValue);
         }
 
@@ -327,38 +351,25 @@
         displayMapForValue(value) {
             if (this.mode === 'month') {
                 console.log("show month " + value + " (" + this.monthNames[value - 1] + ")");
-                // Uncomment when ready for month functionality:
-                /*
-                var mapUrl = '/getMap?' + MAP_VAR.currentMapParams + '&q=' + encodeURIComponent(MAP_VAR.currentQuery) + '&month=' + value;
-                \$('#map').css('opacity', 0.5);
-                \$.get(mapUrl, function(data) {
-                    \$('#map').html(data);
-                    \$('#map').css('opacity', 1);
-                    MAP_VAR.map.invalidateSize();
-                });
-                */
+                MAP_VAR.additionalFqs = '&fq=month:' + value;
+                MAP_VAR.removeFqs = ''
+                addQueryLayer(true);
             } else {
-                console.log("show year " + value);
                 MAP_VAR.additionalFqs = '&fq=year:' + value;
-        // clear this variable every time a new colour by is chosen.
-        MAP_VAR.removeFqs = ''
-        //e.preventDefault();
-        //e.stopPropagation();
-        addQueryLayer(true);
-                // Uncomment when ready:
-                /*
-                var mapUrl = '/getMap?' + MAP_VAR.currentMapParams + '&q=' + encodeURIComponent(MAP_VAR.currentQuery) + '&year=' + value;
-                \$('#map').css('opacity', 0.5);
-                \$.get(mapUrl, function(data) {
-                    \$('#map').html(data);
-                    \$('#map').css('opacity', 1);
-                    MAP_VAR.map.invalidateSize();
-                });
-                */
+                MAP_VAR.removeFqs = ''
+                addQueryLayer(true);
             }
+
+            const layer = MAP_VAR.currentLayers[MAP_VAR.currentLayers.length-1];
+            var self = this;
+            layer.on('load', function () {
+                setTimeout(function() {
+                    self.loadMap();
+                }, self.speed);
+            });
         }
 
-        getMinMaxYears(){
+        _getMinMaxYears(){
             var minYear = 1600;
             var maxYear = new Date().getFullYear();
 
@@ -412,50 +423,22 @@ const TemporalSearchControl = L.Control.extend({
     // Initialize
     $(document).ready(function() {
         // console.log(MAP_VAR);
-        new TemporalControl('#year-tab');
-        new TemporalControl('#month-tab');
+        new TemporalControl('#year-tab','year');
+        new TemporalControl('#month-tab','month');
         MAP_VAR.map.addControl(new TemporalSearchControl());
         makeModalDraggable('#nbnTemporalControlModal');
-    });
 
-    if (BC_CONF.groupedFacetsMap && BC_CONF.groupedFacetsMap.year) {
-    var yearFacet = BC_CONF.groupedFacetsMap.year;
-    var years = [];
+       const progressBarHtml = `
+    <div class="progress" style="margin-bottom: 0px">
+        <div data-temporal-progress="current" class="progress-bar" role="progressbar"
+             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+            <span data-temporal-control="current">-</span>
+        </div>
+    </div>
+    `;
 
-    // Extract years from the facet results
-    if (yearFacet.fieldResult && yearFacet.fieldResult.length > 0) {
-        years = yearFacet.fieldResult.map(function(item) {
-            return parseInt(item.label, 10);
-        }).filter(function(year) {
-            return !isNaN(year); // Filter out any non-numeric values
+    $('#leafletMap').before(progressBarHtml);
         });
-    }
-
-    // Set defaults
-    var minYear = 1600;
-    var maxYear = new Date().getFullYear();
-
-    // Find actual min and max years from data if available
-    if (years.length > 0) {
-        var dataMinYear = Math.min.apply(Math, years);
-        var dataMaxYear = Math.max.apply(Math, years);
-
-        // Use data values if they exist, otherwise keep defaults
-        minYear = dataMinYear;
-        maxYear = dataMaxYear;
-    }
-
-    console.log('Min year:', minYear);
-    console.log('Max year:', maxYear);
-
-    // You can now use minYear and maxYear as needed
-} else {
-    // No year facet data available, use defaults
-    var minYear = 1600;
-    var maxYear = new Date().getFullYear();
-
-    console.log('No year data available, using defaults - Min year:', minYear, 'Max year:', maxYear);
-}
 </asset:script>
 
 <style>
