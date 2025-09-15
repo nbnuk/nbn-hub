@@ -554,21 +554,6 @@
 </asset:script>
 
 <style>
-.slider-container {
-    position: relative;
-    width: 400px;
-    margin: 20px 0;
-}
-
-#yearRangeSlider {
-    width: 100%;
-}
-
-.slider-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 5px; /* spacing between slider and labels */
-}
 
 #nbnTemporalControlModal .tab-content {border:none !important; padding: 0px !important; margin: 0px !important;}
 
@@ -576,7 +561,7 @@
     padding: 6px 10px;
     background-color: #fff;
 }
-#main-content .leaflet-container a.launchTemporalLeafletControl, #main-content .leaflet-container a.launchTemporalLeafletControl a.launchTemporalLeafletControl:visited, #main-content .leaflet-container a.launchTemporalLeafletControl:hover {
+#main-content .leaflet-container a.launchTemporalLeafletControl, #main-content .leaflet-container a.launchTemporalLeafletControl:visited, #main-content .leaflet-container a.launchTemporalLeafletControl:hover {
     color: #000;
     text-decoration: none;
 }
