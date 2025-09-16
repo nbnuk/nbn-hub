@@ -2,7 +2,7 @@
     BC_CONF.groupedFacetsMap= ${(groupedFacetsMap as grails.converters.JSON).toString().encodeAsRaw()}
 </script>
 
-<div id="nbnTemporalToolbar" class="well well-sm" aria-label="Timeline Control" style="margin-bottom: 0px; padding-bottom: 0px;" data-temporal-control="main">
+<div id="nbnTemporalToolbar" class="well well-sm" aria-label="Timeline Control" style="display:none; margin-bottom: 0px; padding-bottom: 0px;" data-temporal-control="main">
     <!-- Tabs -->
     <ul class="nav nav-pills" role="tablist">
         <li role="presentation" class="active">
@@ -135,18 +135,17 @@
             </div>
         </div>
     </div>
-    <!-- Progress bar -->
-    <div class="progress" style="margin-bottom:0px">
-        <div data-temporal-progress="current" class="progress-bar" role="progressbar"
-             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-            <span data-temporal-control="current">-</span>
-        </div>
+
+</div>
+<!-- Progress bar -->
+<div class="progress" style="margin-bottom:0px">
+    <div data-temporal-progress="current" class="progress-bar" role="progressbar"
+         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+        <span data-temporal-control="current">-</span>
     </div>
 </div>
 
 
-
-<asset:javascript src="nbn/draggable-modal.js" />
 <asset:javascript src="nbn/jquery-ui.min.js" />
 <asset:stylesheet src="nbn/jquery-ui.min.css" />
 
@@ -477,7 +476,8 @@
         onAdd: function(map) {
             const container = L.DomUtil.create('div', 'leaflet-control-layers');
             container.id = 'launchTemporalLeafletControl';
-            container.innerHTML = '<a data-toggle="modal" href="#nbnTemporalControlModal" class="launchTemporalLeafletControl"><i class="fa fa-clock-o fa-lg"></i></a>';
+            container.title = "Enter Tooltip Here"
+            container.innerHTML = '<a id="nbnTemporalControl" href="#" class="launchTemporalLeafletControl tooltips" title="Explore changes over time"><i class="fa fa-clock-o fa-lg"></i></a>';
             L.DomEvent.disableClickPropagation(container);
             return container;
         }
@@ -488,25 +488,10 @@
 
         new TemporalControl('#year-tab','year');
         new TemporalControl('#month-tab','month');
+
         MAP_VAR.map.addControl(new LaunchTemporalLeafletControl());
-        makeModalDraggable('#nbnTemporalControlModal');
+        $('#nbnTemporalControl').tooltip({ container: 'body', placement: 'left' });
 
-       const progressBarHtml = `
-
-    <div class="progress-container" style="display:flex; align-items:center; margin-bottom:0;">
-        <div class="progress" style="flex:1; margin:0;">
-            <div data-temporal-progress="current" class="progress-bar" role="progressbar"
-                 aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-                <span data-temporal-control="current">-</span>
-            </div>
-        </div>
-        <div style="margin-left:10px; white-space:nowrap; display:none;" id="resetMap">
-            <a href="#" ><i class="fa fa-refresh" aria-hidden="true"></i> reset map</a>
-        </div>
-    </div>
-    `;
-
-    $('#leafletMap').before(progressBarHtml);
 
     function resetMap() {
             $('[data-temporal-progress="current"].progress-bar').css('width', "0%");
@@ -519,6 +504,15 @@
     $('#resetMap a').click(function() {
             resetMap();
             $('#resetMap').hide();
+            });
+
+    $('#nbnTemporalControl').click(function() {
+            $('.tooltip').hide();
+            $('#nbnTemporalToolbar').slideDown();
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+
             });
 
    });
