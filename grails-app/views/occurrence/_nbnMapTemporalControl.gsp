@@ -184,20 +184,24 @@
         constructor(selector, mode) {
             this.container = $(selector);
 
-            this.isPlaying = false;
+
             this.mode = mode;
             this.monthNames = [
                 'January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'
             ];
 
+            this.init();
+
+        }
+        init(){
+            this.isPlaying = false;
             this.setupSlider();
             this.bindEvents();
-            this.currentValue = this.getSlider().slider("values", 0);
+            // this.currentValue = this.getSlider().slider("values", 0);
             this.step = 1;
             this.speed = 1000;
             this._refreshState()
-
         }
 
         getControl(type) {
@@ -251,7 +255,8 @@
                         var startMonth = self.monthNames[ui.values[0] - 1];
                         var endMonth = self.monthNames[ui.values[1] - 1];
                         self.getDisplay('range').text(startMonth + ' - ' + endMonth);
-                        self.currentValue=ui.values[0];
+                        // self.currentValue=ui.values[0];
+                        self.currentValue=undefined;
                     }
                 }
             });
@@ -274,7 +279,7 @@
                 slide: function(event, ui) {
                     if (ui && ui.values) {
                         self.getDisplay('range').text(ui.values[0] + ' - ' + ui.values[1]);
-                        self.currentValue=ui.values[0];
+                        self.currentValue=undefined;
                     }
                 }
             });
@@ -300,7 +305,7 @@
 
             this.step = parseInt(this.getSetting('step').val());
             this.speed = parseFloat(this.getSetting('speed').val()) * 1000;
-            if (this.currentValue ==  this.getSlider().slider("values", 1)){
+            if (!this.currentValue || this.currentValue ==  this.getSlider().slider("values", 1)){
                 this.currentValue = this.getSlider().slider("values", 0);
             }
 
@@ -365,9 +370,9 @@
             if (this.isPlaying) this.getControl("play").parent().hide(); else this.getControl("play").parent().show();
             if (this.isPlaying)  this.getControl("pause").parent().show(); else this.getControl("pause").parent().hide();
 
-            this.getControl('backward').prop('disabled', this.currentValue <= minValue?true:false);
+            this.getControl('backward').prop('disabled', !this.currentValue || this.currentValue <= minValue?true:false);
 
-            this.getControl('rewind').prop('disabled', this.currentValue <= minValue?true:false);
+            this.getControl('rewind').prop('disabled', !this.currentValue || this.currentValue <= minValue?true:false);
             this.getControl('forward').prop('disabled', this.currentValue >= maxValue?true:false);
             if (this.isPlaying)
                 this.getSlider().slider( "option", "disabled", true );
@@ -392,7 +397,12 @@
                 return;
             }
 
-            this.currentValue += this.step;
+            if (!this.currentValue ){
+                this.currentValue = this.getSlider().slider("values", 0);
+            }
+            else{
+                this.currentValue += this.step;
+            }
 
             if (this.currentValue >= maxValue) {
                 this.currentValue = maxValue;
@@ -506,7 +516,7 @@
         onAdd: function(map) {
             const container = L.DomUtil.create('div', 'leaflet-control-layers');
             container.id = 'launchTemporalLeafletControl';
-            container.innerHTML = '<a data-toggle="modal" href="#nbnTemporalControlModal" class="launchTemporalLeafletControl"><i class="fa fa-clock-o fa-lg"></i></a>';
+            container.innerHTML = '<a data-toggle="modal" href="#nbnTemporalControlModal" class="launchTemporalLeafletControl tooltips" title="Explore changes over time"><i class="fa fa-clock-o fa-lg"></i></a>';
             L.DomEvent.disableClickPropagation(container);
             return container;
         }
@@ -515,9 +525,10 @@
     // Initialize
     $(document).ready(function() {
 
-        new TemporalControl('#year-tab','year');
-        new TemporalControl('#month-tab','month');
+        window.nbnYearTemporalControl = new TemporalControl('#year-tab','year');
+        window.nbnMonthTemporalControl = new TemporalControl('#month-tab','month');
         MAP_VAR.map.addControl(new LaunchTemporalLeafletControl());
+        $('a.launchTemporalLeafletControl').tooltip({ container: 'body', placement: 'left' });
         makeModalDraggable('#nbnTemporalControlModal');
 
        const progressBarHtml = `
@@ -542,7 +553,7 @@
                 MAP_VAR.additionalFqs = '';
                 MAP_VAR.removeFqs = ''
                 addQueryLayer(true);
-                $('#refreshMap').hide();
+                $('#resetMap').hide();
         }
 
     $('#resetMap a').click(function() {
