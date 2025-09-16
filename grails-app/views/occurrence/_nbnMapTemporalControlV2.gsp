@@ -3,6 +3,7 @@
 </script>
 
 <div id="nbnTemporalToolbar" class="well well-sm" aria-label="Timeline Control" style="display:none; margin-bottom: 0px; padding-bottom: 0px;" data-temporal-control="main">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
     <!-- Tabs -->
     <ul class="nav nav-pills" role="tablist">
         <li role="presentation" class="active">
@@ -12,6 +13,10 @@
             <a href="#month-tab" data-toggle="tab" style="padding:2px 10px 2px 10px;">Month</a>
         </li>
     </ul>
+
+        <a id="resetMap" href="#" >Close and reset map <i class="fa fa-times" aria-hidden="true"></i></a>
+
+    </div>
     <div class="tab-content" style="border: none !important; padding-bottom:0px">
         <div id="year-tab" role="tabpanel" class="tab-pane active" >
             <div class="row">
@@ -163,7 +168,7 @@
 
             this.setupSlider();
             this.bindEvents();
-            this.currentValue = this.getSlider().slider("values", 0);
+            // this.currentValue = this.getSlider().slider("values", 0);
             this.step = 1;
             this.speed = 1000;
             this._refreshState()
@@ -270,7 +275,7 @@
 
             this.step = parseInt(this.getSetting('step').val());
             this.speed = parseFloat(this.getSetting('speed').val()) * 1000;
-            if (this.currentValue ==  this.getSlider().slider("values", 1)){
+            if (!this.currentValue || this.currentValue ==  this.getSlider().slider("values", 1)){
                 this.currentValue = this.getSlider().slider("values", 0);
             }
 
@@ -362,7 +367,12 @@
                 return;
             }
 
-            this.currentValue += this.step;
+            if (!this.currentValue ){
+                this.currentValue = this.getSlider().slider("values", 0);
+            }
+            else{
+                this.currentValue += this.step;
+            }
 
             if (this.currentValue >= maxValue) {
                 this.currentValue = maxValue;
@@ -498,19 +508,29 @@
                 MAP_VAR.additionalFqs = '';
                 MAP_VAR.removeFqs = ''
                 addQueryLayer(true);
-                $('#refreshMap').hide();
         }
 
-    $('#resetMap a').click(function() {
+    $('a#resetMap, a.reset-map-mode').click(function() {
+            $('#nbnTemporalToolbar').slideUp();
+            $('a.reset-map-mode').removeClass("reset-map-mode");
             resetMap();
-            $('#resetMap').hide();
+
             });
 
     $('#nbnTemporalControl').click(function() {
             $('.tooltip').hide();
-            $('#nbnTemporalToolbar').slideDown();
-            e.preventDefault();
-            e.stopPropagation();
+
+            if ($(this).hasClass("reset-map-mode")){
+                $('#nbnTemporalToolbar').slideUp();
+                $('a.reset-map-mode').removeClass("reset-map-mode");
+                resetMap();
+                return false;
+            }
+            else{
+                $('#nbnTemporalToolbar').slideDown();
+                $(this).addClass("reset-map-mode");
+            }
+
             return false;
 
             });
