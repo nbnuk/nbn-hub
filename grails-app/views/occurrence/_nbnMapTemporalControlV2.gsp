@@ -2,108 +2,149 @@
     BC_CONF.groupedFacetsMap= ${(groupedFacetsMap as grails.converters.JSON).toString().encodeAsRaw()}
 </script>
 
-<!-- One-line responsive Temporal Toolbar -->
-<div id="nbnTemporalToolbar" class="well well-sm" style="margin-bottom:0px; padding-bottom:0px;" aria-label="Timeline Control" data-temporal-control="main">
-    <div id="year-tab">
-    <div class="nbn-inline" >
-
-        <!-- Tabs -->
-        <ul class="nav nav-pills nbn-nowrap" role="tablist" style="margin:0;">
-            <li role="presentation" class="active">
-                <a href="#year-tab-inline" data-toggle="tab">Year</a>
-            </li>
-            <li role="presentation">
-                <a href="#month-tab-inline" data-toggle="tab">Month</a>
-            </li>
-        </ul>
-
-
-        <!-- Min -->
-        <small class="text-muted nbn-nowrap" data-display="min" style="margin-right:8px;">1600</small>
-
-        <!-- Slider -->
-        <div class="nbn-grow" style="margin:0 6px;">
-            <div data-slider="range" data-scope="year" class="nbn-slider"></div>
-        </div>
-
-        <!-- Max -->
-        <small class="text-muted nbn-nowrap" data-display="max" style="margin-left:8px;">2024</small>
-
-        <!-- Settings -->
-        <form class="form-inline nbn-nowrap" role="form" style="margin-left:8px;">
-            <div class="form-group form-group-sm">
-                <label class="control-label" for="nbn-year-step" style="margin-right:4px;">Step</label>
-                <input id="nbn-year-step" type="number" class="form-control input-sm" min="1" max="100" value="1" data-setting="step" style="width:64px;">
-            </div>
-            <div class="form-group form-group-sm" style="margin-left:6px;">
-                <label class="control-label" for="nbn-year-speed" style="margin-right:4px;">Interval</label>
-                <input id="nbn-year-speed" type="number" class="form-control input-sm" min="0.1" max="10" step="0.1" value="1" data-setting="speed" style="width:64px;">
-                <span class="text-muted">sec</span>
-            </div>
-        </form>
-    </div>
-        <div class="nbn-inline" style="display:flex; justify-content: center; margin-top:15px; margin-bottom:15px;">
-
-        <!-- Controls -->
-        <div class="btn-group btn-group-justified" role="group" aria-label="Playback controls" style="margin-left:8px; width: 250px">
-        <div class="btn-group" role="group"><button type="button" class="btn btn-default btn-sm" data-control="rewind"  title="Rewind"><i class="fa fa-fast-backward"></i></button></div>
-                <div class="btn-group" role="group"><button type="button" class="btn btn-default btn-sm" data-control="backward" title="Back"><i class="fa fa-step-backward"></i></button></div>
-                    <div class="btn-group" role="group"><button type="button" class="btn btn-success btn-sm" data-control="play"     title="Play"><i class="fa fa-play"></i></button></div>
-                        <div class="btn-group" role="group"><button type="button" class="btn btn-warning btn-sm" data-control="pause"   title="Pause"><i class="fa fa-pause"></i></button></div>
-                            <div class="btn-group" role="group"><button type="button" class="btn btn-default btn-sm" data-control="forward" title="Forward"><i class="fa fa-step-forward"></i></button></div>
-        </div>
+<div id="nbnTemporalToolbar" class="well well-sm" aria-label="Timeline Control" style="margin-bottom: 0px; padding-bottom: 0px;" data-temporal-control="main">
+    <!-- Tabs -->
+    <ul class="nav nav-pills" role="tablist">
+        <li role="presentation" class="active">
+            <a href="#year-tab" data-toggle="tab" style="padding:2px 10px 2px 10px;">Year</a>
+        </li>
+        <li role="presentation">
+            <a href="#month-tab" data-toggle="tab" style="padding:2px 10px 2px 10px;">Month</a>
+        </li>
+    </ul>
+    <div class="tab-content" style="border: none !important; padding-bottom:0px">
+        <div id="year-tab" role="tabpanel" class="tab-pane active" >
+            <div class="row">
+                <!-- Slider + labels -->
+                <div class="col-sm-12 col-md-6"  style="margin-bottom: 10px; ">
+                    <div data-slider="range"></div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <small class="text-muted" data-display="min">1600</small>
+                        </div>
+                        <div class="col-xs-6 text-right">
+                            <small class="text-muted" data-display="max">2024</small>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <strong data-display="range">1600 - 2024</strong>
+                    </div>
+                </div>
 
 
+                <div class="col-sm-12 col-md-3" style="margin-bottom: 10px; ">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-addon">Step</span>
+                                <input id="nbn-year-step" type="number" class="form-control"
+                                       min="1" max="100" value="1" data-setting="step">
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-addon">Interval (s)</span>
+                                <input id="nbn-year-speed" type="number" class="form-control"
+                                       min="0.5" max="10" step="0.1" value="1" data-setting="speed">
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Current range -->
-        <p class="nbn-nowrap" style="margin:0 0 0 8px;"><strong data-display="range">1600 – 2024</strong></p>
-
-    </div>
-
-    <!-- Month tab content (hidden but reuses the same row/slots) -->
-    <div class="tab-content" style="display:none;">
-        <div role="tabpanel" class="tab-pane active" id="year-tab-inline"></div>
-        <div role="tabpanel" class="tab-pane" id="month-tab-inline">
-            <!-- When switching to Month, your JS can swap slider to data-scope="month"
-           and update min/max/range labels to Jan/Dec as you already do. -->
-        </div>
-    </div>
-    </div>
-    <div class="progress-container" style="display:flex; align-items:center;">
-        <div class="progress" style="flex:1; margin:0;">
-            <div data-temporal-progress="current" class="progress-bar" role="progressbar"
-                 aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-                <span data-temporal-control="current">-</span>
+                <!-- Playback buttons -->
+                <div class="col-sm-12 col-md-3"  style="margin-bottom: 10px; ">
+                    <div class="btn-group btn-group-justified" role="group" aria-label="Playback controls" style="white-space: nowrap;">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default btn-sm" data-control="rewind" title="Rewind"><i class="fa fa-fast-backward"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default btn-sm" data-control="backward" title="Back"><i class="fa fa-step-backward"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-success btn-sm" data-control="play" title="Play"><i class="fa fa-play"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-warning btn-sm" data-control="pause" title="Pause"><i class="fa fa-pause"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default btn-sm" data-control="forward" title="Forward"><i class="fa fa-step-forward"></i></button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <div id="month-tab" role="tabpanel" class="tab-pane" >
+            <div class="row">
+                <!-- Slider + labels -->
+                <div class="col-sm-12 col-md-6"  style="margin-bottom: 10px; ">
+                    <div data-slider="range"></div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <small class="text-muted" data-display="min">January</small>
+                        </div>
+                        <div class="col-xs-6 text-right">
+                            <small class="text-muted" data-display="max">December</small>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <strong data-display="range">January - December</strong>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-12 col-md-3" style="margin-bottom: 10px; ">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-addon">Step</span>
+                                <input id="nbn-year-step" type="number" class="form-control"
+                                       min="1" max="12" value="1" data-setting="step">
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-addon">Interval (s)</span>
+                                <input id="nbn-year-speed" type="number" class="form-control"
+                                       min="0.5" max="10" step="0.1" value="1" data-setting="speed">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Playback buttons -->
+                <div class="col-sm-12 col-md-3"  style="margin-bottom: 10px; ">
+                    <div class="btn-group btn-group-justified" role="group" aria-label="Playback controls" style="white-space: nowrap;">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default btn-sm" data-control="rewind" title="Rewind"><i class="fa fa-fast-backward"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default btn-sm" data-control="backward" title="Back"><i class="fa fa-step-backward"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-success btn-sm" data-control="play" title="Play"><i class="fa fa-play"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-warning btn-sm" data-control="pause" title="Pause"><i class="fa fa-pause"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default btn-sm" data-control="forward" title="Forward"><i class="fa fa-step-forward"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Progress bar -->
+    <div class="progress" style="margin-bottom:0px">
+        <div data-temporal-progress="current" class="progress-bar" role="progressbar"
+             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+            <span data-temporal-control="current">-</span>
+        </div>
     </div>
 </div>
 
-<style>
-/* Tiny helpers (Bootstrap 3 + a dash of flex) */
-.nbn-stick { position: sticky; top:0; z-index:1030; }
-.nbn-inline { display:flex; align-items:center; flex-wrap:wrap; }
-.nbn-grow { flex:1 1 240px; min-width:160px; } /* slider gets the flexible space */
-.nbn-nowrap { white-space:nowrap; }
-.nbn-slider { width:100%; } /* your slider lib will style the track/handle */
-</style>
 
-<script>
-    // Optional: tooltips
-    $(function(){ $('[title]').tooltip({container:'body'}); });
-
-    // Example: swap slider scope when changing tabs (keep your own logic if you have it)
-    $('.nav-pills [data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        var isMonth = $(e.target).attr('href') === '#month-tab-inline';
-        var $toolbar = $('#nbnTemporalToolbar');
-        var $slider  = $toolbar.find('[data-slider="range"]');
-        $slider.attr('data-scope', isMonth ? 'month' : 'year');
-        $toolbar.find('[data-display="min"]').text(isMonth ? 'January' : '1600');
-        $toolbar.find('[data-display="max"]').text(isMonth ? 'December' : '2024');
-        $toolbar.find('[data-display="range"]').text(isMonth ? 'January – December' : '1600 – 2024');
-    });
-</script>
 
 <asset:javascript src="nbn/draggable-modal.js" />
 <asset:javascript src="nbn/jquery-ui.min.js" />
@@ -495,5 +536,8 @@
     color: #000;
     text-decoration: none;
 }
+/*#nbnTemporalControlModal .nav>li>a{*/
+/*    padding:2px 10px 2px 10px;*/
+/*}*/
 
 </style>
