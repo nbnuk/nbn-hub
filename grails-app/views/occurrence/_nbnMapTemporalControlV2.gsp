@@ -159,20 +159,24 @@
         constructor(selector, mode) {
             this.container = $(selector);
 
-            this.isPlaying = false;
+
             this.mode = mode;
             this.monthNames = [
                 'January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'
             ];
 
+            this.init();
+
+        }
+        init(){
+            this.isPlaying = false;
             this.setupSlider();
             this.bindEvents();
             // this.currentValue = this.getSlider().slider("values", 0);
             this.step = 1;
             this.speed = 1000;
             this._refreshState()
-
         }
 
         getControl(type) {
@@ -226,7 +230,8 @@
                         var startMonth = self.monthNames[ui.values[0] - 1];
                         var endMonth = self.monthNames[ui.values[1] - 1];
                         self.getDisplay('range').text(startMonth + ' - ' + endMonth);
-                        self.currentValue=ui.values[0];
+                        // self.currentValue=ui.values[0];
+                        self.currentValue=undefined;
                     }
                 }
             });
@@ -249,7 +254,7 @@
                 slide: function(event, ui) {
                     if (ui && ui.values) {
                         self.getDisplay('range').text(ui.values[0] + ' - ' + ui.values[1]);
-                        self.currentValue=ui.values[0];
+                        self.currentValue=undefined;
                     }
                 }
             });
@@ -340,9 +345,9 @@
             if (this.isPlaying) this.getControl("play").parent().hide(); else this.getControl("play").parent().show();
             if (this.isPlaying)  this.getControl("pause").parent().show(); else this.getControl("pause").parent().hide();
 
-            this.getControl('backward').prop('disabled', this.currentValue <= minValue?true:false);
+            this.getControl('backward').prop('disabled', !this.currentValue || this.currentValue <= minValue?true:false);
 
-            this.getControl('rewind').prop('disabled', this.currentValue <= minValue?true:false);
+            this.getControl('rewind').prop('disabled', !this.currentValue || this.currentValue <= minValue?true:false);
             this.getControl('forward').prop('disabled', this.currentValue >= maxValue?true:false);
             if (this.isPlaying)
                 this.getSlider().slider( "option", "disabled", true );
