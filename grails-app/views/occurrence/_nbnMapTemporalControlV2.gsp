@@ -7,10 +7,10 @@
     <!-- Tabs -->
     <ul class="nav nav-pills" role="tablist">
         <li role="presentation" class="active">
-            <a href="#year-tab" data-toggle="tab" style="padding:2px 10px 2px 10px;">Year</a>
+            <a href="#year-tab" data-toggle="tab" style="padding:5px 10px 5px 10px;">Year</a>
         </li>
         <li role="presentation">
-            <a href="#month-tab" data-toggle="tab" style="padding:2px 10px 2px 10px;">Month</a>
+            <a href="#month-tab" data-toggle="tab" style="padding:5px 10px 5px 10px;">Month</a>
         </li>
     </ul>
 
@@ -19,25 +19,16 @@
     </div>
     <div class="tab-content" style="border: none !important; padding-bottom:0px">
         <div id="year-tab" role="tabpanel" class="tab-pane active" >
-            <div class="row">
+            <div class="row" style="display: flex; flex-wrap: wrap; align-items: flex-end;">
                 <!-- Slider + labels -->
-                <div class="col-sm-12 col-md-6"  style="margin-bottom: 10px; ">
-                    <div data-slider="range"></div>
-                    <div class="row">
-                        <div class="col-xs-6">
-                            <small class="text-muted" data-display="min">1600</small>
-                        </div>
-                        <div class="col-xs-6 text-right">
-                            <small class="text-muted" data-display="max">2024</small>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <strong data-display="range">1600 - 2024</strong>
-                    </div>
+                <div class="col-xs-12 col-sm-12 col-md-6"  style="margin-bottom: 10px; ">
+                <input data-slider="range" type="text" style="margin: 10px 0;"/>
+
+
                 </div>
 
 
-                <div class="col-sm-12 col-md-3" style="margin-bottom: 10px; ">
+                <div class="col-xs-12 col-sm-12 col-md-3" style="margin-bottom: 10px; ">
                     <div class="row">
                         <div class="col-xs-6">
                             <div class="input-group input-group-sm">
@@ -48,16 +39,16 @@
                         </div>
                         <div class="col-xs-6">
                             <div class="input-group input-group-sm">
-                                <span class="input-group-addon">Interval (s)</span>
+                                <span class="input-group-addon">Interval(s)</span>
                                 <input id="nbn-year-speed" type="number" class="form-control"
-                                       min="0.5" max="10" step="0.1" value="1" data-setting="speed">
+                                       min="0.5" max="10" step="0.5" value="1" data-setting="speed">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Playback buttons -->
-                <div class="col-sm-12 col-md-3"  style="margin-bottom: 10px; ">
+                <div class="col-xs-12 col-sm-12 col-md-3"  style="margin-bottom: 10px; ">
                     <div class="btn-group btn-group-justified" role="group" aria-label="Playback controls" style="white-space: nowrap;">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-default btn-sm" data-control="rewind" title="Rewind"><i class="fa fa-fast-backward"></i></button>
@@ -83,18 +74,8 @@
             <div class="row">
                 <!-- Slider + labels -->
                 <div class="col-sm-12 col-md-6"  style="margin-bottom: 10px; ">
-                    <div data-slider="range"></div>
-                    <div class="row">
-                        <div class="col-xs-6">
-                            <small class="text-muted" data-display="min">January</small>
-                        </div>
-                        <div class="col-xs-6 text-right">
-                            <small class="text-muted" data-display="max">December</small>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <strong data-display="range">January - December</strong>
-                    </div>
+                <input data-slider="range" type="text" style="margin: 10px 0;"/>
+
                 </div>
 
 
@@ -150,9 +131,8 @@
     </div>
 </div>
 
-
-<asset:javascript src="nbn/jquery-ui.min.js" />
-<asset:stylesheet src="nbn/jquery-ui.min.css" />
+<asset:stylesheet src="nbn/ion.rangeSlider.min.css" />
+<asset:javascript src="nbn/ion.rangeSlider.min.js" />
 
 <asset:script type="text/javascript">
     class TemporalControl {
@@ -162,8 +142,8 @@
 
             this.mode = mode;
             this.monthNames = [
-                'January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'
+                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Novr', 'Dec'
             ];
 
             this.init();
@@ -173,7 +153,7 @@
             this.isPlaying = false;
             this.setupSlider();
             this.bindEvents();
-            // this.currentValue = this.getSlider().slider("values", 0);
+            // this.currentValue = this.sliderApi.result.from;
             this.step = 1;
             this.speed = 1000;
             this._refreshState()
@@ -193,13 +173,13 @@
 
         displayCurrentValue(value) {
             if (this.mode === 'month') {
-                var monthName = this.monthNames[value - 1];
+                var monthName = this.monthNames[value];
                 $('[data-temporal-control="current"]').text(monthName);
             } else {
                 $('[data-temporal-control="current"]').text(value);
             }
-            const totalSteps = ((this.getSlider().slider("values", 1) - this.getSlider().slider("values", 0)) / this.step) + 1;
-            const stepsDone = ((value - this.getSlider().slider("values", 0)) / this.step) + 1;
+            const totalSteps = ((this.sliderApi.result.to - this.sliderApi.result.from) / this.step) + 1;
+            const stepsDone = ((value - this.sliderApi.result.from) / this.step) + 1;
             $('[data-temporal-progress="current"].progress-bar').css('width', (stepsDone / totalSteps) * 100+"%");
         }
 
@@ -220,25 +200,22 @@
         setupMonthSlider() {
             var self = this;
 
-            this.getSlider().slider({
-                range: true,
-                min: 1,
-                max: 12,
-                values: [1, 12],
-                slide: function(event, ui) {
-                    if (ui && ui.values) {
-                        var startMonth = self.monthNames[ui.values[0] - 1];
-                        var endMonth = self.monthNames[ui.values[1] - 1];
-                        self.getDisplay('range').text(startMonth + ' - ' + endMonth);
-                        // self.currentValue=ui.values[0];
-                        self.currentValue=undefined;
-                    }
-                }
-            });
+             this.sliderApi = this.getSlider().ionRangeSlider({
+                  type: 'double',
+                  skin: 'modern',
+                  values: this.monthNames,
+                  min: 'January',
+                  max: 'December',
+                  from: 'January',
+                  to: 'December',
+                  step: 1,
+                  onChange: (data) => {
+                    this.currentValue = undefined;
+                  }
 
-            this.getDisplay('min').text('January');
-            this.getDisplay('max').text('December');
-            this.getDisplay('range').text('January - December');
+                }).data('ionRangeSlider');
+
+
         }
 
         setupYearSlider() {
@@ -246,22 +223,20 @@
             var minAndMaxYears = this._getMinMaxYears();
             var self = this;
 
-            this.getSlider().slider({
-                range: true,
-                min: minAndMaxYears.min,
-                max: minAndMaxYears.max,
-                values: [minAndMaxYears.min, minAndMaxYears.max],
-                slide: function(event, ui) {
-                    if (ui && ui.values) {
-                        self.getDisplay('range').text(ui.values[0] + ' - ' + ui.values[1]);
-                        self.currentValue=undefined;
-                    }
-                }
-            });
+            this.sliderApi = this.getSlider().ionRangeSlider({
+              type: 'double',
+              skin: 'round',
+              min:  minAndMaxYears.min,
+              max:  minAndMaxYears.max,
+              from: minAndMaxYears.min,
+              to:   minAndMaxYears.max,
+              step: 1,
+              prettify_enabled: false,
+              onChange: (data) => {
+                this.currentValue = undefined;
+              }
+            }).data('ionRangeSlider');
 
-            this.getDisplay('min').text(minAndMaxYears.min);
-            this.getDisplay('max').text(minAndMaxYears.max);
-            this.getDisplay('range').text(minAndMaxYears.min +' - ' + minAndMaxYears.max);
         }
 
         bindEvents() {
@@ -280,8 +255,9 @@
 
             this.step = parseInt(this.getSetting('step').val());
             this.speed = parseFloat(this.getSetting('speed').val()) * 1000;
-            if (!this.currentValue || this.currentValue ==  this.getSlider().slider("values", 1)){
-                this.currentValue = this.getSlider().slider("values", 0);
+            this._debug("play "+this.sliderApi.result.from+" "+this.sliderApi.result.to);
+            if (this.currentValue == undefined || this.currentValue ==  this.sliderApi.result.to){
+                this.currentValue = this.sliderApi.result.from;
             }
 
             this.isPlaying = true;
@@ -294,7 +270,7 @@
 
         forward(){
             this._debug("forward currentValue:"+this.currentValue);
-            if (this.isPlaying || this.currentValue >= this.getSlider().slider("values", 1)) {
+            if (this.isPlaying || this.currentValue >= this.sliderApi.result.to) {
                 return true;
             }
             $('#resetMap').show();
@@ -309,7 +285,7 @@
 
         backward(){
 
-            if (this.isPlaying || this.currentValue <= this.getSlider().slider("values", 0)) {
+            if (this.isPlaying || this.currentValue <= this.sliderApi.result.from) {
                 return true;
             }
 
@@ -328,7 +304,7 @@
 
          rewind() {
 
-            this.currentValue = this.getSlider().slider("values", 0);
+            this.currentValue = this.sliderApi.result.from;
             this._refreshState()
 
             this.displayCurrentValue(this.currentValue);
@@ -337,22 +313,21 @@
 
         _refreshState() {
             this._debug("_refreshState");
-            this._debug()
-            const maxValue = this.getSlider().slider("values", 1);
-            const minValue = this.getSlider().slider("values", 0);
+            const maxValue = this.sliderApi.result.to;
+            const minValue = this.sliderApi.result.from;
 
 
             if (this.isPlaying) this.getControl("play").parent().hide(); else this.getControl("play").parent().show();
             if (this.isPlaying)  this.getControl("pause").parent().show(); else this.getControl("pause").parent().hide();
 
-            this.getControl('backward').prop('disabled', !this.currentValue || this.currentValue <= minValue?true:false);
+            this.getControl('backward').prop('disabled', this.currentValue == undefined || this.currentValue <= minValue?true:false);
 
-            this.getControl('rewind').prop('disabled', !this.currentValue || this.currentValue <= minValue?true:false);
+            this.getControl('rewind').prop('disabled', this.currentValue == undefined || this.currentValue <= minValue?true:false);
             this.getControl('forward').prop('disabled', this.currentValue >= maxValue?true:false);
             if (this.isPlaying)
-                this.getSlider().slider( "option", "disabled", true );
+                this.sliderApi.update({ disable: true });
             else
-                this.getSlider().slider( "option", "disabled", false );
+                this.sliderApi.update({ disable: false });
 
         }
 
@@ -367,13 +342,14 @@
         }
 
         _next(){
-            const maxValue = this.getSlider().slider("values", 1);
-            if (this.currentValue >= maxValue){
+
+            const maxValue = this.sliderApi.result.to;
+            if (this.currentValue && this.currentValue >= maxValue){
                 return;
             }
 
-            if (!this.currentValue ){
-                this.currentValue = this.getSlider().slider("values", 0);
+            if (this.currentValue == undefined){
+                this.currentValue = this.sliderApi.result.from;
             }
             else{
                 this.currentValue += this.step;
@@ -386,12 +362,13 @@
                 this.isPlaying = false;
 
             }
+
             this._refreshState();
             this._loadMap();
         }
 
         _back(){
-            const minValue = this.getSlider().slider("values", 0);
+            const minValue = this.sliderApi.result.from;
             if (this.currentValue <= minValue){
                 return;
             }
@@ -418,7 +395,7 @@
 
         displayMapForValue(value) {
             if (this.mode === 'month') {
-                this._debug("show month " + value + " (" + this.monthNames[value - 1] + ")");
+                this._debug("show month " + value + " (" + this.monthNames[value] + ")");
                 MAP_VAR.additionalFqs = '&fq=month:' + value;
                 MAP_VAR.removeFqs = ''
                 addQueryLayer(true);
@@ -475,14 +452,16 @@
 
         _debug(msg) {
             if (true) {
-                console.log(msg);
+                if (msg != undefined){
+                    console.log(msg);
+                }
+                else {
+                    console.log(this);
+                }
             }
         }
-        _debug() {
-            if (true) {
-                console.log(this);
-            }
-        }
+
+
     }
 
     // Leaflet Control
@@ -545,7 +524,7 @@
 
 <style>
 
-#nbnTemporalControlModal .tab-content {border:none !important; padding: 0px !important; margin: 0px !important;}
+#nbnTemporalToolbar .tab-content {border:none !important; padding: 10px 10px 5px 10px !important; margin: 0px !important;}
 
 #launchTemporalLeafletControl{
     padding: 6px 10px;
@@ -555,8 +534,12 @@
     color: #000;
     text-decoration: none;
 }
-/*#nbnTemporalControlModal .nav>li>a{*/
-/*    padding:2px 10px 2px 10px;*/
-/*}*/
 
+.irs--round .irs-handle{
+    border-color: #3e8f3e; /*#005A8E;*/
+
+}
+.irs--round .irs-from, .irs--round .irs-to, .irs--round .irs-single, .irs--round .irs-bar {
+    background-color: #3e8f3e; /*#005A8E;*/
+}
 </style>

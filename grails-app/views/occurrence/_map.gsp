@@ -26,6 +26,9 @@
     --%>
 </div>
 
+<g:if test="${params.nbnmap=='2'}">
+    <g:render template="nbnMapTemporalControlV2" />
+</g:if>
 <div class="collapse" id="recordLayerControls">
     <table id="mapLayerControls">
         <tr>
@@ -101,6 +104,7 @@
         </tr>
     </table>
 </div>
+
 
 <div id="leafletMap" class="col-md-12" style="height:600px;"></div>
 
@@ -206,7 +210,7 @@
     });
 
     function initialiseMap(){
-        //console.log("initialiseMap", MAP_VAR.map);
+        console.log("!!!!!!!!!!!!!!!!initialiseMap", MAP_VAR.map);
         if(MAP_VAR.map != null){
             return;
         }
@@ -281,6 +285,8 @@
 
         MAP_VAR.map.addControl(new RecordLayerControl());
         MAP_VAR.map.addControl(new ColourByControl());
+        $('.colour-by-control').tooltip({ container: 'body', placement: 'left' });
+
 
         L.Util.requestAnimFrame(MAP_VAR.map.invalidateSize, MAP_VAR.map, !1, MAP_VAR.map._container);
         L.Browser.any3d = false; // FF bug prevents selects working properly
@@ -307,6 +313,8 @@
             return false;
         });
 
+        // $.fn.bootstrapSlider = $.fn.slider.noConflict();
+
         $( "#sizeslider" ).slider({
             min:1,
             max:6,
@@ -323,7 +331,7 @@
             step: 0.1,
             value: Number($('#opacityslider-val').text()),
             tooltip: 'hide'
-        }).on('slideStop', function(ev){
+        }).on('slideStop', function(ev){alert('boo');
             var value = parseFloat(ev.value).toFixed(1); // prevent values like 0.30000000004 appearing
             $('#opacityslider-val').html(value);
             if (MAP_VAR.currentLayers.length == 1) {
@@ -1389,4 +1397,6 @@
     <g:render template="nbnMapDownload" />
 </g:if>
 
+<g:if test="${!params.nbnmap || params.nbnmap=='1'}">
 <g:render template="nbnMapTemporalControl" />
+</g:if>
