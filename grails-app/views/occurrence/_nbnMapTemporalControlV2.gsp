@@ -2,10 +2,12 @@
     BC_CONF.groupedFacetsMap= ${(groupedFacetsMap as grails.converters.JSON).toString().encodeAsRaw()}
 </script>
 
-<div id="nbnTemporalToolbar" class="well well-sm" aria-label="Timeline Control" style="display:none; margin-bottom: 0px; padding-bottom: 0px;" data-temporal-control="main">
+
+<div id="nbnTemporalToolbar" class="well well-sm"  aria-label="Timeline Control" style="display:none; margin-bottom: 0px; padding: 0px;" data-temporal-control="main">
+
     <div style="display: flex; justify-content: space-between; align-items: center;">
     <!-- Tabs -->
-    <ul class="nav nav-pills" role="tablist">
+    <ul class="nav nav-pills " role="tablist">
         <li role="presentation" class="active">
             <a href="#year-tab" data-toggle="tab" style="padding:5px 10px 5px 10px;">Year</a>
         </li>
@@ -14,11 +16,17 @@
         </li>
     </ul>
 
-        <a id="resetMap" href="#" >Close and reset map <i class="fa fa-times" aria-hidden="true"></i></a>
+        <a id="resetMap" href="#" style="margin-right:10px" >Close and reset map <i class="fa fa-times" aria-hidden="true"></i></a>
 
     </div>
     <div class="tab-content" style="border: none !important; padding-bottom:0px">
         <div id="year-tab" role="tabpanel" class="tab-pane active" >
+<g:if test="${sr.activeFacetObj.year}">
+    <div class="alert alert-warning" role="alert">
+        Remove the year filter to explore changes over years.
+    </div>
+</g:if>
+<div <g:if test="${sr.activeFacetObj.year}">style="display:none"</g:if>>
             <div class="row" style="display: flex; flex-wrap: wrap; align-items: flex-end;">
                 <!-- Slider + labels -->
                 <div class="col-xs-12 col-sm-12 col-md-6"  style="margin-bottom: 10px; ">
@@ -69,9 +77,15 @@
                 </div>
             </div>
         </div>
-
+        </div>
         <div id="month-tab" role="tabpanel" class="tab-pane" >
-            <div class="row">
+            <g:if test="${sr.activeFacetObj.month}">
+                <div class="alert alert-warning" role="alert">
+                    Remove the month filter to explore changes over years.
+                </div>
+            </g:if>
+            <div <g:if test="${sr.activeFacetObj.month}">style="display:none"</g:if>>
+            <div class="row" style="display: flex; flex-wrap: wrap; align-items: flex-end;">
                 <!-- Slider + labels -->
                 <div class="col-sm-12 col-md-6"  style="margin-bottom: 10px; ">
                 <input data-slider="range" type="text" style="margin: 10px 0;"/>
@@ -118,6 +132,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </div>
@@ -202,12 +217,12 @@
 
              this.sliderApi = this.getSlider().ionRangeSlider({
                   type: 'double',
-                  skin: 'modern',
+                  skin: 'round',
                   values: this.monthNames,
-                  min: 'January',
-                  max: 'December',
-                  from: 'January',
-                  to: 'December',
+                  min: 'Jan',
+                  max: 'Dec',
+                  from: 'Jan',
+                  to: 'Dec',
                   step: 1,
                   onChange: (data) => {
                     this.currentValue = undefined;

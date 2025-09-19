@@ -1400,3 +1400,7 @@
 <g:if test="${!params.nbnmap || params.nbnmap=='1'}">
 <g:render template="nbnMapTemporalControl" />
 </g:if>
+
+<g:if test="${params.nbnmap=='3'}">
+    <g:render template="nbnMapTemporalControlV3" />
+</g:if>

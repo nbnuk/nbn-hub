@@ -2,8 +2,8 @@
     BC_CONF.groupedFacetsMap= ${(groupedFacetsMap as grails.converters.JSON).toString().encodeAsRaw()}
 </script>
 
-<div id="nbnTemporalControlModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-sm" role="document">
+<div id="nbnTemporalControlModal" class="modal fade" tabindex="-1" role="dialog" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document" style="width:500px">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -11,136 +11,122 @@
                     <g:message code="map.temporalcontrol.title" default="Explore changes over time"/>
                 </h4>
             </div>
+
             <div class="modal-body" data-temporal-control="main">
-                <ul class="nav nav-pills nav-justified" style="margin-bottom: 30px;">
+
+                <ul class="nav nav-pills nav-justified" style="margin-bottom:20px">
                     <li role="presentation" class="active"><a href="#year-tab" data-toggle="tab">Year</a></li>
                     <li role="presentation"><a href="#month-tab" data-toggle="tab">Month</a></li>
                 </ul>
+
                 <div class="tab-content">
+                    <!-- ===== YEAR ===== -->
                     <div role="tabpanel" class="tab-pane active" id="year-tab">
-<g:if test="${sr.activeFacetObj.year}">
-    <div class="alert alert-warning" role="alert">
-        Remove the year filter to explore changes over years.
-    </div>
-</g:if>
-<div <g:if test="${sr.activeFacetObj.year}">style="display:none"</g:if>>
-                <!-- Year Range Slider -->
-                <div class="form-group">
-                    <div><input data-slider="range" type="text" style="margin: 10px 0;"/></div>
-                </div>
+                        <g:if test="${sr.activeFacetObj.year}">
+                            <div class="alert alert-warning" role="alert">
+                                Remove the year filter to explore changes over years.
+                            </div>
+                        </g:if>
+                    <div <g:if test="${sr.activeFacetObj.year}">style="display:none"</g:if>>
+                            <!-- Range -->
+                            <div class="form-group" style="margin:0 0 20px">
+                                <input data-slider="range" type="text" style="margin: 10px 0; width:100%"/>
+                            </div>
 
-                <!-- Playback Controls -->
-                <div class="form-group">
+                            <!-- Controls row: buttons + settings inline -->
+                            <div class="form-group" style="margin-bottom:0">
+                                <div class="clearfix">
+                                    <div class="pull-left" style="max-width:100%">
+                                        <div class="btn-group" role="group" aria-label="Playback">
+                                            <button type="button" class="btn btn-default" data-control="rewind" title="Rewind to start">
+                                                <i class="fa fa-fast-backward"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-default" data-control="backward" title="Backward one step">
+                                                <i class="fa fa-step-backward"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-success" data-control="play" title="Play">
+                                                <i class="fa fa-play"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-warning" data-control="pause" title="Pause">
+                                                <i class="fa fa-pause"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-default" data-control="forward" title="Forward one step">
+                                                <i class="fa fa-step-forward"></i>
+                                            </button>
+                                        </div>
+                                    </div>
 
-                    <div class="btn-group btn-group-justified" role="group">
-                        <div class="btn-group" role="group">
-                           <button type="button" class="btn btn-default" data-control="rewind"  title="Rewind to start">
-                                <i class="fa fa-fast-backward"></i>
-                            </button>
-                        </div>
-                        <div class="btn-group" role="group">
-                           <button type="button" class="btn btn-default" data-control="backward"  title="Backward one step">
-                                <i class="fa fa-step-backward"></i>
-                            </button>
-                        </div>
-                        <div class="btn-group" role="group">
-                           <button type="button" class="btn btn-success" data-control="play" title="Play">
-                                <i class="fa fa-play"></i>
-                            </button>
-                        </div>
-                        <div class="btn-group" role="group">
-                           <button type="button" class="btn btn-warning" data-control="pause" title="Pause">
-                                <i class="fa fa-pause"></i>
-                            </button>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-default" data-control="forward"  title="Forward one step">
-                                <i class="fa fa-step-forward"></i>
-                            </button>
-                        </div>
+                                    <!-- Inline settings -->
+                                    <form class="form-inline pull-right" style="margin-top:6px">
+                                        <div class="form-group" style="margin-right:10px">
+                                            <label class="control-label" style="margin-right:6px">Step</label>
+                                            <input type="number" class="form-control input-sm" min="1" max="100" value="1" data-setting="step" style="width:70px">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" style="margin-right:6px">Interval</label>
+                                            <div class="input-group input-group-sm" style="width:110px">
+                                                <input type="number" class="form-control" min="0.1" max="10" step="0.1" value="1" data-setting="speed">
+                                                <span class="input-group-addon">sec</span>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                     </div>
-                </div>
+                    </div>
 
-                <!-- Settings Row -->
-                <div class="row">
-                    <div class="col-xs-6">
-                        <div class="form-group">
-                            <label class="control-label">Year Step</label>
-                            <input type="number" class="form-control input-sm" min="1" max="100" value="1" data-setting="step">
-                        </div>
-                    </div>
-                    <div class="col-xs-6">
-                        <div class="form-group">
-                            <label class="control-label">Interval (sec)</label>
-                            <input type="number" class="form-control input-sm" min="0.1" max="10" step="0.1" value="1" data-setting="speed">
-                        </div>
-                    </div>
-                </div>
-
-</div>
-                    </div>
-                <div role="tabpanel" class="tab-pane" id="month-tab">
-                <g:if test="${sr.activeFacetObj.month}">
-                    <div class="alert alert-warning" role="alert">
-                        Remove the month filter to explore changes over month.
-                    </div>
-                </g:if>
+                    <!-- ===== MONTH ===== -->
+                    <div role="tabpanel" class="tab-pane" id="month-tab">
+                        <g:if test="${sr.activeFacetObj.month}">
+                            <div class="alert alert-warning" role="alert">
+                                Remove the month filter to explore changes over month.
+                            </div>
+                        </g:if>
                     <div <g:if test="${sr.activeFacetObj.month}">style="display:none"</g:if>>
-                    <!-- Month Range Slider -->
-                    <div class="form-group">
-                        <div><input data-slider="range" type="text" style="margin: 10px 0;"/></div>
-                    </div>
+                            <div class="form-group" style="margin:0 0 12px">
+                                <input data-slider="range" type="text" style="margin: 10px 0; width:100%"/>
+                            </div>
 
-                    <!-- Playback Controls -->
-                    <div class="form-group">
+                            <div class="form-group" style="margin-bottom:0">
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <div class="btn-group" role="group" aria-label="Playback">
+                                            <button type="button" class="btn btn-default" data-control="rewind" title="Rewind to start">
+                                                <i class="fa fa-fast-backward"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-default" data-control="backward" title="Backward one step">
+                                                <i class="fa fa-step-backward"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-success" data-control="play" title="Play">
+                                                <i class="fa fa-play"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-warning" data-control="pause" title="Pause">
+                                                <i class="fa fa-pause"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-default" data-control="forward" title="Forward one step">
+                                                <i class="fa fa-step-forward"></i>
+                                            </button>
+                                        </div>
+                                    </div>
 
-                        <div class="btn-group btn-group-justified" role="group">
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-default" data-control="rewind"  title="Rewind to start">
-                                    <i class="fa fa-fast-backward"></i>
-                                </button>
+                                    <form class="form-inline pull-right" style="margin-top:6px">
+                                        <div class="form-group" style="margin-right:10px">
+                                            <label class="control-label" style="margin-right:6px">Month Step</label>
+                                            <input type="number" class="form-control input-sm" min="1" max="12" value="1" data-setting="step" style="width:70px">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" style="margin-right:6px">Interval</label>
+                                            <div class="input-group input-group-sm" style="width:110px">
+                                                <input type="number" class="form-control" min="0.1" max="10" step="0.1" value="1" data-setting="speed">
+                                                <span class="input-group-addon">sec</span>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-default" data-control="backward"  title="Backward one step">
-                                    <i class="fa fa-step-backward"></i>
-                                </button>
-                            </div>
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-success" data-control="play" title="Play">
-                                    <i class="fa fa-play"></i>
-                                </button>
-                            </div>
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-warning" data-control="pause" title="Pause">
-                                    <i class="fa fa-pause"></i>
-                                </button>
-                            </div>
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-default" data-control="forward"  title="Forward one step">
-                                    <i class="fa fa-step-forward"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Settings Row -->
-                    <div class="row">
-                        <div class="col-xs-6">
-                            <div class="form-group">
-                                <label class="control-label">Month Step</label>
-                                <input type="number" class="form-control input-sm" min="1" max="12" value="1" data-setting="step">
-                            </div>
-                        </div>
-                        <div class="col-xs-6">
-                            <div class="form-group">
-                                <label class="control-label">Interval (sec)</label>
-                                <input type="number" class="form-control input-sm" min="0.1" max="10" step="0.1" value="1" data-setting="speed">
-                            </div>
-                        </div>
                     </div>
                     </div>
                 </div>
-            </div>
             </div>
         </div>
     </div>
@@ -338,8 +324,8 @@
             const minValue = this.sliderApi.result.from;
 
 
-            if (this.isPlaying) this.getControl("play").parent().hide(); else this.getControl("play").parent().show();
-            if (this.isPlaying)  this.getControl("pause").parent().show(); else this.getControl("pause").parent().hide();
+            if (this.isPlaying) this.getControl("play").hide(); else this.getControl("play").show();
+            if (this.isPlaying)  this.getControl("pause").show(); else this.getControl("pause").hide();
 
             this.getControl('backward').prop('disabled', this.currentValue == undefined || this.currentValue <= minValue?true:false);
 
