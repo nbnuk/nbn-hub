@@ -26,8 +26,10 @@
     --%>
 </div>
 
-<g:if test="${params.nbnmap=='2'}">
-    <g:render template="nbnMapTemporalControlV2" />
+<g:if test="${grailsApplication.config.feature.nbnMapTemporalControl?.toString()?.toBoolean()}">
+    <g:if test="${params.nbnmap=='2'}">
+        <g:render template="nbnMapTemporalControlV2" />
+    </g:if>
 </g:if>
 <div class="collapse" id="recordLayerControls">
     <table id="mapLayerControls">
@@ -210,7 +212,7 @@
     });
 
     function initialiseMap(){
-        //console.log("!!!!!!!!!!!!!!!!initialiseMap", MAP_VAR.map);
+        //console.log("initialiseMap", MAP_VAR.map);
         if(MAP_VAR.map != null){
             return;
         }
@@ -313,8 +315,6 @@
             return false;
         });
 
-        // $.fn.bootstrapSlider = $.fn.slider.noConflict();
-
         $( "#sizeslider" ).slider({
             min:1,
             max:6,
@@ -331,7 +331,7 @@
             step: 0.1,
             value: Number($('#opacityslider-val').text()),
             tooltip: 'hide'
-        }).on('slideStop', function(ev){alert('boo');
+        }).on('slideStop', function(ev){
             var value = parseFloat(ev.value).toFixed(1); // prevent values like 0.30000000004 appearing
             $('#opacityslider-val').html(value);
             if (MAP_VAR.currentLayers.length == 1) {
@@ -1397,10 +1397,12 @@
     <g:render template="nbnMapDownload" />
 </g:if>
 
-<g:if test="${!params.nbnmap || params.nbnmap=='1'}">
-<g:render template="nbnMapTemporalControl" />
-</g:if>
+<g:if test="${grailsApplication.config.feature.nbnMapTemporalControl?.toString()?.toBoolean()}">
+    <g:if test="${!params.nbnmap || params.nbnmap=='1'}">
+    <g:render template="nbnMapTemporalControl" />
+    </g:if>
 
-<g:if test="${params.nbnmap=='3'}">
-    <g:render template="nbnMapTemporalControlV3" />
+    <g:if test="${params.nbnmap=='3'}">
+        <g:render template="nbnMapTemporalControlV3" />
+    </g:if>
 </g:if>

@@ -71,7 +71,7 @@
                     </div>
                     <div class="col-xs-6">
                         <div class="form-group">
-                            <label class="control-label">Interval (sec)</label>
+                            <label class="control-label">Speed (sec)</label>
                             <input type="number" class="form-control input-sm" min="0.1" max="10" step="0.1" value="1" data-setting="speed">
                         </div>
                     </div>
@@ -133,7 +133,7 @@
                         </div>
                         <div class="col-xs-6">
                             <div class="form-group">
-                                <label class="control-label">Interval (sec)</label>
+                                <label class="control-label">Speed (sec)</label>
                                 <input type="number" class="form-control input-sm" min="0.1" max="10" step="0.1" value="1" data-setting="speed">
                             </div>
                         </div>
@@ -502,8 +502,8 @@
 
         window.nbnYearTemporalControl = new TemporalControl('#year-tab','year');
         window.nbnMonthTemporalControl = new TemporalControl('#month-tab','month');
-        MAP_VAR.map.addControl(new LaunchTemporalLeafletControl());
-        $('a.launchTemporalLeafletControl').tooltip({ container: 'body', placement: 'left' });
+        // MAP_VAR.map.addControl(new LaunchTemporalLeafletControl());
+        // $('a.launchTemporalLeafletControl').tooltip({ container: 'body', placement: 'left' });
         makeModalDraggable('#nbnTemporalControlModal');
 
        const progressBarHtml = `
@@ -540,7 +540,48 @@
         // Your code here, runs after the modal fully closes
         window.nbnYearTemporalControl.pause();
         window.nbnMonthTemporalControl.pause();
-});
+    });
+
+
+    function addTemporalControlToMap() {
+       // console.log("boom");
+      MAP_VAR.map.addControl(new LaunchTemporalLeafletControl());
+      $('a.launchTemporalLeafletControl').tooltip({ container: 'body', placement: 'left' });
+      MAP_VAR.nbnTemporalControl = true;
+    }
+
+    // helper: wait until MAP_VAR.map exists, then run callback
+    function waitForMap(callback) {
+      var check = setInterval(function () {console.log("waiting for map...");
+        if (MAP_VAR && MAP_VAR.map) {
+          clearInterval(check);
+          callback();
+        }
+      }, 100);
+    }
+
+    // 1. If map already exists, add immediately
+    if (MAP_VAR && MAP_VAR.map && !MAP_VAR.nbnTemporalControl) {
+      addTemporalControlToMap();
+    }
+    // 2. Else if user is already on Map tab, wait for map
+    else if ($('.nav-tabs li.active a').attr('id') === "t2") {
+      waitForMap(function () {
+        if (!MAP_VAR.nbnTemporalControl) addTemporalControlToMap();
+      });
+    }
+    // 3. Else listen to tab change event for Map tab
+    else {
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        if ($(this).attr('id') === "t2") {
+          waitForMap(function () {
+            if (!MAP_VAR.nbnTemporalControl) addTemporalControlToMap();
+          });
+        }
+      });
+    }
+
+
 
    });
 </asset:script>
