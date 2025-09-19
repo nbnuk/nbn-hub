@@ -210,7 +210,7 @@
     });
 
     function initialiseMap(){
-        console.log("!!!!!!!!!!!!!!!!initialiseMap", MAP_VAR.map);
+        //console.log("!!!!!!!!!!!!!!!!initialiseMap", MAP_VAR.map);
         if(MAP_VAR.map != null){
             return;
         }
