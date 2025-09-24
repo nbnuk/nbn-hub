@@ -3,7 +3,7 @@
 </script>
 
 
-<div id="nbnTemporalToolbar"   aria-label="Timeline Control" style="display:none; margin-bottom: 0px; padding: 0px;" data-temporal-control="main">
+<div id="nbnTemporalToolbar"   aria-label="Timeline Control" style=" margin-bottom: 0px; padding: 0px;" data-temporal-control="main">
 
     <div style="display: flex; justify-content: space-between; align-items: center;">
     <!-- Tabs -->
@@ -134,6 +134,17 @@
                 </div>
             </g:if>
             <div <g:if test="${sr.activeFacetObj.month}">style="display:none"</g:if>>
+                <div  class="row" style="display:flex; justify-content: center; margin-bottom:15px">
+
+                        <button type="button" class="btn btn-default" name="season" value="Spring">Spring</button>
+
+                        <button type="button" class="btn btn-default" name="season" value="Summer">Summer</button>
+
+                        <button type="button" class="btn btn-default" name="season" value="Autumn">Autumn</button>
+
+                        <button type="button" class="btn btn-default" name="season" value="Winter">Winter</button>
+
+                </div>
             <div class="row" style="display: flex; flex-wrap: wrap; align-items: flex-end;">
                 <!-- Slider + labels -->
                 <div class="col-sm-12 col-md-6"  style="margin-bottom: 10px; ">
@@ -270,8 +281,8 @@
                   values: this.monthNames,
                   min: 'Jan',
                   max: 'Dec',
-                  from: 'Jan',
-                  to: 'Dec',
+                  from: '0',
+                  to: '11',
                   step: 1,
                   onChange: (data) => {
                     this.currentValue = undefined;
@@ -310,14 +321,47 @@
             this.getControl('rewind').click(function() { return self.rewind(); });
             this.getControl('forward').click(function() { return self.forward(); });
             this.getControl('backward').click(function() { return self.backward(); });
-            $('input[name="which_months"]').change(function() {
-                if ($(this).val() === 'all') {
-                    $('#year_month').addClass('hidden');
-                } else {
-                    $('#year_month').removeClass('hidden');
+            if (this.mode === 'year'){
+                $('input[name="which_months"]').change(function() {
+                    if ($(this).val() === 'all') {
+                        $('#year_month').addClass('hidden');
+                    } else {
+                        $('#year_month').removeClass('hidden');
 
-                }
-            });
+                    }
+                });
+            }
+
+           if (this.mode === 'month'){
+
+                $('button[name="season"]').on( "click", function(e) {
+
+                    const val = $(this).attr("value");
+                    console.log("season:"+val);
+                    if (val === 'Spring') {console.log("doit spring");
+                        self.sliderApi.update({
+                            from: '0',
+                            to: '2'
+                        });
+                    } else if (val === 'Summer') {
+                        self.sliderApi.update({
+                            from: '3',
+                            to: '5'
+                        });
+                    } else if (val === 'Autumn') {
+                        self.sliderApi.update({
+                            from: '6',
+                            to: '8'
+                        });
+                    } else if (val === 'Winter') {
+                        self.sliderApi.update({
+                            from: '9',
+                            to: '11'
+                        });
+                    }
+
+                });
+            }
         }
 
         _getPlayerSettings(){
