@@ -3,7 +3,7 @@
 </script>
 
 
-<div id="nbnTemporalToolbar" class="well well-sm"  aria-label="Timeline Control" style="display:none; margin-bottom: 0px; padding: 0px;" data-temporal-control="main">
+<div id="nbnTemporalToolbar"   aria-label="Timeline Control" style="display:none; margin-bottom: 0px; padding: 0px;" data-temporal-control="main">
 
     <div style="display: flex; justify-content: space-between; align-items: center;">
     <!-- Tabs -->
@@ -12,7 +12,7 @@
             <a href="#year-tab" data-toggle="tab" style="padding:5px 10px 5px 10px;">Year</a>
         </li>
         <li role="presentation">
-            <a href="#month-tab" data-toggle="tab" style="padding:5px 10px 5px 10px;">Month</a>
+            <a href="#month-tab" data-toggle="tab" style="padding:5px 10px 5px 10px;">Seasonal</a>
         </li>
     </ul>
 
@@ -27,6 +27,55 @@
     </div>
 </g:if>
 <div <g:if test="${sr.activeFacetObj.year}">style="display:none"</g:if>>
+
+
+    <div class="row" style="display:flex; justify-content: center; margin-bottom:15px">
+        <label class="radio-inline">
+            <input type="radio" name="which_months" value="all" checked> All months
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="which_months" value="selected"> Select months
+        </label>
+    </div>
+    <div id="year_month" class="row hidden" style="display:flex; justify-content: center; margin-bottom:15px">
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="1"> Jan
+        </label>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="2"> Feb
+        </label>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="3"> Mar
+        </label>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="4"> Apr
+        </label>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="5"> May
+        </label>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="6"> Jun
+        </label>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="7"> Jul
+        </label>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="8"> Aug
+        </label>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="9"> Sep
+        </label>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="10"> Oct
+        </label>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="11"> Nov
+        </label>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="year_month" value="12"> Dec
+        </label>
+
+    </div>
             <div class="row" style="display: flex; flex-wrap: wrap; align-items: flex-end;">
                 <!-- Slider + labels -->
                 <div class="col-xs-12 col-sm-12 col-md-6"  style="margin-bottom: 10px; ">
@@ -41,14 +90,14 @@
                         <div class="col-xs-6">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-addon">Step</span>
-                                <input id="nbn-year-step" type="number" class="form-control"
+                                <input type="number" class="form-control"
                                        min="1" max="100" value="1" data-setting="step">
                             </div>
                         </div>
                         <div class="col-xs-6">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-addon">Speed</span>
-                                <input id="nbn-year-speed" type="number" class="form-control"
+                                <input type="number" class="form-control"
                                        min="0.5" max="10" step="0.5" value="1" data-setting="speed">
                             </div>
                         </div>
@@ -98,14 +147,14 @@
                         <div class="col-xs-6">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-addon">Step</span>
-                                <input id="nbn-year-step" type="number" class="form-control"
+                                <input type="number" class="form-control"
                                        min="1" max="12" value="1" data-setting="step">
                             </div>
                         </div>
                         <div class="col-xs-6">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-addon">Speed</span>
-                                <input id="nbn-year-speed" type="number" class="form-control"
+                                <input type="number" class="form-control"
                                        min="0.5" max="10" step="0.1" value="1" data-setting="speed">
                             </div>
                         </div>
@@ -186,15 +235,15 @@
             return this.container.find('[data-display="' + type + '"]');
         }
 
-        displayCurrentValue(value) {
+        displayCurrentValue() {
             if (this.mode === 'month') {
-                var monthName = this.monthNames[value];
+                var monthName = this.monthNames[this.currentValue];
                 $('[data-temporal-control="current"]').text(monthName);
             } else {
-                $('[data-temporal-control="current"]').text(value);
+                $('[data-temporal-control="current"]').text(this.currentValue);
             }
             const totalSteps = ((this.sliderApi.result.to - this.sliderApi.result.from) / this.step) + 1;
-            const stepsDone = ((value - this.sliderApi.result.from) / this.step) + 1;
+            const stepsDone = ((this.currentValue - this.sliderApi.result.from) / this.step) + 1;
             $('[data-temporal-progress="current"].progress-bar').css('width', (stepsDone / totalSteps) * 100+"%");
         }
 
@@ -261,6 +310,39 @@
             this.getControl('rewind').click(function() { return self.rewind(); });
             this.getControl('forward').click(function() { return self.forward(); });
             this.getControl('backward').click(function() { return self.backward(); });
+            $('input[name="which_months"]').change(function() {
+                if ($(this).val() === 'all') {
+                    $('#year_month').addClass('hidden');
+                } else {
+                    $('#year_month').removeClass('hidden');
+
+                }
+            });
+        }
+
+        _getPlayerSettings(){
+            this.step = parseInt(this.getSetting('step').val());
+            this.speed = parseFloat(this.getSetting('speed').val()) * 1000;
+            this.year_month  = [];
+            var self=this;
+            if (this.mode === 'year'){
+                this.year_month = [];
+                if ($('input[name="which_months"]').filter(':checked').val() === 'selected') {
+                    $('input[name="year_month"]:checked').each(function() {
+                        self.year_month.push($(this).val());
+                    });
+
+                    if (self.year_month.length == 0) {
+                        $('input[name="which_months"][value="all"]').prop('checked', true);
+                            $('#year_month').addClass('hidden');
+                    }
+                }
+            }
+
+            if ($('input[name="which_months"]').filter(':checked').val() === 'selected' && this.year_month.length == 0 && this.mode === 'year') {
+                this.year_month = [];
+            }
+            this._debug("step:"+this.step+" speed:"+this.speed+" year_month:"+this.year_month);
         }
 
         play() {
@@ -268,8 +350,7 @@
                 return;
             }
 
-            this.step = parseInt(this.getSetting('step').val());
-            this.speed = parseFloat(this.getSetting('speed').val()) * 1000;
+            this._getPlayerSettings();
             this._debug("play "+this.sliderApi.result.from+" "+this.sliderApi.result.to);
             if (this.currentValue == undefined || this.currentValue ==  this.sliderApi.result.to){
                 this.currentValue = this.sliderApi.result.from;
@@ -289,8 +370,7 @@
                 return true;
             }
             $('#resetMap').show();
-            this.step = parseInt(this.getSetting('step').val());
-            this.speed = parseFloat(this.getSetting('speed').val()) * 1000;
+            this._getPlayerSettings();
 
             this._next();
             return true;
@@ -304,9 +384,7 @@
                 return true;
             }
 
-            this.step = parseInt(this.getSetting('step').val());
-            this.speed = parseFloat(this.getSetting('speed').val()) * 1000;
-
+            this._getPlayerSettings();
 
             this._back();
             return true;
@@ -322,8 +400,8 @@
             this.currentValue = this.sliderApi.result.from;
             this._refreshState()
 
-            this.displayCurrentValue(this.currentValue);
-            this.displayMapForValue(this.currentValue);
+            this.displayCurrentValue();
+            this.displayMapForValue();
         }
 
         _refreshState() {
@@ -402,21 +480,25 @@
 
 
         _loadMap(){
-            this.displayCurrentValue(this.currentValue);
-            this.displayMapForValue(this.currentValue);
+            this.displayCurrentValue();
+            this.displayMapForValue();
         }
 
 
 
-        displayMapForValue(value) {
+        displayMapForValue() {
             if (this.mode === 'month') {
-                this._debug("show month " + value + " (" + this.monthNames[value] + ")");
-                MAP_VAR.additionalFqs = '&fq=month:' + value;
+                MAP_VAR.additionalFqs = '&fq=month:' + this.currentValue;
                 MAP_VAR.removeFqs = ''
+                this._debug("show month MAP_VAR.additionalFqs" + MAP_VAR.additionalFqs);
                 addQueryLayer(true);
-            } else {
-                MAP_VAR.additionalFqs = '&fq=year:' + value;
+            } else {console.log("year_month"+this.year_month);
+                MAP_VAR.additionalFqs = '&fq=year:' + this.currentValue;
+                if (this.year_month && this.year_month.length > 0){
+                    MAP_VAR.additionalFqs += '&fq=month:(' + this.year_month.join(" OR ") + ')';
+                }
                 MAP_VAR.removeFqs = ''
+                this._debug("show year MAP_VAR.additionalFqs" + MAP_VAR.additionalFqs);
                 addQueryLayer(true);
             }
 
@@ -581,11 +663,20 @@
 
 <style>
 
-#nbnTemporalToolbar .tab-content {border:none !important; padding: 10px 10px 5px 10px !important; margin: 0px !important;}
+#nbnTemporalToolbar .tab-content {border:none !important; padding: 5px 10px 5px 10px !important; }
 
+#content #nbnTemporalToolbar  .nav-tabs li:not(.active) a{
+    background-color: #fff;
+    /*border:none;*/
+}
+
+#nbnTemporalToolbar {
+    border:1px solid #ccc;
+}
 #launchTemporalLeafletControl{
     padding: 6px 10px;
     background-color: #fff;
+
 }
 #main-content .leaflet-container a.launchTemporalLeafletControl, #main-content .leaflet-container a.launchTemporalLeafletControl:visited, #main-content .leaflet-container a.launchTemporalLeafletControl:hover {
     color: #000;
@@ -593,10 +684,17 @@
 }
 
 .irs--round .irs-handle{
-    border-color: #3e8f3e; /*#005A8E;*/
+    border-color: #dcdcdc; /*#005A8E; e6e6e6 well grey: dcdcdc*/ /**body colour: 595d5f*/
+    height: 20px;
+    width: 20px;
+}
+.irs--round .irs-bar {
+    background-color: #3498db; /*#005A8E;*/
+}
 
+.irs--round .irs-from, .irs--round .irs-to, .irs--round .irs-single {
+    background-color: #3498db; /*#005A8E;*/
+    /*color: #595d5f;*/
 }
-.irs--round .irs-from, .irs--round .irs-to, .irs--round .irs-single, .irs--round .irs-bar {
-    background-color: #3e8f3e; /*#005A8E;*/
-}
+
 </style>
