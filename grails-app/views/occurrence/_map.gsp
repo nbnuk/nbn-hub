@@ -27,9 +27,7 @@
 </div>
 
 <g:if test="${grailsApplication.config.feature.nbnMapTemporalControl?.toString()?.toBoolean()}">
-    <g:if test="${params.nbnmap=='2'}">
-        <g:render template="nbnMapTemporalControlV2" />
-    </g:if>
+      <g:render template="nbnMapTemporalControlV2" />
 </g:if>
 <div class="collapse" id="recordLayerControls">
     <table id="mapLayerControls">
@@ -1395,14 +1393,4 @@
 
 <g:if test="${grailsApplication.config.feature.nbnMapDownload?.toString()?.toBoolean()}">
     <g:render template="nbnMapDownload" />
-</g:if>
-
-<g:if test="${grailsApplication.config.feature.nbnMapTemporalControl?.toString()?.toBoolean()}">
-    <g:if test="${!params.nbnmap || params.nbnmap=='1'}">
-    <g:render template="nbnMapTemporalControl" />
-    </g:if>
-
-    <g:if test="${params.nbnmap=='3'}">
-        <g:render template="nbnMapTemporalControlV3" />
-    </g:if>
 </g:if>

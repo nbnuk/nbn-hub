@@ -3,7 +3,7 @@
 </script>
 
 
-<div id="nbnTemporalToolbar"   aria-label="Timeline Control" style=" margin-bottom: 0px; padding: 0px;" data-temporal-control="main">
+<div id="nbnTemporalToolbar"   aria-label="Timeline Control" style="display:none; margin-bottom: 0px; padding: 0px;" data-temporal-control="main">
 
     <div style="display: flex; justify-content: space-between; align-items: center;">
     <!-- Tabs -->
@@ -247,7 +247,7 @@
         }
 
         displayCurrentValue() {
-            if (this.mode === 'month') {
+            if (this.mode === 'seasonal') {
                 var monthName = this.monthNames[this.currentValue];
                 $('[data-temporal-control="current"]').text(monthName);
             } else {
@@ -265,7 +265,7 @@
 
 
         setupSlider() {
-            if (this.mode === 'month') {
+            if (this.mode === 'seasonal') {
                 this.setupMonthSlider();
             } else {
                 this.setupYearSlider();
@@ -332,7 +332,7 @@
                 });
             }
 
-           if (this.mode === 'month'){
+           if (this.mode === 'seasonal'){
 
                 $('button[name="season"]').on( "click", function(e) {
 
@@ -531,7 +531,7 @@
 
 
         displayMapForValue() {
-            if (this.mode === 'month') {
+            if (this.mode === 'seasonal') {
                 MAP_VAR.additionalFqs = '&fq=month:' + this.currentValue;
                 MAP_VAR.removeFqs = ''
                 this._debug("show month MAP_VAR.additionalFqs" + MAP_VAR.additionalFqs);
@@ -622,7 +622,7 @@
     $(document).ready(function() {
 
         new TemporalControl('#year-tab','year');
-        new TemporalControl('#month-tab','month');
+        new TemporalControl('#month-tab','seasonal');
 
         // MAP_VAR.map.addControl(new LaunchTemporalLeafletControl());
         // $('#nbnTemporalControl').tooltip({ container: 'body', placement: 'left' });
@@ -665,7 +665,6 @@
             });
 
     function addTemporalControlToMap() {
-       console.log("boom");
       MAP_VAR.map.addControl(new LaunchTemporalLeafletControl());
       $('a.launchTemporalLeafletControl').tooltip({ container: 'body', placement: 'left' });
       MAP_VAR.nbnTemporalControl = true;
