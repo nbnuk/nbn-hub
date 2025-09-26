@@ -592,7 +592,7 @@
         }
 
         _debug(msg) {
-            if (true) {
+            if (false) {
                 if (msg != undefined){
                     console.log(msg);
                 }
