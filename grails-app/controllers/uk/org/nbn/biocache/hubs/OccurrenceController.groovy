@@ -1,9 +1,14 @@
 package uk.org.nbn.biocache.hubs
 
 import au.org.ala.biocache.hubs.SpatialSearchRequestParams
-import org.grails.web.json.JSONObject
+import org.apache.http.HttpStatus
+import grails.web.mapping.LinkGenerator
+import org.springframework.beans.factory.annotation.Autowired
 
 class OccurrenceController extends au.org.ala.biocache.hubs.OccurrenceController{
+
+    @Autowired
+    LinkGenerator linkGenerator
 
     @Override
     def list(SpatialSearchRequestParams requestParams) {
@@ -42,5 +47,19 @@ class OccurrenceController extends au.org.ala.biocache.hubs.OccurrenceController
         }
         res.showFlaggedIssues = (grailsApplication.config.flagAnIssue?.show?: 'false').toBoolean()
         return res;
+    }
+
+    //NBN method to log map downloads
+    def initMapDownload(){
+        String userId = authService?.getUserId()
+
+        if (userId == null) {
+            log.debug("userId is null")
+            return response.sendError(HttpStatus.SC_UNAUTHORIZED)
+        } else {
+            def postResponse = webServicesService.logMapDownloadEvent(request.remoteAddr, request.getHeader("user-agent"),params.reasonTypeId, params.sourceTypeId, params.searchParams, params.filename)
+            render(status: postResponse.statusCode)
+        }
+
     }
 }
