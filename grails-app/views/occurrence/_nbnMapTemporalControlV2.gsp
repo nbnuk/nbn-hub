@@ -3,23 +3,27 @@
 </script>
 
 
-<div id="nbnTemporalToolbar"   aria-label="Timeline Control" style="display:none; margin-bottom: 0px; padding: 0px;" data-temporal-control="main">
-
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-    <!-- Tabs -->
-    <ul class="nav nav-pills " role="tablist">
-        <li role="presentation" class="active">
-            <a href="#year-tab" data-toggle="tab">Year</a>
-        </li>
-        <li role="presentation">
-            <a href="#month-tab" data-toggle="tab">Seasonal</a>
-        </li>
-    </ul>
-
-        <a id="resetMap" href="#" style="margin-right:10px" >Close and reset map <i class="fa fa-times" aria-hidden="true"></i></a>
-
+<div id="nbnTemporalToolbar"   aria-label="Timeline Control" style="display:none;" class="panel panel-default" data-temporal-control="main">
+    <div class="panel-heading" >
+        <div class="row">
+            <div class="col-xs-8">
+                <!-- Tabs -->
+                <ul class="nav nav-pills nav-sm" role="tablist" >
+                    <li role="presentation" class="active">
+                        <a href="#year-tab" data-toggle="tab">Year</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#month-tab" data-toggle="tab">Seasonal</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-xs-4 text-right">
+                <a id="resetMap" href="#" class="btn btn-link btn-sm">Close and reset map <i class="fa fa-times" aria-hidden="true"></i></a>
+            </div>
+        </div>
     </div>
-    <div class="tab-content" style="border: none !important; padding-bottom:0px">
+    <div class="panel-body" >
+    <div class="tab-content" style="padding-bottom:0px;padding-top:0px">
         <div id="year-tab" role="tabpanel" class="tab-pane active" >
 <g:if test="${sr.activeFacetObj.year}">
     <div class="alert alert-warning" role="alert">
@@ -28,7 +32,7 @@
 </g:if>
 <div <g:if test="${sr.activeFacetObj.year}">style="display:none"</g:if>>
 
-<div data-setting-panel>
+<div data-setting-panel style="min-height: 80px;">
     <div class="row" style="display:flex; justify-content: center; margin-bottom:15px" >
         <label class="radio-inline">
             <input type="radio" name="which_months" value="all" checked> All months
@@ -37,45 +41,47 @@
             <input type="radio" name="which_months" value="selected"> Select months
         </label>
     </div>
-    <div id="year_month" class="row hidden" style="display:flex; justify-content: center; margin-bottom:15px">
+
+    <div id="year_month" class="row" style="display:flex; justify-content: center;">
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="1"> Jan
+            <input type="checkbox" name="year_month" value="1" disabled> Jan
         </label>
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="2"> Feb
+            <input type="checkbox" name="year_month" value="2" disabled> Feb
         </label>
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="3"> Mar
+            <input type="checkbox" name="year_month" value="3" disabled> Mar
         </label>
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="4"> Apr
+            <input type="checkbox" name="year_month" value="4" disabled> Apr
         </label>
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="5"> May
+            <input type="checkbox" name="year_month" value="5" disabled> May
         </label>
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="6"> Jun
+            <input type="checkbox" name="year_month" value="6" disabled> Jun
         </label>
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="7"> Jul
+            <input type="checkbox" name="year_month" value="7" disabled> Jul
         </label>
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="8"> Aug
+            <input type="checkbox" name="year_month" value="8" disabled> Aug
         </label>
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="9"> Sep
+            <input type="checkbox" name="year_month" value="9" disabled> Sep
         </label>
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="10"> Oct
+            <input type="checkbox" name="year_month" value="10" disabled> Oct
         </label>
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="11"> Nov
+            <input type="checkbox" name="year_month" value="11" disabled> Nov
         </label>
         <label class="checkbox-inline">
-            <input type="checkbox" name="year_month" value="12"> Dec
+            <input type="checkbox" name="year_month" value="12" disabled> Dec
         </label>
 
     </div>
+
 </div>
             <div class="row" style="display: flex; flex-wrap: wrap; align-items: flex-end;">
                 <!-- Slider + labels -->
@@ -135,7 +141,8 @@
                 </div>
             </g:if>
             <div <g:if test="${sr.activeFacetObj.month}">style="display:none"</g:if>>
-                <div  class="row" style="display:flex; justify-content: center; margin-bottom:15px; min-height:35px" data-setting-panel>
+                <div style="min-height: 80px;" data-setting-panel>
+                <div  class="row" style="display:flex; justify-content: center; margin-bottom:15px;" >
 
                         <button type="button" class="btn btn-default" name="season" value="Spring">Spring</button>
 
@@ -145,6 +152,7 @@
 
                         <button type="button" class="btn btn-default" name="season" value="Winter">Winter</button>
 
+                </div>
                 </div>
             <div class="row" style="display: flex; flex-wrap: wrap; align-items: flex-end;">
                 <!-- Slider + labels -->
@@ -197,7 +205,7 @@
             </div>
         </div>
     </div>
-
+    </div>
 </div>
 <!-- Progress bar -->
 <div class="progress" style="margin-bottom:0px">
@@ -219,7 +227,7 @@
             this.mode = mode;
             this.monthNames = [
                 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Novr', 'Dec'
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
             ];
 
             this.init();
@@ -232,7 +240,7 @@
             // this.currentValue = this.sliderApi.result.from;
             this.step = 1;
             this.speed = 1000;
-            this._refreshState()
+            this._refreshState(true)
         }
 
         getControl(type) {
@@ -325,9 +333,9 @@
             if (this.mode === 'year'){
                 $('input[name="which_months"]').change(function() {
                     if ($(this).val() === 'all') {
-                        $('#year_month').addClass('hidden');
+                        $('#year_month input').prop('disabled', true);
                     } else {
-                        $('#year_month').removeClass('hidden');
+                        $('#year_month input').prop('disabled', false);
 
                     }
                 });
@@ -459,7 +467,7 @@
             this.getSetting('speed').prop('disabled', disable);
         }
 
-        _refreshState() {
+        _refreshState(initialising = false) {
             this._debug("_refreshState");
             const maxValue = this.sliderApi.result.to;
             const minValue = this.sliderApi.result.from;
@@ -472,11 +480,13 @@
 
             this.getControl('rewind').prop('disabled', this.currentValue == undefined || this.currentValue <= minValue?true:false);
             this.getControl('forward').prop('disabled', this.currentValue >= maxValue?true:false);
-            if (this.isPlaying){
-                this._disableAllExceptPlayAndPause(true);
-            }
-            else{
-                this._disableAllExceptPlayAndPause(false);
+            if (!initialising){
+                if (this.isPlaying){
+                    this._disableAllExceptPlayAndPause(true);
+                }
+                else{
+                    this._disableAllExceptPlayAndPause(false);
+                }
             }
 
         }
@@ -723,7 +733,7 @@
     border-radius: 0px;
 
 }
-#nbnTemporalToolbar .tab-content {border:none !important; padding: 5px 10px 5px 10px !important; }
+#nbnTemporalToolbar .tab-content {border:none !important; border-bottom:0px}
 
 #content #nbnTemporalToolbar  .nav-tabs li:not(.active) a{
     background-color: #fff;
