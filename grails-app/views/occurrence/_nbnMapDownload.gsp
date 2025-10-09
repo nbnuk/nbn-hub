@@ -86,21 +86,17 @@
                             </div>
 
                             <hr>
-
-                            <div class="list-group">
-                                <a id="downloadMapImage" href="#" class="list-group-item list-group-item-info">
+                            <div class="btn-group-vertical" role="group" aria-label="...">
+                                <button id="downloadMapImage" class="btn btn-link" style="text-align:left">
                                     <i class="fa fa-download"></i> <g:message
                                         code="map.downloadmap.nbn.downloadimage.label"
                                         default="Download map image"/>
-                                </a>
-
-                                <a id="downloadCitationsAndReadme" href="#"
-                                   class="list-group-item list-group-item-info">
+                                </button>
+                                <button id="downloadCitationsAndReadme" class="btn btn-link" style="text-align:left">
                                     <i class="fa fa-download"></i> <g:message
                                         code="map.downloadmap.nbn.downloadcitation.label"
                                         default="Download citations and README"/>
-                                </a>
-
+                                </button>
                             </div>
 
                             <div class="form-group">

@@ -9,10 +9,10 @@
     <!-- Tabs -->
     <ul class="nav nav-pills " role="tablist">
         <li role="presentation" class="active">
-            <a href="#year-tab" data-toggle="tab" style="padding:5px 10px 5px 10px;">Year</a>
+            <a href="#year-tab" data-toggle="tab">Year</a>
         </li>
         <li role="presentation">
-            <a href="#month-tab" data-toggle="tab" style="padding:5px 10px 5px 10px;">Seasonal</a>
+            <a href="#month-tab" data-toggle="tab">Seasonal</a>
         </li>
     </ul>
 
@@ -28,8 +28,8 @@
 </g:if>
 <div <g:if test="${sr.activeFacetObj.year}">style="display:none"</g:if>>
 
-
-    <div class="row" style="display:flex; justify-content: center; margin-bottom:15px">
+<div data-setting-panel>
+    <div class="row" style="display:flex; justify-content: center; margin-bottom:15px" >
         <label class="radio-inline">
             <input type="radio" name="which_months" value="all" checked> All months
         </label>
@@ -76,6 +76,7 @@
         </label>
 
     </div>
+</div>
             <div class="row" style="display: flex; flex-wrap: wrap; align-items: flex-end;">
                 <!-- Slider + labels -->
                 <div class="col-xs-12 col-sm-12 col-md-6"  style="margin-bottom: 10px; ">
@@ -130,11 +131,11 @@
         <div id="month-tab" role="tabpanel" class="tab-pane" >
             <g:if test="${sr.activeFacetObj.month}">
                 <div class="alert alert-warning" role="alert">
-                    Remove the month filter to explore changes over years.
+                    Remove the month filter to explore changes of selected months over time.
                 </div>
             </g:if>
             <div <g:if test="${sr.activeFacetObj.month}">style="display:none"</g:if>>
-                <div  class="row" style="display:flex; justify-content: center; margin-bottom:15px">
+                <div  class="row" style="display:flex; justify-content: center; margin-bottom:15px; min-height:35px" data-setting-panel>
 
                         <button type="button" class="btn btn-default" name="season" value="Spring">Spring</button>
 
@@ -337,8 +338,8 @@
                 $('button[name="season"]').on( "click", function(e) {
 
                     const val = $(this).attr("value");
-                    console.log("season:"+val);
-                    if (val === 'Spring') {console.log("doit spring");
+
+                    if (val === 'Spring') {
                         self.sliderApi.update({
                             from: '0',
                             to: '2'
@@ -448,6 +449,16 @@
             this.displayMapForValue();
         }
 
+        _disableAllExceptPlayAndPause(disable){
+            this.sliderApi.update({ disable: disable });
+            this.getControl('rewind').prop('disabled', disable);
+            this.getControl('backward').prop('disabled', disable);
+            this.getControl('forward').prop('disabled', disable);
+            this.container.find('[data-setting-panel] input, [data-setting-panel] button').prop('disabled', disable);
+            this.getSetting('step').prop('disabled', disable);
+            this.getSetting('speed').prop('disabled', disable);
+        }
+
         _refreshState() {
             this._debug("_refreshState");
             const maxValue = this.sliderApi.result.to;
@@ -461,10 +472,12 @@
 
             this.getControl('rewind').prop('disabled', this.currentValue == undefined || this.currentValue <= minValue?true:false);
             this.getControl('forward').prop('disabled', this.currentValue >= maxValue?true:false);
-            if (this.isPlaying)
-                this.sliderApi.update({ disable: true });
-            else
-                this.sliderApi.update({ disable: false });
+            if (this.isPlaying){
+                this._disableAllExceptPlayAndPause(true);
+            }
+            else{
+                this._disableAllExceptPlayAndPause(false);
+            }
 
         }
 
@@ -536,7 +549,7 @@
                 MAP_VAR.removeFqs = ''
                 this._debug("show month MAP_VAR.additionalFqs" + MAP_VAR.additionalFqs);
                 addQueryLayer(true);
-            } else {console.log("year_month"+this.year_month);
+            } else {
                 MAP_VAR.additionalFqs = '&fq=year:' + this.currentValue;
                 if (this.year_month && this.year_month.length > 0){
                     MAP_VAR.additionalFqs += '&fq=month:(' + this.year_month.join(" OR ") + ')';
@@ -672,7 +685,7 @@
 
     // helper: wait until MAP_VAR.map exists, then run callback
     function waitForMap(callback) {
-      var check = setInterval(function () {console.log("waiting for map...");
+      var check = setInterval(function () {
         if (MAP_VAR && MAP_VAR.map) {
           clearInterval(check);
           callback();
@@ -706,6 +719,10 @@
 
 <style>
 
+.nav-pills>li>a {
+    border-radius: 0px;
+
+}
 #nbnTemporalToolbar .tab-content {border:none !important; padding: 5px 10px 5px 10px !important; }
 
 #content #nbnTemporalToolbar  .nav-tabs li:not(.active) a{
