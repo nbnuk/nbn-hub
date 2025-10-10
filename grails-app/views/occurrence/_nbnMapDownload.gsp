@@ -1,55 +1,134 @@
-
-
 <div id="nbnDownloadMap" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="downloadsMapLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
                 <h3>
-                    <g:message code="map.downloadmap.title" default="Download map as image file"/>
+                    <g:message code="map.downloadmap.title" default="Download map"/>
                 </h3>
             </div>
-            <div class="modal-body">
-                <!-- Download options form -->
-                <div class="form-group">
-                    <label for="downloadFilename"><g:message code="map.downloadmap.field10.label" default="File name (without extension)"/></label>
-                    <input type="text" id="downloadFilename" class="form-control" value="<g:message code="map.downloadmap.default.filename" default="MyMap"/>">
-                </div>
 
-                <div class="form-group">
-                    <label for="downloadFormat"><g:message code="map.downloadmap.field01.label" default="Format"/></label>
-                    <select id="downloadFormat" class="form-control">
-                        <option value="jpg"><g:message code="map.downloadmap.field01.option01" default="JPEG"/></option>
-                        <option value="png"><g:message code="map.downloadmap.field01.option02" default="PNG"/></option>
-%{--                        <option value="webp">WebP</option>--}%
-                    </select>
-                </div>
-
-                <hr>
-
-                <div class="list-group">
-                    <a id="downloadMapImage" href="#" class="list-group-item list-group-item-info">
-                        <i  class="fa fa-download"></i> <g:message code="map.downloadmap.nbn.downloadimage.label" default="Download map image"/>
-                    </a>
-
-                        <a id="downloadCitationsAndReadme" href="#" class="list-group-item list-group-item-info">
-                        <i class="fa fa-download"></i> <g:message code="map.downloadmap.nbn.downloadcitation.label" default="Download citations and README"/>
+            <g:if test="${!userId}">
+                <div class="modal-body">
+                    <div id="saveSearchListPleaseLoginMessage" style="margin: 20px 20px;">Please login:
+                        <a href="${grailsApplication.config.security.cas.casServerLoginUrl}?service=${(grailsApplication.config.serverName + request.contextPath + request.forwardURI + (request.queryString ? '?' + request.queryString : '')).encodeAsURL()}">
+                            <g:message code="show.loginorflag.div01.navigator" default="Click here"/>
                         </a>
-
+                    </div>
                 </div>
+            </g:if>
+            <g:else>
+                <div class="modal-body">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="nbnDownloadMap-step1">
+                            <form class="margin-top-1" id="mapDownloadForm" action="/initMapDownload" method="post">
+                                <input type="hidden" name="sourceTypeId" value="${alatag.getSourceId()}"/>
+                                <input type="hidden" name="searchParams"
+                                       value="${sr?.urlParameters ? URLDecoder.decode(sr.urlParameters, 'UTF-8') : ''}"/>
+                                <input type="hidden" name="targetUri" value="${request.forwardURI}"/>
+                                <input type="hidden" name="filename" value=""/>
 
+                                <div class="form-group">
+                                    <label for="reasonTypeId"><span class="color--mellow-red">*</span><g:message
+                                            code="download.reason.label" default="Reason for download"/></label>
+                                    <select class="form-control" id="reasonTypeId" name="reasonTypeId">
+                                        <option value="" disabled selected><g:message
+                                                code="download.reason.placeholder"/></option>
+                                        <g:each var="it" in="${downloads.getLoggerReasons()}">
+                                            <option value="${it.id}"><g:message code="download.reason.type${it.id}"
+                                                                                default="${it.name}"/></option>
+                                        </g:each>
+                                    </select>
 
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal"><g:message code="download.button.close" default="Close"/></button>
-            </div>
+                                    <p class="help-block"><g:message code="download.choose.best.use.type"/>
+                                    </p>
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="checkbox" id="nbnMapDownloadConfirmLicense"
+                                           name="nbnMapDownloadConfirmLicense"/>
+                                    <label for="nbnMapDownloadConfirmLicense"><span
+                                            class="color--mellow-red">*</span>Accept licencing
+
+                                    </label>
+
+                                    <p class="help-block"><g:message code="download.license.accept"/>
+                                    </p>
+
+                                </div>
+                            </form>
+
+                            <div class="text-right">
+                                <button type="button" class="btn btn-default" data-dismiss="modal"><g:message
+                                        code="download.button.close" default="Close"/></button>
+                                <button class="btn btn-primary next-btn" data-next="step2">Next</button>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane" id="nbnDownloadMap-step2">
+                            <!-- Download options form -->
+                            <div class="form-group">
+                                <label for="downloadFilename"><g:message code="map.downloadmap.field10.label"
+                                                                         default="File name (without extension)"/></label>
+                                <input type="text" id="downloadFilename" class="form-control"
+                                       value="<g:message code="map.downloadmap.default.filename" default="MyMap"/>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="downloadFormat"><g:message code="map.downloadmap.field01.label"
+                                                                       default="Format"/></label>
+                                <select id="downloadFormat" class="form-control">
+                                    <option value="jpg"><g:message code="map.downloadmap.field01.option01"
+                                                                   default="JPEG"/></option>
+                                    <option value="png"><g:message code="map.downloadmap.field01.option02"
+                                                                   default="PNG"/></option>
+                                </select>
+                            </div>
+
+                            <hr>
+                            <div class="btn-group-vertical" role="group" aria-label="...">
+                                <button id="downloadMapImage" class="btn btn-link" style="text-align:left">
+                                    <i class="fa fa-download"></i> <g:message
+                                        code="map.downloadmap.nbn.downloadimage.label"
+                                        default="Download map image"/>
+                                </button>
+                                <button id="downloadCitationsAndReadme" class="btn btn-link" style="text-align:left">
+                                    <i class="fa fa-download"></i> <g:message
+                                        code="map.downloadmap.nbn.downloadcitation.label"
+                                        default="Download citations and README"/>
+                                </button>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="text-right">
+                                    <button class="btn btn-primary next-btn" data-prev="step1">Prev</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal"><g:message
+                                            code="download.button.close" default="Close"/></button>
+
+                                </div>
+                            </div>
+
+                            <div id="mapDownloadLoginAgainMessage" class="alert alert-danger text-right hidden">
+                                Sorry, you need to
+                                <a href="${grailsApplication.config.security.cas.casServerLoginUrl}?service=${(grailsApplication.config.serverName + request.contextPath + request.forwardURI + (request.queryString ? '?' + request.queryString : '')).encodeAsURL()}">
+                                    login
+                                </a>
+                                again.
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </g:else>
+
         </div>
     </div>
+
+    <!-- Add a hidden div for the export map -->
+    <div id="leafletMapExport"
+         style="position: absolute; top: -9999px; left: -9999px; width: 800px; height: 600px; z-index: -1000;"></div>
+
 </div>
-
-<!-- Add a hidden div for the export map -->
-<div id="leafletMapExport" style="position: absolute; top: -9999px; left: -9999px; width: 800px; height: 600px; z-index: -1000;"></div>
-
 <script>
     // Leaflet 0.7.x → 1.x shims for leaflet-image
     (function (L) {
@@ -94,46 +173,58 @@
 
     $(document).ready(function () {
 
-        document.querySelectorAll('a[href="#downloadMap"]').forEach(link => {
-           link.href = '#nbnDownloadMap';
+        $('.next-btn').on('click', function () {
+            var valid = true;
+
+            // Reset labels first
+            $('label[for="reasonTypeId"], label[for="nbnMapDownloadConfirmLicense"]')
+                .removeClass('color--mellow-red');
+
+            // Check select box
+            if ($('#reasonTypeId').val() === null || $('#reasonTypeId').val() === '') {
+                $('label[for="reasonTypeId"]').addClass('color--mellow-red');
+                valid = false;
+            }
+
+            // Check checkbox
+            if (!$('#nbnMapDownloadConfirmLicense').is(':checked')) {
+                $('label[for="nbnMapDownloadConfirmLicense"]').addClass('color--mellow-red');
+                valid = false;
+            }
+
+            // Only proceed if all fields are valid
+            if (valid) {
+                var nextTab = $("#nbnDownloadMap-step2");
+            $('#nbnDownloadMap-step1').removeClass('active');
+            $(nextTab).addClass('active');
+            }
         });
 
-        $('#downloadCitationsAndReadme').on('click', function (e) {
-            e.preventDefault();
 
-            var icon = $(this).find('i');
-            var filename = $('#downloadFilename').val().trim()+'.citations_and_readme' || 'map_export.citations_and_readme';
-            var url = MAP_VAR.mappingUrl + "/mapping/wms/image/downloadCitations" + MAP_VAR.query + MAP_VAR.additionalFqs+ '&filename=' + encodeURIComponent(filename);
 
-            icon.removeClass('fa-download').addClass('fa-spinner fa-spin');
-            $('#nbnDownloadMap a, #nbnDownloadMap input, #nbnDownloadMap select').addClass('disabled').prop('disabled', true).css('pointer-events', 'none').css('opacity', '0.6');
-
-            // Create a temporary link to trigger the download
-            var link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            setTimeout(() => {
-                icon.removeClass('fa-spinner fa-spin').addClass('fa-download');
-                $('#nbnDownloadMap a, #nbnDownloadMap input, #nbnDownloadMap select').removeClass('disabled').prop('disabled', false).css('pointer-events', 'auto').css('opacity', '1');
-            }, 2000);
-
+        $('#nbnDownloadMap [data-prev=step1]').on('click', function () {
+            var nextTab = $("#nbnDownloadMap-step1");
+            $('#nbnDownloadMap-step2').removeClass('active');
+            $(nextTab).addClass('active');
         });
 
-        $('#downloadMapImage').on('click', function (e) {
-            e.preventDefault();
+        $('#nbnDownloadMap').on('hide.bs.modal', function (e) {
+          // e.preventDefault(); // uncomment to block closing
+          $('#nbnDownloadMap-step1').removeClass('active');
+          $('#nbnDownloadMap-step2').removeClass('active');
+          $('#nbnDownloadMap-step1').addClass('active');
+        });
 
+
+
+        function executeMapDownload(){
             // Get filename and format from inputs
             var filename = $('#downloadFilename').val().trim() || 'map_export';
             var format = $('#downloadFormat').val();
 
             // Disable all links and inputs in the download modal and show loading indicator
             $('#nbnDownloadMap a, #nbnDownloadMap input, #nbnDownloadMap select').addClass('disabled').prop('disabled', true).css('pointer-events', 'none').css('opacity', '0.6');
-            var icon = $(this).find('i');
+            var icon = $('#downloadMapImage').find('i');
             icon.addClass('fa-spinner fa-spin').removeClass('fa-download');
 
             createExportMap(function(exportMap) {
@@ -166,6 +257,69 @@
                     }, mimeType, quality);
                 });
             });
+        }
+
+        document.querySelectorAll('a[href="#downloadMap"]').forEach(link => {
+           link.href = '#nbnDownloadMap';
+        });
+
+        $('#downloadCitationsAndReadme').on('click', function (e) {
+            e.preventDefault();
+
+            var icon = $(this).find('i');
+            var filename = $('#downloadFilename').val().trim()+'.citations_and_readme' || 'map_export.citations_and_readme';
+            var url = MAP_VAR.mappingUrl + "/mapping/downloadCitationsAndReadme" + MAP_VAR.query + MAP_VAR.additionalFqs+ '&filename=' + encodeURIComponent(filename);
+
+            icon.removeClass('fa-download').addClass('fa-spinner fa-spin');
+            $('#nbnDownloadMap a, #nbnDownloadMap input, #nbnDownloadMap select').addClass('disabled').prop('disabled', true).css('pointer-events', 'none').css('opacity', '0.6');
+
+            // Create a temporary link to trigger the download
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            setTimeout(() => {
+                icon.removeClass('fa-spinner fa-spin').addClass('fa-download');
+                $('#nbnDownloadMap a, #nbnDownloadMap input, #nbnDownloadMap select').removeClass('disabled').prop('disabled', false).css('pointer-events', 'auto').css('opacity', '1');
+            }, 2000);
+
+        });
+
+        $('#downloadMapImage').on('click', function (e) {
+            e.preventDefault();
+
+            var filename = $('#downloadFilename').val().trim() || 'map_export';
+            $('#mapDownloadForm input[name="filename"]').val(filename);
+
+            var form = $('#mapDownloadForm');
+
+            if (form.length) {
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: form.serialize(),
+                    success: function (response) {
+                        executeMapDownload();
+                    },
+                    error: function (xhr, status, error) {
+
+                        if (xhr.status === 401) {
+                            $('#mapDownloadLoginAgainMessage').removeClass('hidden');
+                            return;
+
+                        }
+                        //if not 401, then ignore error (like download serverside does). It's only logging the download
+                        // and error has been logged on the backend
+                        executeMapDownload();
+                        return;
+
+                    }
+                })
+            }
         });
 
 
@@ -267,16 +421,13 @@
 
     });
 
-
-
-
-
-
-
-
-
-
 </asset:script>
+
+<style>
+.color--mellow-red {
+    color: #DF3034;
+}
+</style>
 
 
 

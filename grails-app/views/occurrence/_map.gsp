@@ -26,6 +26,9 @@
     --%>
 </div>
 
+<g:if test="${grailsApplication.config.feature.nbnMapTemporalControl?.toString()?.toBoolean()}">
+      <g:render template="nbnMapTemporalControlV2" />
+</g:if>
 <div class="collapse" id="recordLayerControls">
     <table id="mapLayerControls">
         <tr>
@@ -101,6 +104,7 @@
         </tr>
     </table>
 </div>
+
 
 <div id="leafletMap" class="col-md-12" style="height:600px;"></div>
 
@@ -281,6 +285,8 @@
 
         MAP_VAR.map.addControl(new RecordLayerControl());
         MAP_VAR.map.addControl(new ColourByControl());
+        $('.colour-by-control').tooltip({ container: 'body', placement: 'left' });
+
 
         L.Util.requestAnimFrame(MAP_VAR.map.invalidateSize, MAP_VAR.map, !1, MAP_VAR.map._container);
         L.Browser.any3d = false; // FF bug prevents selects working properly

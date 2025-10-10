@@ -16,6 +16,7 @@ class UrlMappings {
         "/savedSearch/list"(controller: 'savedSearch', action: 'list')
         "/savedSearch/save"(controller: 'savedSearch', action: 'save', method: 'POST')
         "/accessControl/filterEditor/$dpuid/$filterUserId/$filterId?"(controller: 'accessControl', action: 'filterEditor')
+        "/initMapDownload"(controller: 'occurrence', action: 'initMapDownload', method: 'POST', )
         "500"(view:'/error')
         "404"(view:'/notFound')
     }

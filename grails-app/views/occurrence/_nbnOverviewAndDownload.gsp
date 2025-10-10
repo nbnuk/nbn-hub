@@ -75,20 +75,25 @@
         %{--                            <h4>Sensitive species</h4>--}%
         %{--                            <p>Your search may include records of sensitive species. Their locations may have been blurred to protect them from unnecessary harm. Higher resolution records of sensitive species may be available from the data provider.</p>--}%
 
-        <div id="downloads" class="btn btn-primary pull-right">
+        <div id="downloads" class="pull-right">
             <g:if test="${maxDownloadExceeded}">
+                <span class="alert-warning">Maximum records that can be downloaded is ${g.formatNumber(number: grailsApplication.config.maxDownloadRecords, format: "#,###,###")}. Please apply filters before downloading.</span>
                 <a href="javascript:void(0)"
-                   class="tooltips newDownload"
-                   title="Maximum records that can be downloaded is ${g.formatNumber(number: grailsApplication.config.maxDownloadRecords, format: "#,###,###")}. Please apply filters before downloading."
-                                    >
+               disabled
+               class="btn btn-primary tooltips newDownload"
+               style="color: #c0c0c0"
+               title="Maximum records that can be downloaded is ${g.formatNumber(number: grailsApplication.config.maxDownloadRecords, format: "#,###,###")}. Please apply filters before downloading.">
+                <i class="fa fa-download"></i>&nbsp;&nbsp;<g:message code="list.downloads.navigator" default="Download"/></a>
             </g:if>
             <g:else>
                 <a href="${g.createLink(uri: '/download')}?searchParams=${sr?.urlParameters?.encodeAsURL()}&licenceCount=${licenceCount ?: 0}&targetUri=${(request.forwardURI)}&totalRecords=${sr.totalRecords}"
-                                       class="tooltips newDownload"
+                                       class="btn btn-primary tooltips newDownload"
+                                        style="color: #fff"
                                        title="Download all ${g.formatNumber(number: sr.totalRecords, format: "#,###,###")} records"
                                     >
+                    <i class="fa fa-download"></i>&nbsp;&nbsp;<g:message code="list.downloads.navigator" default="Download"/></a>
             </g:else>
-            <i class="fa fa-download"></i>&nbsp;&nbsp;<g:message code="list.downloads.navigator" default="Download"/></a>
+
         </div>
 
     </div>
