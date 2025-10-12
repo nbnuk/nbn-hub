@@ -43,39 +43,20 @@
                             <option value="grid" ${(defaultColourBy == 'grid')?'selected=\"selected\"':''}><g:message code="map.maplayercontrols.tr01td01.option02" default="Record density grid"/></option>
                             <option disabled role="separator">————————————</option>
                         </optgroup>
-                        <g:set var="maxNumPoints" value="${grailsApplication.config.getProperty('feature.enforceMaxPointsOnMap.maxPoints', Long, 500000L)}"/>
-                        <g:set var="pointsGroupLabel">
-                            <g:if test="${grailsApplication.config.feature?.enforceMaxPointsOnMap = "true" && sr.totalRecords > maxNumPoints}">
-                                Display as points (DISABLED as > ${maxNumPoints} records)
-                            </g:if>
-                            <g:else>
-                                Display as points
-                            </g:else>
-                        </g:set>
-                        <g:set var="pointsGroupDisabled">
-                            <g:if test="${grailsApplication.config.feature?.enforceMaxPointsOnMap = "true" && sr.totalRecords > maxNumPoints}">
-                                disabled
-                            </g:if>
-                        </g:set>
-
-
-                        <optgroup label="${pointsGroupLabel}" ${pointsGroupDisabled}>
+                        <optgroup label="Display as points">
                             <option value="" ${(defaultColourBy == 'basis_of_record')?'selected=\"selected\"':''}><g:message code="map.maplayercontrols.tr01td01.option01" default="Points - default colour"/></option>
 
                             <g:each var="facetResult" in="${facets}">
                                 <g:set var="Defaultselected">
                                     <g:if test="${defaultColourBy && facetResult.fieldName == defaultColourBy}">selected="selected"</g:if>
                                 </g:set>
-                                <g:set var="facetIsDisabled" value="${facetResult.fieldResult.size()>30 && (facetResult.fieldName.equals("year") ||facetResult.fieldName.equals("decade"))}" />
-
                                 %{-- <g:if test="${facetResult.fieldName == 'occurrence_year'}">${facetResult.fieldName = 'decade'}</g:if> --}%
                                 <g:if test="${facetResult.fieldName == 'uncertainty'}">${facetResult.fieldName = 'coordinate_uncertainty'}</g:if>
                                 <g:if test="${facetResult.fieldResult.size() > 0}">
                                   %{-- the test 'fieldResult.size > 1' is to exclude single-value filters
                                     -- For testing show 1 fieldResult, e.g. geospatial_kosher --}%
-                                    <option value="${facetResult.fieldName}" ${Defaultselected} <g:if test="${facetIsDisabled}">disabled</g:if>>
+                                    <option value="${facetResult.fieldName}" ${Defaultselected}>
                                         <alatag:formatDynamicFacetName fieldName="${facetResult.fieldName}"/>
-                                        <g:if test="${facetIsDisabled}">(too many ${facetResult.fieldName}s, please filter)</g:if>
                                     </option>
                                 </g:if>
                             </g:each>
@@ -104,7 +85,6 @@
         </tr>
     </table>
 </div>
-
 
 <div id="leafletMap" class="col-md-12" style="height:600px;"></div>
 
@@ -1393,4 +1373,8 @@
 
 <g:if test="${grailsApplication.config.feature.nbnMapDownload?.toString()?.toBoolean()}">
     <g:render template="nbnMapDownload" />
+</g:if>
+
+<g:if test="${grailsApplication.config.feature.enforceMaxPointsOnMap.enabled?.toString()?.toBoolean()}">
+<g:render template="nbnPointMapRestrictions" />
 </g:if>
