@@ -1,3 +1,15 @@
+<g:set var="unconfirmedIdentificationCount" value="${
+    (sr.facetResults?.find{it.fieldName=="identification_verification_status"}?.fieldResult.find{it.label=="Unconfirmed"}?.count ?: 0) +
+    (sr.facetResults?.find{it.fieldName=="identification_verification_status"}?.fieldResult.find{it.label=="Unconfirmed - not reviewed"}?.count ?: 0) +
+    (sr.facetResults?.find{it.fieldName=="identification_verification_status"}?.fieldResult.find{it.label=="Unconfirmed - plausible"}?.count ?: 0)
+}"/>
+<g:set var="absenceCount" value="${sr.facetResults?.find{it.fieldName=="occurrence_status"}?.fieldResult?.find{it.label=="absent"}?.count}"/>
+<g:set var="fossilCount" value="${sr.facetResults?.find{it.fieldName=="basis_of_record"}?.fieldResult?.find{it.label=="Fossil specimen"}?.count}"/>
+<g:set var="licenceCount" value="${sr.facetResults?.find{it.fieldName=="license"}?.fieldResult?.find{it.label=="CC-BY-NC"}?.count}"/>
+<g:set var="buttonCount" value="${(unconfirmedIdentificationCount > 0 ? 1 : 0) + (absenceCount > 0 ? 1 : 0) + (fossilCount > 0 ? 1 : 0) + (licenceCount > 0 ? 1 : 0)}"/>
+<g:set var="absenceFilterPresent" value="${sr.activeFacetMap["-occurrence_status"]?.value == '"absent"'}" />
+<g:set var="commercialLicenceId" value="${grailsApplication.config.commercialLicenceId ?: 18}"/>
+
 <div id="nbnDownloadMap" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="downloadsMapLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -27,6 +39,66 @@
                                        value="${sr?.urlParameters ? URLDecoder.decode(sr.urlParameters, 'UTF-8') : ''}"/>
                                 <input type="hidden" name="targetUri" value="${request.forwardURI}"/>
                                 <input type="hidden" name="filename" value=""/>
+                                <div class="form-group">
+                                    <p>Select any records you wish to <b>remove</b> from the map:</p>
+
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="excludeUnconfirmed" value="true"
+                                                ${sr.totalRecords == unconfirmedIdentificationCount ? 'disabled' : ''}>
+                                            unconfirmed identifications
+                                                (<g:formatNumber number="${unconfirmedIdentificationCount ?: 0}" format="###,###,###,##0"/>)
+
+                                            <g:if test="${sr.totalRecords == unconfirmedIdentificationCount}">
+                                                <span class="text-muted"><i class="fa fa-warning"></i> this will exclude all records</span>
+                                            </g:if>
+
+                                        </label>
+                                    </div>
+
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="excludeAbsence" value="true"
+                                                ${sr.totalRecords == absenceCount ? 'disabled' : ''}>
+                                            absence records ${absenceFilterPresent ? "(excluded by default)" : ""}
+
+                                                (<g:formatNumber number="${absenceCount ?: 0}" format="###,###,###,##0"/>)
+
+                                            <g:if test="${sr.totalRecords == absenceCount}">
+                                                <span class="text-muted"><i class="fa fa-warning"></i> this will exclude all records</span>
+                                            </g:if>
+                                        </label>
+                                    </div>
+
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="excludeFossil" value="true"
+                                                ${sr.totalRecords == fossilCount ? 'disabled' : ''}>
+                                            fossil records
+
+                                                (<g:formatNumber number="${fossilCount ?: 0}" format="###,###,###,##0"/>)
+
+                                            <g:if test="${sr.totalRecords == fossilCount}">
+                                                <span class="text-muted"><i class="fa fa-warning"></i> this will exclude all records</span>
+                                            </g:if>
+                                        </label>
+                                    </div>
+
+                                    <div class="checkbox">
+                                        <label for="excludeCCBYNC">
+                                            <input type="checkbox" id="excludeCCBYNC" name="excludeCCBYNC" value="true"
+                                                ${sr.totalRecords == licenceCount ? 'disabled' : ''}>
+                                            records with a CC-BY-NC licence
+
+                                                (<g:formatNumber number="${licenceCount ?: 0}" format="###,###,###,##0"/>)**
+
+                                            <g:if test="${sr.totalRecords == licenceCount}">
+                                                <span class="text-muted"><i class="fa fa-warning"></i> this will exclude all records</span>
+                                            </g:if>
+                                        </label>
+                                    </div>
+                                </div>
+
 
                                 <div class="form-group">
                                     <label for="reasonTypeId"><span class="color--mellow-red">*</span><g:message
@@ -52,7 +124,7 @@
 
                                     </label>
 
-                                    <p class="help-block"><g:message code="download.license.accept"/>
+                                    <p class="help-block">**<g:message code="download.license.accept"/>
                                     </p>
 
                                 </div>
@@ -192,6 +264,13 @@
                 valid = false;
             }
 
+    <g:if test="${licenceCount}">
+        if (!$('#excludeCCBYNC').is(':checked') && $('#reasonTypeId').val(${commercialLicenceId})) {
+                $('label[for="excludeCCBYNC"]').addClass('color--mellow-red');
+                valid = false;
+            }
+        </g:if>
+
             // Only proceed if all fields are valid
             if (valid) {
                 var nextTab = $("#nbnDownloadMap-step2");
@@ -215,7 +294,26 @@
           $('#nbnDownloadMap-step1').addClass('active');
         });
 
+        function removeExcludedRecords(url){
+            var excludeUnconfirmed = $('#mapDownloadForm input[name="excludeUnconfirmed"]').is(':checked');
+            var excludeAbsence = $('#mapDownloadForm input[name="excludeAbsence"]').is(':checked');
+            var excludeFossil = $('#mapDownloadForm input[name="excludeFossil"]').is(':checked');
+            var excludeCCBYNC = $('#mapDownloadForm input[name="excludeCCBYNC"]').is(':checked');
 
+            if(excludeUnconfirmed){
+                url += '&fq=-(identification_verification_status%3A"Unconfirmed" OR identification_verification_status%3A"Unconfirmed - not reviewed" OR identification_verification_status%3A"Unconfirmed - plausible")';
+            }
+            if(excludeAbsence){
+                url += '&fq=-occurrence_status:absent';
+            }
+            if(excludeFossil){
+                url += '&fq=-basis_of_record:FossilSpecimen';
+            }
+            if(excludeCCBYNC){
+                url += '&fq=-license:CC-BY-NC';
+            }
+            return url;
+        }
 
         function executeMapDownload(){
             // Get filename and format from inputs
@@ -269,7 +367,7 @@
             var icon = $(this).find('i');
             var filename = $('#downloadFilename').val().trim()+'.citations_and_readme' || 'map_export.citations_and_readme';
             var url = MAP_VAR.mappingUrl + "/mapping/downloadCitationsAndReadme" + MAP_VAR.query + MAP_VAR.additionalFqs+ '&filename=' + encodeURIComponent(filename);
-
+            url = removeExcludedRecords(url);
             icon.removeClass('fa-download').addClass('fa-spinner fa-spin');
             $('#nbnDownloadMap a, #nbnDownloadMap input, #nbnDownloadMap select').addClass('disabled').prop('disabled', true).css('pointer-events', 'none').css('opacity', '0.6');
 
@@ -321,6 +419,8 @@
                 })
             }
         });
+
+
 
 
         //create a hidden map for export
@@ -380,7 +480,8 @@
                 // Copy the current data layers
                 MAP_VAR.currentLayers.forEach(function(layer) {
                     if (layer instanceof L.TileLayer.WMS) {
-                        var exportDataLayer = L.tileLayer.wms(layer._url, layer.options);
+                        var url = removeExcludedRecords(layer._url);
+                        var exportDataLayer = L.tileLayer.wms(url, layer.options);
                         exportMap.addLayer(exportDataLayer);
                     }
                 });
