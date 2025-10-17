@@ -129,6 +129,8 @@ class WebServicesService extends au.org.ala.biocache.hubs.WebServicesService{
 
         }
 
+        http.headers.'apiKey' = grailsApplication.config.biocache.apiKey
+
         http.request(Method.POST) { req ->
 
             send ContentType.URLENC, postParams

@@ -1,5 +1,5 @@
 <g:set var="maxNumPoints" value="${grailsApplication.config.getProperty('feature.enforceMaxPointsOnMap.maxPoints', Long, 500000L)}"/>
-<g:set var="maxPointsExceeded" value="${grailsApplication.config.feature?.enforceMaxPointsOnMap = 'true' && sr.totalRecords > maxNumPoints}" />
+<g:set var="maxPointsExceeded" value="${grailsApplication.config.feature?.enforceMaxPointsOnMap?.enabled = 'true' && sr.totalRecords > maxNumPoints}" />
 <g:set var="yearFacetDisabled" value="${false}"/>
 <g:set var="decadeFacetDisabled" value="${false}"/>
 <g:each var="facetResult" in="${facets}">
