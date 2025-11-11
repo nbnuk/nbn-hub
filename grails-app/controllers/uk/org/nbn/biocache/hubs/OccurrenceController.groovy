@@ -41,11 +41,13 @@ class OccurrenceController extends au.org.ala.biocache.hubs.OccurrenceController
     @Override
     def show(String id) {
         def res = super.show(id)
-        res.taxon = null
-        if (res.record.processed.classification.taxonConceptID) {
-            res.taxon = webServicesService.getTaxon(res.record.processed.classification.taxonConceptID)
+        if (res) {
+            res.taxon = null
+            if (res.record.processed.classification.taxonConceptID) {
+                res.taxon = webServicesService.getTaxon(res.record.processed.classification.taxonConceptID)
+            }
+            res.showFlaggedIssues = (grailsApplication.config.flagAnIssue?.show ?: 'false').toBoolean()
         }
-        res.showFlaggedIssues = (grailsApplication.config.flagAnIssue?.show?: 'false').toBoolean()
         return res;
     }
 
