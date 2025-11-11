@@ -10,13 +10,21 @@
            href="${grailsApplication.config.spatial.baseUrl}${spatialPortalLink}${spatialPortalUrlParams}" title="Continue analysis in the Spatial Portal">
             <i class="fa fa-map-marker"></i>&nbsp&nbsp;<g:message code="map.spatialportal.btn.label" default="View in spatial portal"/></a>
     </g:if>
-        <a href="#downloadMap" id="downloadMapButton" role="button" data-toggle="modal" class="btn btn-default btn-sm tooltips" title="Download image file (single colour mode)">
+    <a href="#downloadMap" id="downloadMapButton" role="button" data-toggle="modal" class="btn btn-default btn-sm tooltips" title="Download image file (single colour mode)">
             <i class="fa fa-download"></i>&nbsp&nbsp;<g:message code="map.downloadmaps.btn.label" default="Download map"/></a>
     <alatag:wmsButton targetSelector="#downloadMapButton"/>
     <g:if test="${params.wkt}">
         <a href="#downloadWKT" role="button" class="btn btn-default btn-sm tooltips" title="Download WKT file" onclick="downloadPolygon(); return false;">
             <i class="glyphicon glyphicon-stop"></i>&nbsp&nbsp;<g:message code="map.downloadwkt.btn.label" default="Download WKT"/></a>
     </g:if>
+        <button id="embedMapButton"
+                class="btn btn-default btn-sm tooltips"
+                title="Copy iframe embed code"
+                data-toggle="modal"
+                data-target="#embedModal"
+                data-clipboard-iframe="<iframe src='${spatialPortalUrlParams}' http://localhost:8081/ogc/ows?q=*%3A*&qc=-_nest_parent_%3A*&service=WMS&request=GetMap&version=1.1.1&layers=ALA%3Aoccurrences&styles=&format=image%2Fpng&transparent=true&height=256&width=256&bgcolor=0x000000&outline=false&ENV=color%3Adf4a21%3Bname%3Acircle%3Bsize%3A4%3Bopacity%3A0.8%3Boutline%3Afalse%3Bcolour%3A0D00FB&GRIDDETAIL=32&STYLE=opacity%3A0.8&srs=EPSG%3A3857 width='600' height='400' frameborder='0' allowfullscreen></iframe>">
+            <i class="fa fa-map-marker"></i>&nbsp;Embed this map into your website
+        </button>
     <%-- <div id="spatialSearchFromMap" class="btn btn-default btn-small">
         <a href="#" id="wktFromMapBounds" class="tooltips" title="Restrict search to current view">
             <i class="hide glyphicon glyphicon-share-alt"></i> Restrict search</a>
@@ -108,9 +116,110 @@
 
 <asset:script type="text/javascript">
 
-    //var mbAttr = 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, imagery &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
-	//var mbUrl = 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
-    var defaultBaseLayer = L.tileLayer("${grailsApplication.config.map.minimal.url}", {
+    (function() {
+
+      // Build a best-effort iframe from current WMS layer + UI controls
+      function buildIframeFromMap() {
+        try {
+          var currentLayer = MAP_VAR && MAP_VAR.currentLayers && MAP_VAR.currentLayers[0];
+          if (!currentLayer) return null;
+
+          // Base WMS URL and params pulled from the live layer
+          var baseUrl = currentLayer._url;               // e.g. .../mapping/wms/reflect?q=...
+          var params  = Object.assign({}, currentLayer.wmsParams || currentLayer.options || {});
+
+          // Refresh ENV bits from the UI to reflect sliders/toggles
+          var pointSize   = $('#sizeslider-val').text() || '4';
+          var opacity     = $('#opacityslider-val').text() || '0.8';
+          var outlineDots = $('#outlineDots').is(':checked');
+
+          // Parse ENV
+          var env = {};
+          if (params.ENV) {
+            params.ENV.split(';').forEach(function(kv) {
+              var parts = kv.split(':');
+              if (parts.length === 2) env[parts[0]] = parts[1];
+            });
+          }
+          env.size    = pointSize;
+          env.opacity = opacity;
+          env.outline = outlineDots;
+
+          // Re-stringify ENV
+          params.ENV = Object.keys(env).map(function(k){ return k + ':' + env[k]; }).join(';');
+
+          // Build a full URL (keep only meaningful WMS params)
+          var qs = Object.keys(params).map(function(k){
+            return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+          }).join('&');
+
+          var fullWmsUrl = baseUrl + (baseUrl.indexOf('?')>-1 ? '&' : '?') + qs;
+
+          // Default iframe dims (user can tweak before copy)
+          var w = 600, h = 400;
+
+          // Return the snippet
+          return "<iframe src=\"" + fullWmsUrl + "\" width=\"" + w + "\" height=\"" + h + "\" frameborder=\"0\" allowfullscreen></iframe>";
+        } catch(e) {
+          // Fall back to the template in data-clipboard-iframe
+          return null;
+        }
+      }
+
+      // When the modal opens, populate the textarea
+      $('#embedModal').on('show.bs.modal', function () {
+        var btn = document.getElementById('embedMapButton');
+        var template = btn ? btn.getAttribute('data-clipboard-iframe') : '';
+
+        var useLive = $('#embedAutoUpdate').is(':checked');
+        var liveSnippet = useLive ? buildIframeFromMap() : null;
+
+        $('#embedIframeTextarea').val(liveSnippet || template || '');
+      });
+
+      // Allow toggling the “auto update” and immediately refresh the textarea (optional)
+      $('#embedAutoUpdate').on('change', function() {
+        var liveSnippet = this.checked ? buildIframeFromMap() : null;
+        var btn = document.getElementById('embedMapButton');
+        var template = btn ? btn.getAttribute('data-clipboard-iframe') : '';
+        $('#embedIframeTextarea').val(liveSnippet || template || '');
+      });
+
+      // Copy button
+      $('#copyEmbedIframe').on('click', function() {
+        var ta = document.getElementById('embedIframeTextarea');
+        var text = ta.value;
+
+        // Clipboard API with fallback
+        var finish = function(ok) {
+          var $btn = $('#copyEmbedIframe');
+          var original = $btn.html();
+          $btn.html('<i class="fa fa-check"></i> Copied!');
+          setTimeout(function(){ $btn.html(original); }, 1500);
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(function(){ finish(true); }, function(){ finish(false); });
+        } else {
+          ta.select();
+          try {
+            document.execCommand('copy');
+            finish(true);
+          } catch(e) {
+            finish(false);
+            alert('Unable to copy. Please copy manually.');
+          } finally {
+            ta.setSelectionRange(0,0);
+          }
+        }
+      });
+
+    })();
+
+
+        //var mbAttr = 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, imagery &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
+        //var mbUrl = 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
+        var defaultBaseLayer = L.tileLayer("${grailsApplication.config.map.minimal.url}", {
             attribution: "${raw(grailsApplication.config.map.minimal.attr)}",
             subdomains: "${grailsApplication.config.map.minimal.subdomains}",
             mapid: "${grailsApplication.config.map.mapbox?.id?:''}",
@@ -312,7 +421,7 @@
         }).on('slideStop', function(ev){
             var value = parseFloat(ev.value).toFixed(1); // prevent values like 0.30000000004 appearing
             $('#opacityslider-val').html(value);
-            if (MAP_VAR.currentLayers.length == 1) {
+            if (MAP_VAR.currentLayers.length === 1) {
                 MAP_VAR.currentLayers[0].setOpacity(value);
             } else {
                 addQueryLayer(true);
@@ -1035,7 +1144,7 @@
             // do webservice call to get max extent of WMS data
             var jsonUrl = "${alatag.getBiocacheAjaxUrl()}/mapping/bounds.json" + MAP_VAR.query;
             $.getJSON(jsonUrl, function(data) {
-                if (data.length == 4) {
+                if (data.length === 4) {
                     //console.log("data", data);
                     var sw = L.latLng(data[1],data[0]);
                     var ne = L.latLng(data[3],data[2]);
