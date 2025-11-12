@@ -101,7 +101,7 @@
 
 
                                 <div class="form-group">
-                                    <label for="reasonTypeId"><span class="color--mellow-red">*</span><g:message
+                                    <label for="reasonTypeId">*<g:message
                                             code="download.reason.label" default="Reason for download"/></label>
                                     <select class="form-control" id="reasonTypeId" name="reasonTypeId">
                                         <option value="" disabled selected><g:message
@@ -119,9 +119,8 @@
                                 <div class="form-group">
                                     <input type="checkbox" id="nbnMapDownloadConfirmLicense"
                                            name="nbnMapDownloadConfirmLicense"/>
-                                    <label for="nbnMapDownloadConfirmLicense"><span
-                                            class="color--mellow-red">*</span>Accept licencing
-
+                                    <label for="nbnMapDownloadConfirmLicense">
+                                        *Accept licencing
                                     </label>
 
                                     <p class="help-block">**<g:message code="download.license.accept"/>
@@ -249,24 +248,25 @@
             var valid = true;
 
             // Reset labels first
-            $('label[for="reasonTypeId"], label[for="nbnMapDownloadConfirmLicense"]')
-                .removeClass('color--mellow-red');
+            $('label[for="reasonTypeId"], label[for="nbnMapDownloadConfirmLicense"], label[for="excludeCCBYNC"]')
+                .removeClass('text-required').css('font-weight', 'normal');
+
 
             // Check select box
             if ($('#reasonTypeId').val() === null || $('#reasonTypeId').val() === '') {
-                $('label[for="reasonTypeId"]').addClass('color--mellow-red');
+                $('label[for="reasonTypeId"]').addClass('text-required').css('font-weight', 'bold');
                 valid = false;
             }
 
             // Check checkbox
             if (!$('#nbnMapDownloadConfirmLicense').is(':checked')) {
-                $('label[for="nbnMapDownloadConfirmLicense"]').addClass('color--mellow-red');
+                $('label[for="nbnMapDownloadConfirmLicense"]').addClass('text-required').css('font-weight', 'bold');
                 valid = false;
             }
 
     <g:if test="${licenceCount}">
-        if (!$('#excludeCCBYNC').is(':checked') && $('#reasonTypeId').val(${commercialLicenceId})) {
-                $('label[for="excludeCCBYNC"]').addClass('color--mellow-red');
+        if (!$('#excludeCCBYNC').is(':checked') && $('#reasonTypeId').val() =='${commercialLicenceId}') {
+                $('label[for="excludeCCBYNC"]').addClass('text-required').css('font-weight', 'bold');
                 valid = false;
             }
         </g:if>
@@ -525,8 +525,8 @@
 </asset:script>
 
 <style>
-.color--mellow-red {
-    color: #DF3034;
+.text-required {
+    color: #3e8f3e;
 }
 </style>
 
