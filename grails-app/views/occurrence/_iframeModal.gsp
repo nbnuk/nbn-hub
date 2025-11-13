@@ -1,3 +1,13 @@
+<script>
+
+    $('#iframeModal').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        const iframeCode = button.data('iframe-code');
+        $(this).find('.iframe-output').val(iframeCode);
+    });
+
+</script>
+
 <div id="embedModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="embedModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -10,7 +20,7 @@
             <div class="modal-body">
                 <p>Copy and paste this iframe into your website:</p>
                 <label for="embedIframeTextarea"></label>
-                <textarea id="embedIframeTextarea" class="form-control" rows="6"
+                <textarea id="embedIframeTextarea" class="form-control iframe-output" rows="6"
                           style="font-family:monospace;"></textarea>
 
                 <div class="checkbox" style="margin-top:10px;">

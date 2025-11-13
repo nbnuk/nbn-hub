@@ -385,14 +385,14 @@
                         self.year_month.push($(this).val());
                     });
 
-                    if (self.year_month.length == 0) {
+                    if (self.year_month.length === 0) {
                         $('input[name="which_months"][value="all"]').prop('checked', true);
                             $('#year_month').addClass('hidden');
                     }
                 }
             }
 
-            if ($('input[name="which_months"]').filter(':checked').val() === 'selected' && this.year_month.length == 0 && this.mode === 'year') {
+            if ($('input[name="which_months"]').filter(':checked').val() === 'selected' && this.year_month.length === 0 && this.mode === 'year') {
                 this.year_month = [];
             }
             this._debug("step:"+this.step+" speed:"+this.speed+" year_month:"+this.year_month);
@@ -405,7 +405,7 @@
 
             this._getPlayerSettings();
             this._debug("play "+this.sliderApi.result.from+" "+this.sliderApi.result.to);
-            if (this.currentValue == undefined || this.currentValue ==  this.sliderApi.result.to){
+            if (this.currentValue === undefined || this.currentValue ===  this.sliderApi.result.to){
                 this.currentValue = this.sliderApi.result.from;
             }
 
@@ -476,10 +476,10 @@
             if (this.isPlaying) this.getControl("play").parent().hide(); else this.getControl("play").parent().show();
             if (this.isPlaying)  this.getControl("pause").parent().show(); else this.getControl("pause").parent().hide();
 
-            this.getControl('backward').prop('disabled', this.currentValue == undefined || this.currentValue <= minValue?true:false);
+            this.getControl('backward').prop('disabled', this.currentValue === undefined || this.currentValue <= minValue);
 
-            this.getControl('rewind').prop('disabled', this.currentValue == undefined || this.currentValue <= minValue?true:false);
-            this.getControl('forward').prop('disabled', this.currentValue >= maxValue?true:false);
+            this.getControl('rewind').prop('disabled', this.currentValue === undefined || this.currentValue <= minValue);
+            this.getControl('forward').prop('disabled', this.currentValue >= maxValue);
             if (!initialising){
                 if (this.isPlaying){
                     this._disableAllExceptPlayAndPause(true);
@@ -508,7 +508,7 @@
                 return;
             }
 
-            if (this.currentValue == undefined){
+            if (this.currentValue === undefined){
                 this.currentValue = this.sliderApi.result.from;
             }
             else{
@@ -616,7 +616,7 @@
 
         _debug(msg) {
             if (false) {
-                if (msg != undefined){
+                if (msg !== undefined){
                     console.log(msg);
                 }
                 else {

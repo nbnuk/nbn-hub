@@ -17,14 +17,14 @@
         <a href="#downloadWKT" role="button" class="btn btn-default btn-sm tooltips" title="Download WKT file" onclick="downloadPolygon(); return false;">
             <i class="glyphicon glyphicon-stop"></i>&nbsp&nbsp;<g:message code="map.downloadwkt.btn.label" default="Download WKT"/></a>
     </g:if>
-        <button id="embedMapButton"
-                class="btn btn-default btn-sm tooltips"
-                title="Copy iframe embed code"
-                data-toggle="modal"
-                data-target="#embedModal"
-                data-clipboard-iframe="<iframe src='${spatialPortalUrlParams}' http://localhost:8081/ogc/ows?q=*%3A*&qc=-_nest_parent_%3A*&service=WMS&request=GetMap&version=1.1.1&layers=ALA%3Aoccurrences&styles=&format=image%2Fpng&transparent=true&height=256&width=256&bgcolor=0x000000&outline=false&ENV=color%3Adf4a21%3Bname%3Acircle%3Bsize%3A4%3Bopacity%3A0.8%3Boutline%3Afalse%3Bcolour%3A0D00FB&GRIDDETAIL=32&STYLE=opacity%3A0.8&srs=EPSG%3A3857 width='600' height='400' frameborder='0' allowfullscreen></iframe>">
-            <i class="fa fa-map-marker"></i>&nbsp;Embed this map into your website
-        </button>
+    <button id="embedMapButton"
+            class="btn btn-default btn-sm tooltips"
+            title="Copy iframe embed code"
+            data-toggle="modal"
+            data-target="#embedModal"
+            data-clipboard-iframe="<iframe src='${spatialPortalUrlParams}' ... ></iframe>">
+        <i class="fa fa-map-marker"></i>&nbsp;Embed this map into your website
+    </button>
     <%-- <div id="spatialSearchFromMap" class="btn btn-default btn-small">
         <a href="#" id="wktFromMapBounds" class="tooltips" title="Restrict search to current view">
             <i class="hide glyphicon glyphicon-share-alt"></i> Restrict search</a>
@@ -34,6 +34,9 @@
     --%>
 </div>
 
+<g:if test="${grailsApplication.config.feature.nbnMapDownload?.toString()?.toBoolean()}">
+    <g:render template="iframeModal"/>
+</g:if>
 <g:if test="${grailsApplication.config.feature.nbnMapTemporalControl?.toString()?.toBoolean()}">
       <g:render template="nbnMapTemporalControlV2" />
 </g:if>
@@ -167,17 +170,17 @@
       }
 
       // When the modal opens, populate the textarea
-      $('#embedModal').on('show.bs.modal', function () {
-        var btn = document.getElementById('embedMapButton');
-        var template = btn ? btn.getAttribute('data-clipboard-iframe') : '';
+        $('#embedModal').on('show.bs.modal', function () {
+          var btn = document.getElementById('embedMapButton');
+          var template = btn ? btn.getAttribute('data-clipboard-iframe') : '';
 
-        var useLive = $('#embedAutoUpdate').is(':checked');
-        var liveSnippet = useLive ? buildIframeFromMap() : null;
+          var useLive = $('#embedAutoUpdate').is(':checked');
+          var liveSnippet = useLive ? buildIframeFromMap() : null;
 
-        $('#embedIframeTextarea').val(liveSnippet || template || '');
-      });
+          $('#embedIframeTextarea').val(liveSnippet || template || '');
+        });
 
-      // Allow toggling the “auto update” and immediately refresh the textarea (optional)
+      // Allow toggling the “auto update” and immediately refresh the textarea
       $('#embedAutoUpdate').on('change', function() {
         var liveSnippet = this.checked ? buildIframeFromMap() : null;
         var btn = document.getElementById('embedMapButton');
@@ -190,7 +193,6 @@
         var ta = document.getElementById('embedIframeTextarea');
         var text = ta.value;
 
-        // Clipboard API with fallback
         var finish = function(ok) {
           var $btn = $('#copyEmbedIframe');
           var original = $btn.html();
@@ -217,14 +219,14 @@
     })();
 
 
-        //var mbAttr = 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, imagery &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
-        //var mbUrl = 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
-        var defaultBaseLayer = L.tileLayer("${grailsApplication.config.map.minimal.url}", {
-            attribution: "${raw(grailsApplication.config.map.minimal.attr)}",
-            subdomains: "${grailsApplication.config.map.minimal.subdomains}",
-            mapid: "${grailsApplication.config.map.mapbox?.id?:''}",
-            token: "${grailsApplication.config.map.mapbox?.token?:''}"
-        });
+    //var mbAttr = 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, imagery &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
+    //var mbUrl = 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
+    var defaultBaseLayer = L.tileLayer("${grailsApplication.config.map.minimal.url}", {
+        attribution: "${raw(grailsApplication.config.map.minimal.attr)}",
+        subdomains: "${grailsApplication.config.map.minimal.subdomains}",
+        mapid: "${grailsApplication.config.map.mapbox?.id?:''}",
+        token: "${grailsApplication.config.map.mapbox?.token?:''}"
+    });
 
     var MAP_VAR = {
         map : null,
@@ -1482,8 +1484,4 @@
 
 <g:if test="${grailsApplication.config.feature.nbnMapDownload?.toString()?.toBoolean()}">
     <g:render template="nbnMapDownload" />
-</g:if>
-
-<g:if test="${grailsApplication.config.feature.enforceMaxPointsOnMap.enabled?.toString()?.toBoolean()}">
-<g:render template="nbnPointMapRestrictions" />
 </g:if>
