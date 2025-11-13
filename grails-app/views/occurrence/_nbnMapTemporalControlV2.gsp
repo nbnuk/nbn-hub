@@ -32,7 +32,7 @@
 </g:if>
 <div <g:if test="${sr.activeFacetObj.year}">style="display:none"</g:if>>
 
-<div data-setting-panel style="min-height: 80px;">
+<div data-setting-panel="true" style="min-height: 80px;">
     <div class="row" style="display:flex; justify-content: center; margin-bottom:15px" >
         <label class="radio-inline">
             <input type="radio" name="which_months" value="all" checked> All months
@@ -98,14 +98,14 @@
                             <div class="input-group input-group-sm">
                                 <span class="input-group-addon">Step</span>
                                 <input type="number" class="form-control"
-                                       min="1" max="100" value="1" data-setting="step">
+                                       min="1" max="100" value="1" data-setting="step" style="min-width:45px;">
                             </div>
                         </div>
                         <div class="col-xs-6">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-addon">Speed</span>
                                 <input type="number" class="form-control"
-                                       min="0.5" max="10" step="0.5" value="1" data-setting="speed">
+                                       min="0.5" max="10" step="0.5" value="1" data-setting="speed" style="min-width:45px;">
                             </div>
                         </div>
                     </div>
@@ -141,7 +141,7 @@
                 </div>
             </g:if>
             <div <g:if test="${sr.activeFacetObj.month}">style="display:none"</g:if>>
-                <div style="min-height: 80px;" data-setting-panel>
+                <div style="min-height: 80px;" data-setting-panel="true">
                 <div  class="row" style="display:flex; justify-content: center; margin-bottom:15px;" >
 
                         <button type="button" class="btn btn-default" name="season" value="Spring">Spring</button>
@@ -387,7 +387,7 @@
 
                     if (self.year_month.length == 0) {
                         $('input[name="which_months"][value="all"]').prop('checked', true);
-                            $('#year_month').addClass('hidden');
+                        $('#year_month input').prop('disabled', true);
                     }
                 }
             }
@@ -463,6 +463,9 @@
             this.getControl('backward').prop('disabled', disable);
             this.getControl('forward').prop('disabled', disable);
             this.container.find('[data-setting-panel] input, [data-setting-panel] button').prop('disabled', disable);
+            if (this.mode === 'year' && $('input[name="which_months"]').filter(':checked').val() =='all'){
+                        $('#year_month input').prop('disabled', true);
+            }
             this.getSetting('step').prop('disabled', disable);
             this.getSetting('speed').prop('disabled', disable);
         }
@@ -766,5 +769,9 @@
     background-color: #3498db; /*#005A8E;*/
     /*color: #595d5f;*/
 }
+
+.playback-toolbar { white-space: normal; }                 /* allow wrap */
+.playback-toolbar .btn-group { display: inline-block; }    /* align nicely */
+
 
 </style>
