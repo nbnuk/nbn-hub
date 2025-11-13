@@ -121,14 +121,86 @@
 
     (function() {
 
+      function getOverrideBbox() {
+        var w = ($('#embedBboxWest').val()  || '').trim();
+        var s = ($('#embedBboxSouth').val() || '').trim();
+        var e = ($('#embedBboxEast').val()  || '').trim();
+        var n = ($('#embedBboxNorth').val() || '').trim();
+
+        if (!w && !s && !e && !n) {
+          return null;
+        }
+
+        var nums = [w, s, e, n].map(parseFloat);
+        for (var i = 0; i < nums.length; i++) {
+          if (isNaN(nums[i])) {
+            return null;
+          }
+        }
+        // minLon,minLat,maxLon,maxLat
+        return nums.join(',');
+      }
+
+      function applyBboxOverride(url) {
+        var bbox = getOverrideBbox();
+        if (!bbox) {
+          return url;
+        }
+
+        var enc = encodeURIComponent(bbox);
+        var re  = /([?&])(bbox|BBOX)=[^&]*/;
+
+        if (re.test(url)) {
+          return url.replace(re, '$1bbox=' + enc);
+        }
+
+        // Append a new bbox param
+        return url + (url.indexOf('?') > -1 ? '&' : '?') + 'bbox=' + enc;
+      }
+
+      function applyDomainOverride(url) {
+        var domainOverride = ($('#embedDomainOverride').val() || '').trim();
+
+        if (domainOverride) {
+          domainOverride = domainOverride.replace(/\/+$/, '');
+        }
+
+        try {
+          var a = document.createElement('a');
+          a.href = url;
+
+          var origin = a.protocol + '//' + a.host;
+
+          var queryAndHash = (a.search || '') + (a.hash || '');
+
+          var base = domainOverride || origin;
+
+          return base + queryAndHash;
+        } catch (e) {
+          // Fallback: if anything goes wrong, keep the original URL
+          return url;
+        }
+      }
+
+      function refreshEmbedTextarea() {
+        var btn = document.getElementById('embedMapButton');
+        var template = btn ? btn.getAttribute('data-clipboard-iframe') : '';
+
+        var useLive = $('#embedAutoUpdate').is(':checked');
+        var liveSnippet = useLive ? buildIframeFromMap() : null;
+
+        $('#embedIframeTextarea').val(liveSnippet || template || '');
+      }
+
       // Build a best-effort iframe from current WMS layer + UI controls
       function buildIframeFromMap() {
         try {
           var currentLayer = MAP_VAR && MAP_VAR.currentLayers && MAP_VAR.currentLayers[0];
-          if (!currentLayer) return null;
+          if (!currentLayer)
+              return null;
 
           // Base WMS URL and params pulled from the live layer
-          var baseUrl = currentLayer._url;               // e.g. .../mapping/wms/reflect?q=...
+          var baseUrl = currentLayer._url;
           var params  = Object.assign({}, currentLayer.wmsParams || currentLayer.options || {});
 
           // Refresh ENV bits from the UI to reflect sliders/toggles
@@ -149,20 +221,34 @@
           env.outline = outlineDots;
 
           // Re-stringify ENV
-          params.ENV = Object.keys(env).map(function(k){ return k + ':' + env[k]; }).join(';');
+          params.ENV = Object.keys(env)
+            .map(k => k + ':' + env[k])
+            .join(';');
 
           // Build a full URL (keep only meaningful WMS params)
-          var qs = Object.keys(params).map(function(k){
-            return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
-          }).join('&');
+          var qs = Object.keys(params)
+            .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+            .join('&');
 
-          var fullWmsUrl = baseUrl + (baseUrl.indexOf('?')>-1 ? '&' : '?') + qs;
+          var fullWmsUrl = baseUrl + (baseUrl.indexOf('?') > -1 ? '&' : '?') + qs;
 
-          // Default iframe dims (user can tweak before copy)
+          fullWmsUrl = applyBboxOverride(fullWmsUrl);
+          fullWmsUrl = applyDomainOverride(fullWmsUrl);
+
+          // Default iframe size
           var w = 600, h = 400;
 
-          // Return the snippet
-          return "<iframe src=\"" + fullWmsUrl + "\" width=\"" + w + "\" height=\"" + h + "\" frameborder=\"0\" allowfullscreen></iframe>";
+          // Return the snippet formatted
+            return [
+              '<iframe',
+              '    src="' + fullWmsUrl + '"',
+              '    width="' + w + '"',
+              '    height="' + h + '"',
+              '    loading="lazy"',
+              '    title="Embedded Map"',
+              '    style="border:0;"',
+              '></iframe>'
+            ].join('\n');
         } catch(e) {
           // Fall back to the template in data-clipboard-iframe
           return null;
@@ -170,28 +256,26 @@
       }
 
       // When the modal opens, populate the textarea
-        $('#embedModal').on('show.bs.modal', function () {
-          var btn = document.getElementById('embedMapButton');
-          var template = btn ? btn.getAttribute('data-clipboard-iframe') : '';
-
-          var useLive = $('#embedAutoUpdate').is(':checked');
-          var liveSnippet = useLive ? buildIframeFromMap() : null;
-
-          $('#embedIframeTextarea').val(liveSnippet || template || '');
-        });
-
-      // Allow toggling the “auto update” and immediately refresh the textarea
-      $('#embedAutoUpdate').on('change', function() {
-        var liveSnippet = this.checked ? buildIframeFromMap() : null;
-        var btn = document.getElementById('embedMapButton');
-        var template = btn ? btn.getAttribute('data-clipboard-iframe') : '';
-        $('#embedIframeTextarea').val(liveSnippet || template || '');
+      $('#embedModal').on('show.bs.modal', function () {
+        refreshEmbedTextarea();
       });
 
-      // Copy button
+      $('#embedAutoUpdate').on('change', function() {
+        refreshEmbedTextarea();
+      });
+
+      $('#embedDomainOverride, #embedBboxWest, #embedBboxSouth, #embedBboxEast, #embedBboxNorth')
+        .on('input change', function () {
+          refreshEmbedTextarea();
+        });
+
       $('#copyEmbedIframe').on('click', function() {
         var ta = document.getElementById('embedIframeTextarea');
-        var text = ta.value;
+        if (!ta) return;
+
+        var text = ta.value || '';
+        if (!text)
+            return;
 
         var finish = function(ok) {
           var $btn = $('#copyEmbedIframe');
@@ -201,7 +285,7 @@
         };
 
         if (navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard.writeText(text).then(function(){ finish(true); }, function(){ finish(false); });
+          navigator.clipboard.writeText(text).then(() => finish(true), () => finish(false));
         } else {
           ta.select();
           try {
