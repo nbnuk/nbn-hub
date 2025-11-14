@@ -1,6 +1,6 @@
 <script>
 
-    $('#iframeModal').on('show.bs.modal', function (event) {
+    $('#embedModal').on('show.bs.modal', function (event) {
         const button = $(event.relatedTarget);
         const iframeCode = button.data('iframe-code');
         $(this).find('.iframe-output').val(iframeCode);
@@ -90,7 +90,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button id="copyEmbedIframe" type="button" class="btn btn-primary">
-                    <i class="fa fa-clipboard"></i> Copy
+                    <i class="glyphicon glyphicon-copy" aria-hidden="true"></i> Copy
                 </button>
             </div>
         </div>

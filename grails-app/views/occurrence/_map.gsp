@@ -236,7 +236,8 @@
           fullWmsUrl = applyDomainOverride(fullWmsUrl);
 
           // Default iframe size
-          var w = 600, h = 400;
+          var size = MAP_VAR.map.getSize();
+          var w = size.x, h = size.y;
 
           // Return the snippet formatted
             return [
