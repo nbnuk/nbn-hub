@@ -115,7 +115,7 @@
                 <div class="col-xs-12 col-sm-12 col-md-3"  style="margin-bottom: 10px; ">
                     <div class="btn-group btn-group-justified" role="group" aria-label="Playback controls" style="white-space: nowrap;">
                         <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-default btn-sm" data-control="rewind" title="Rewind"><i class="fa fa-fast-backward"></i></button>
+                            <button type="button" class="btn btn-default btn-sm" data-control="rewind" title="Restart"><i class="fa fa-fast-backward"></i></button>
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-default btn-sm" data-control="backward" title="Back"><i class="fa fa-step-backward"></i></button>
@@ -185,7 +185,7 @@
                 <div class="col-sm-12 col-md-3"  style="margin-bottom: 10px; ">
                     <div class="btn-group btn-group-justified" role="group" aria-label="Playback controls" style="white-space: nowrap;">
                         <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-default btn-sm" data-control="rewind" title="Rewind"><i class="fa fa-fast-backward"></i></button>
+                            <button type="button" class="btn btn-default btn-sm" data-control="rewind" title="Restart"><i class="fa fa-fast-backward"></i></button>
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-default btn-sm" data-control="backward" title="Back"><i class="fa fa-step-backward"></i></button>
@@ -369,6 +369,9 @@
                         });
                     }
 
+                    self.currentValue = undefined;
+                    self._debug("season clicked currentValue:"+self.currentValue);
+
                 });
             }
         }
@@ -404,7 +407,7 @@
             }
 
             this._getPlayerSettings();
-            this._debug("play "+this.sliderApi.result.from+" "+this.sliderApi.result.to);
+            this._debug("play "+this.sliderApi.result.from+" "+this.sliderApi.result.to+" currentValue:"+this.currentValue);
             if (this.currentValue == undefined || this.currentValue ==  this.sliderApi.result.to){
                 this.currentValue = this.sliderApi.result.from;
             }
@@ -474,7 +477,7 @@
             this._debug("_refreshState");
             const maxValue = this.sliderApi.result.to;
             const minValue = this.sliderApi.result.from;
-
+            this._debug("currentValue:"+this.currentValue+" minValue:"+minValue+" maxValue:"+maxValue);
 
             if (this.isPlaying) this.getControl("play").parent().hide(); else this.getControl("play").parent().show();
             if (this.isPlaying)  this.getControl("pause").parent().show(); else this.getControl("pause").parent().hide();
@@ -557,18 +560,19 @@
 
 
         displayMapForValue() {
+            this._debug("displayMapForValue currentValue:"+this.currentValue);
             if (this.mode === 'seasonal') {
-                MAP_VAR.additionalFqs = '&fq=month:' + this.currentValue;
-                MAP_VAR.removeFqs = ''
-                this._debug("show month MAP_VAR.additionalFqs" + MAP_VAR.additionalFqs);
+                MAP_VAR.additionalFqs = '&fq=month:' + (this.currentValue+1);
+                MAP_VAR.removeFqs = MAP_VAR.additionalFqs
+                this._debug("show month MAP_VAR.additionalFqs: " + MAP_VAR.additionalFqs);
                 addQueryLayer(true);
             } else {
                 MAP_VAR.additionalFqs = '&fq=year:' + this.currentValue;
                 if (this.year_month && this.year_month.length > 0){
                     MAP_VAR.additionalFqs += '&fq=month:(' + this.year_month.join(" OR ") + ')';
                 }
-                MAP_VAR.removeFqs = ''
-                this._debug("show year MAP_VAR.additionalFqs" + MAP_VAR.additionalFqs);
+                MAP_VAR.removeFqs = MAP_VAR.additionalFqs
+                this._debug("show year MAP_VAR.additionalFqs: " + MAP_VAR.additionalFqs);
                 addQueryLayer(true);
             }
 
@@ -618,7 +622,7 @@
         }
 
         _debug(msg) {
-            if (false) {
+            if (true) {
                 if (msg != undefined){
                     console.log(msg);
                 }
