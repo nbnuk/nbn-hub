@@ -10,7 +10,7 @@
 
             var $secondGroup = $select.find('optgroup').eq(1);
             $secondGroup
-                .attr('label', 'Display as points')
+                .attr('label', 'Display as points (DISABLED as > ${maxNumPoints} records)')
                 .prop('disabled', true);
             $secondGroup.find('option').prop('disabled', true);
             requireMapRestrictionIcon=true;
