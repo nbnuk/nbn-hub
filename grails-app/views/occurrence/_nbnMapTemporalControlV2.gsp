@@ -144,13 +144,15 @@
                 <div style="min-height: 80px;" data-setting-panel="true">
                 <div  class="row" style="display:flex; justify-content: center; margin-bottom:15px;" >
 
+                        <button type="button" class="btn btn-default" name="season" value="Winter">Winter</button>
+
                         <button type="button" class="btn btn-default" name="season" value="Spring">Spring</button>
 
                         <button type="button" class="btn btn-default" name="season" value="Summer">Summer</button>
 
                         <button type="button" class="btn btn-default" name="season" value="Autumn">Autumn</button>
 
-                        <button type="button" class="btn btn-default" name="season" value="Winter">Winter</button>
+
 
                 </div>
                 </div>
@@ -226,8 +228,8 @@
 
             this.mode = mode;
             this.monthNames = [
-                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov'
             ];
 
             this.init();
@@ -288,8 +290,8 @@
                   type: 'double',
                   skin: 'round',
                   values: this.monthNames,
-                  min: 'Jan',
-                  max: 'Dec',
+                  min: 'Dec',
+                  max: 'Nov',
                   from: '0',
                   to: '11',
                   step: 1,
@@ -349,23 +351,23 @@
 
                     if (val === 'Spring') {
                         self.sliderApi.update({
-                            from: '0',
-                            to: '2'
-                        });
-                    } else if (val === 'Summer') {
-                        self.sliderApi.update({
                             from: '3',
                             to: '5'
                         });
-                    } else if (val === 'Autumn') {
+                    } else if (val === 'Summer') {
                         self.sliderApi.update({
                             from: '6',
                             to: '8'
                         });
-                    } else if (val === 'Winter') {
+                    } else if (val === 'Autumn') {
                         self.sliderApi.update({
                             from: '9',
                             to: '11'
+                        });
+                    } else if (val === 'Winter') {
+                        self.sliderApi.update({
+                            from: '0',
+                            to: '2'
                         });
                     }
 
@@ -562,7 +564,8 @@
         displayMapForValue() {
             this._debug("displayMapForValue currentValue:"+this.currentValue);
             if (this.mode === 'seasonal') {
-                MAP_VAR.additionalFqs = '&fq=month:' + (this.currentValue+1);
+                const month = this.currentValue==0 ? 12:this.currentValue;
+                MAP_VAR.additionalFqs = '&fq=month:' + month;
                 MAP_VAR.removeFqs = MAP_VAR.additionalFqs
                 this._debug("show month MAP_VAR.additionalFqs: " + MAP_VAR.additionalFqs);
                 addQueryLayer(true);
@@ -622,7 +625,7 @@
         }
 
         _debug(msg) {
-            if (true) {
+            if (false) {
                 if (msg != undefined){
                     console.log(msg);
                 }
