@@ -4,7 +4,7 @@
 
 
 <div id="nbnTemporalToolbar"   aria-label="Timeline Control" style="display:none;" class="panel panel-default" data-temporal-control="main">
-    <div class="panel-heading" >
+    <div class="panel-heading" style="padding: 0px">
         <div class="row">
             <div class="col-xs-8">
                 <!-- Tabs -->
