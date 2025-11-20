@@ -9,7 +9,7 @@ class UrlMappings {
             }
         }
 
-
+        "/embeddable/map"(controller: "embeddableMap", action: "embeddableMap")
         "/"(controller: 'home')
         "/advancedSearch/searchByOccurrenceID"(controller: 'occurrenceSearch', action: 'searchByOccurrenceID')
         "/advancedSearch/searchByOther"(controller: 'occurrenceSearch', action: 'searchByOther')
