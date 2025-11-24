@@ -3,11 +3,11 @@
     (sr.facetResults?.find{it.fieldName=="identification_verification_status"}?.fieldResult.find{it.label=="Unconfirmed - not reviewed"}?.count ?: 0) +
     (sr.facetResults?.find{it.fieldName=="identification_verification_status"}?.fieldResult.find{it.label=="Unconfirmed - plausible"}?.count ?: 0)
 }"/>
-<g:set var="absenceCount" value="${sr.facetResults?.find{it.fieldName=="occurrence_status"}?.fieldResult?.find{it.label=="absent"}?.count}"/>
+<g:set var="absenceCount" value="${sr.facetResults?.find{it.fieldName=="occurrence_status"}?.fieldResult?.find{it.label?.equalsIgnoreCase("absent")}?.count}"/>
 <g:set var="fossilCount" value="${sr.facetResults?.find{it.fieldName=="basis_of_record"}?.fieldResult?.find{it.label=="Fossil specimen"}?.count}"/>
 <g:set var="licenceCount" value="${sr.facetResults?.find{it.fieldName=="license"}?.fieldResult?.find{it.label=="CC-BY-NC"}?.count}"/>
 <g:set var="buttonCount" value="${(unconfirmedIdentificationCount > 0 ? 1 : 0) + (absenceCount > 0 ? 1 : 0) + (fossilCount > 0 ? 1 : 0) + (licenceCount > 0 ? 1 : 0)}"/>
-<g:set var="absenceFilterPresent" value="${sr.activeFacetMap["-occurrence_status"]?.value == '"absent"'}" />
+<g:set var="absenceFilterPresent" value="${sr.activeFacetMap["-occurrence_status"]?.value?.equalsIgnoreCase('"absent"')}" />
 <g:set var="commercialLicenceId" value="${grailsApplication.config.commercialLicenceId ?: 18}"/>
 
 <div id="nbnDownloadMap" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="downloadsMapLabel">
