@@ -4,15 +4,15 @@
     <div id="overview" class="tab-pane">
         <g:set var="maxDownloadExceeded" value="${grailsApplication.config.maxDownloadRecords && Integer.parseInt(grailsApplication.config.maxDownloadRecords) < sr.totalRecords}"/>
         <g:set var="unconfirmedIdentificationCount" value="${
-            (sr.facetResults?.find{it.fieldName=="identificationVerificationStatus"}?.fieldResult.find{it.label=="Unconfirmed"}?.count ?: 0) +
-            (sr.facetResults?.find{it.fieldName=="identificationVerificationStatus"}?.fieldResult.find{it.label=="Unconfirmed - not reviewed"}?.count ?: 0) +
-            (sr.facetResults?.find{it.fieldName=="identificationVerificationStatus"}?.fieldResult.find{it.label=="Unconfirmed - plausible"}?.count ?: 0)
+            (sr.facetResults?.find{it.fieldName=="identification_verification_status"}?.fieldResult.find{it.label=="Unconfirmed"}?.count ?: 0) +
+            (sr.facetResults?.find{it.fieldName=="identification_verification_status"}?.fieldResult.find{it.label=="Unconfirmed - not reviewed"}?.count ?: 0) +
+            (sr.facetResults?.find{it.fieldName=="identification_verification_status"}?.fieldResult.find{it.label=="Unconfirmed - plausible"}?.count ?: 0)
         }"/>
-        <g:set var="absenceCount" value="${sr.facetResults?.find{it.fieldName=="occurrenceStatus"}?.fieldResult?.find{it.label?.toLowerCase()=="absent"}?.count}"/>
-        <g:set var="fossilCount" value="${sr.facetResults?.find{it.fieldName=="basisOfRecord"}?.fieldResult?.find{it.label=="Fossil specimen"}?.count}"/>
+        <g:set var="absenceCount" value="${sr.facetResults?.find{it.fieldName=="occurrence_status"}?.fieldResult?.find{it.label=="absent"}?.count}"/>
+        <g:set var="fossilCount" value="${sr.facetResults?.find{it.fieldName=="basis_of_record"}?.fieldResult?.find{it.label=="Fossil specimen"}?.count}"/>
         <g:set var="licenceCount" value="${sr.facetResults?.find{it.fieldName=="license"}?.fieldResult?.find{it.label=="CC-BY-NC"}?.count}"/>
         <g:set var="buttonCount" value="${(unconfirmedIdentificationCount > 0 ? 1 : 0) + (absenceCount > 0 ? 1 : 0) + (fossilCount > 0 ? 1 : 0) + (licenceCount > 0 ? 1 : 0)}"/>
-        <g:set var="absenceFilterPresent" value="${sr.activeFacetMap["-occurrenceStatus"]?.value == '"absent"'}" />
+        <g:set var="absenceFilterPresent" value="${sr.activeFacetMap["-occurrence_status"]?.value == '"absent"'}" />
         %{--                            ${absenceFilterPresent}--}%
 
         <h3><g:message code="list.overviewtab.title" default="Overview"/></h3>
@@ -31,7 +31,7 @@
                         <a class="btn btn-primary disabled exclude">You cannot exclude all records</a>
                     </g:if>
                     <g:else>
-                        <a href='${sr.query}&fq=-(identificationVerificationStatus%3A"Unconfirmed" OR identificationVerificationStatus%3A"Unconfirmed - not reviewed" OR identificationVerificationStatus%3A"Unconfirmed - plausible")' class="btn btn-primary exclude">Exclude unconfirmed identifications</a>
+                        <a href='${sr.query}&fq=-(identification_verification_status%3A"Unconfirmed" OR identification_verification_status%3A"Unconfirmed - not reviewed" OR identification_verification_status%3A"Unconfirmed - plausible")' class="btn btn-primary exclude">Exclude unconfirmed identifications</a>
                     </g:else>
                 </g:if>
             </li>
@@ -42,7 +42,7 @@
                         <a class="btn btn-primary disabled exclude">You cannot exclude all records</a>
                     </g:if>
                     <g:else>
-                        <a href="${sr.query}&fq=-occurrenceStatus:absent" class="btn btn-primary exclude">Exclude absence records</a>
+                        <a href="${sr.query}&fq=-occurrence_status:absent" class="btn btn-primary exclude">Exclude absence records</a>
                     </g:else>
                 </g:if>
             </li>
@@ -53,7 +53,7 @@
                         <a class="btn btn-primary disabled exclude">You cannot exclude all records</a>
                     </g:if>
                     <g:else>
-                        <a href="${sr.query}&fq=-basisOfRecord:FossilSpecimen" class="btn btn-primary exclude">Exclude fossil records</a>
+                        <a href="${sr.query}&fq=-basis_of_record:FossilSpecimen" class="btn btn-primary exclude">Exclude fossil records</a>
                     </g:else>
                 </g:if>
             </li>
