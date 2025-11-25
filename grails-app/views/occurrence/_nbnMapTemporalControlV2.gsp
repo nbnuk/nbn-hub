@@ -98,14 +98,14 @@
                             <div class="input-group input-group-sm">
                                 <span class="input-group-addon">Step</span>
                                 <input type="number" class="form-control"
-                                       min="1" max="100" value="1" data-setting="step" style="min-width:45px;">
+                                       min="1" max="100" value="1" data-setting="step" style="min-width:55px;">
                             </div>
                         </div>
                         <div class="col-xs-6">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-addon">Speed</span>
                                 <input type="number" class="form-control"
-                                       min="0.5" max="10" step="0.5" value="1" data-setting="speed" style="min-width:45px;">
+                                       min="0.5" max="10" step="0.5" value="1" data-setting="speed" style="min-width:55px;">
                             </div>
                         </div>
                     </div>
@@ -654,8 +654,8 @@
     // Initialize
     $(document).ready(function() {
 
-        new TemporalControl('#year-tab','year');
-        new TemporalControl('#month-tab','seasonal');
+       window.nbnTemporalControlYear = new TemporalControl('#year-tab','year');
+       window.nbnTemporalControlMonth = new TemporalControl('#month-tab','seasonal');
 
         // MAP_VAR.map.addControl(new LaunchTemporalLeafletControl());
         // $('#nbnTemporalControl').tooltip({ container: 'body', placement: 'left' });
@@ -735,6 +735,27 @@
     }
 
    });
+
+    function nbnChangeFacetColours() {
+        // Check if nbnTemporalToolbar is showing
+        if ($('#nbnTemporalToolbar').is(':visible')) {
+            // Determine which temporal control is active
+            var activeTemporalControl;
+            if ($('#year-tab').hasClass('active')) {
+                activeTemporalControl = window.nbnTemporalControlYear;
+            } else if ($('#month-tab').hasClass('active')) {
+                activeTemporalControl = window.nbnTemporalControlMonth;
+            }
+
+            // Call displayMapForValue on the active temporal control
+            if (activeTemporalControl) {
+                activeTemporalControl.displayMapForValue();
+                return true;
+            }
+        }
+        // Default behaviour if no temporal control is active
+        return changeFacetColours();
+    }
 </asset:script>
 
 <style>
