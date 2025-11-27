@@ -41,9 +41,9 @@
                                 <input type="hidden" name="filename" value=""/>
                                 <div class="form-group">
 
-                                    <div class="checkbox" data-for="nbn_map_excludeCCBYNC">
+                                    <div class="checkbox">
                 <g:if test="${licenceCount > 0}">
-                    <label><input type="checkbox" id="nbn_map_excludeCCBYNC" name="excludeCCBYNC" value="true">
+                    <label for="nbn_map_excludeCCBYNC"><input type="checkbox" id="nbn_map_excludeCCBYNC" name="excludeCCBYNC" value="true">
                         Exclude CC-BY-NC licence records (<g:formatNumber number="${licenceCount ?: 0}" format="###,###,###,##0"/>)
                         <g:if test="${sr.totalRecords == licenceCount}"><span class="text-muted"><i class="fa fa-warning"></i> this will exclude all records!</g:if></span>
                     </label>
@@ -207,7 +207,7 @@
             var errors =[];
 
             // Reset labels first
-            $('label[for="reasonTypeId"], label[for="nbnMapDownloadConfirmLicense"], label[for="excludeCCBYNC"]')
+            $('label[for="nbn_map_reasonTypeId"], label[for="nbnMapDownloadConfirmLicense"], label[for="nbn_map_excludeCCBYNC"]')
                 .removeClass('text-required').css('font-weight', 'normal');
              $('#nbnDownloadMap-step1-error').html('');
 
@@ -228,7 +228,7 @@
 
     <g:if test="${licenceCount}">
         if (!$('#nbn_map_excludeCCBYNC').is(':checked') && $('#nbn_map_reasonTypeId').val() =='${commercialLicenceId}') {
-                $('div[data-for="nbn_map_excludeCCBYNC"]').addClass('text-required').css('font-weight', 'bold');
+                $('label[for="nbn_map_excludeCCBYNC"]').addClass('text-required').css('font-weight', 'bold');
                 errors.push('You must exclude CC-BY-NC licensed records when downloading for commercial use.');
                 valid = false;
             }
