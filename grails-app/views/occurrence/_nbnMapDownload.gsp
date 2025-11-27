@@ -22,7 +22,7 @@
 
             <g:if test="${!userId}">
                 <div class="modal-body">
-                    <div id="saveSearchListPleaseLoginMessage" style="margin: 20px 20px;">Please login:
+                    <div style="margin: 20px 20px;">Please login:
                         <a href="${grailsApplication.config.security.cas.casServerLoginUrl}?service=${(grailsApplication.config.serverName + request.contextPath + request.forwardURI + (request.queryString ? '?' + request.queryString : '')).encodeAsURL()}">
                             <g:message code="show.loginorflag.div01.navigator" default="Click here"/>
                         </a>
@@ -33,77 +33,33 @@
                 <div class="modal-body">
                     <div class="tab-content">
                         <div class="tab-pane active" id="nbnDownloadMap-step1">
-                            <form class="margin-top-1" id="mapDownloadForm" action="/initMapDownload" method="post">
+                            <form class="margin-top-1" id="nbn_map_mapDownloadForm" action="/initMapDownload" method="post">
                                 <input type="hidden" name="sourceTypeId" value="${alatag.getSourceId()}"/>
                                 <input type="hidden" name="searchParams"
                                        value="${sr?.urlParameters ? URLDecoder.decode(sr.urlParameters, 'UTF-8') : ''}"/>
                                 <input type="hidden" name="targetUri" value="${request.forwardURI}"/>
                                 <input type="hidden" name="filename" value=""/>
                                 <div class="form-group">
-                                    <p>Select any records you wish to <b>remove</b> from the map:</p>
 
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" name="excludeUnconfirmed" value="true"
-                                                ${sr.totalRecords == unconfirmedIdentificationCount ? 'disabled' : ''}>
-                                            unconfirmed identifications
-                                                (<g:formatNumber number="${unconfirmedIdentificationCount ?: 0}" format="###,###,###,##0"/>)
+                                    <div class="checkbox" data-for="nbn_map_excludeCCBYNC">
+                <g:if test="${licenceCount > 0}">
+                    <label><input type="checkbox" id="nbn_map_excludeCCBYNC" name="excludeCCBYNC" value="true">
+                        Exclude CC-BY-NC licence records (<g:formatNumber number="${licenceCount ?: 0}" format="###,###,###,##0"/>)
+                        <g:if test="${sr.totalRecords == licenceCount}"><span class="text-muted"><i class="fa fa-warning"></i> this will exclude all records!</g:if></span>
+                    </label>
+                </g:if>
+                                        <g:else>
+                                            <p>CC-BY-NC licence records (<g:formatNumber number="${licenceCount ?: 0}" format="###,###,###,##0"/>)</p>
+                                        </g:else>
 
-                                            <g:if test="${sr.totalRecords == unconfirmedIdentificationCount}">
-                                                <span class="text-muted"><i class="fa fa-warning"></i> this will exclude all records</span>
-                                            </g:if>
-
-                                        </label>
                                     </div>
 
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" name="excludeAbsence" value="true"
-                                                ${sr.totalRecords == absenceCount ? 'disabled' : ''}>
-                                            absence records ${absenceFilterPresent ? "(excluded by default)" : ""}
-
-                                                (<g:formatNumber number="${absenceCount ?: 0}" format="###,###,###,##0"/>)
-
-                                            <g:if test="${sr.totalRecords == absenceCount}">
-                                                <span class="text-muted"><i class="fa fa-warning"></i> this will exclude all records</span>
-                                            </g:if>
-                                        </label>
-                                    </div>
-
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" name="excludeFossil" value="true"
-                                                ${sr.totalRecords == fossilCount ? 'disabled' : ''}>
-                                            fossil records
-
-                                                (<g:formatNumber number="${fossilCount ?: 0}" format="###,###,###,##0"/>)
-
-                                            <g:if test="${sr.totalRecords == fossilCount}">
-                                                <span class="text-muted"><i class="fa fa-warning"></i> this will exclude all records</span>
-                                            </g:if>
-                                        </label>
-                                    </div>
-
-                                    <div class="checkbox">
-                                        <label for="excludeCCBYNC">
-                                            <input type="checkbox" id="excludeCCBYNC" name="excludeCCBYNC" value="true"
-                                                ${sr.totalRecords == licenceCount ? 'disabled' : ''}>
-                                            records with a CC-BY-NC licence
-
-                                                (<g:formatNumber number="${licenceCount ?: 0}" format="###,###,###,##0"/>)**
-
-                                            <g:if test="${sr.totalRecords == licenceCount}">
-                                                <span class="text-muted"><i class="fa fa-warning"></i> this will exclude all records</span>
-                                            </g:if>
-                                        </label>
-                                    </div>
                                 </div>
 
-
                                 <div class="form-group">
-                                    <label for="reasonTypeId">*<g:message
+                                    <label for="nbn_map_reasonTypeId">*<g:message
                                             code="download.reason.label" default="Reason for download"/></label>
-                                    <select class="form-control" id="reasonTypeId" name="reasonTypeId">
+                                    <select class="form-control" id="nbn_map_reasonTypeId" name="reasonTypeId">
                                         <option value="" disabled selected><g:message
                                                 code="download.reason.placeholder"/></option>
                                         <g:each var="it" in="${downloads.getLoggerReasons()}">
@@ -129,6 +85,8 @@
                                 </div>
                             </form>
 
+                            <div id="nbnDownloadMap-step1-error" ></div>
+
                             <div class="text-right">
                                 <button type="button" class="btn btn-default" data-dismiss="modal"><g:message
                                         code="download.button.close" default="Close"/></button>
@@ -139,16 +97,16 @@
                         <div class="tab-pane" id="nbnDownloadMap-step2">
                             <!-- Download options form -->
                             <div class="form-group">
-                                <label for="downloadFilename"><g:message code="map.downloadmap.field10.label"
+                                <label for="nbn_map_downloadFilename"><g:message code="map.downloadmap.field10.label"
                                                                          default="File name (without extension)"/></label>
-                                <input type="text" id="downloadFilename" class="form-control"
+                                <input type="text" id="nbn_map_downloadFilename" class="form-control"
                                        value="<g:message code="map.downloadmap.default.filename" default="MyMap"/>">
                             </div>
 
                             <div class="form-group">
-                                <label for="downloadFormat"><g:message code="map.downloadmap.field01.label"
+                                <label for="nbn_map_downloadFormat"><g:message code="map.downloadmap.field01.label"
                                                                        default="Format"/></label>
-                                <select id="downloadFormat" class="form-control">
+                                <select id="nbn_map_downloadFormat" class="form-control">
                                     <option value="jpg"><g:message code="map.downloadmap.field01.option01"
                                                                    default="JPEG"/></option>
                                     <option value="png"><g:message code="map.downloadmap.field01.option02"
@@ -158,12 +116,12 @@
 
                             <hr>
                             <div class="btn-group-vertical" role="group" aria-label="...">
-                                <button id="downloadMapImage" class="btn btn-link" style="text-align:left">
+                                <button id="nbn_map_downloadMapImage" class="btn btn-link" style="text-align:left">
                                     <i class="fa fa-download"></i> <g:message
                                         code="map.downloadmap.nbn.downloadimage.label"
                                         default="Download map image"/>
                                 </button>
-                                <button id="downloadCitationsAndReadme" class="btn btn-link" style="text-align:left">
+                                <button id="nbn_map_downloadCitationsAndReadme" class="btn btn-link" style="text-align:left">
                                     <i class="fa fa-download"></i> <g:message
                                         code="map.downloadmap.nbn.downloadcitation.label"
                                         default="Download citations and README"/>
@@ -179,7 +137,7 @@
                                 </div>
                             </div>
 
-                            <div id="mapDownloadLoginAgainMessage" class="alert alert-danger text-right hidden">
+                            <div id="nbn_map_mapDownloadLoginAgainMessage" class="alert alert-danger text-right hidden">
                                 Sorry, you need to
                                 <a href="${grailsApplication.config.security.cas.casServerLoginUrl}?service=${(grailsApplication.config.serverName + request.contextPath + request.forwardURI + (request.queryString ? '?' + request.queryString : '')).encodeAsURL()}">
                                     login
@@ -246,27 +204,32 @@
 
         $('.next-btn').on('click', function () {
             var valid = true;
+            var errors =[];
 
             // Reset labels first
             $('label[for="reasonTypeId"], label[for="nbnMapDownloadConfirmLicense"], label[for="excludeCCBYNC"]')
                 .removeClass('text-required').css('font-weight', 'normal');
+             $('#nbnDownloadMap-step1-error').html('');
 
 
             // Check select box
-            if ($('#reasonTypeId').val() === null || $('#reasonTypeId').val() === '') {
-                $('label[for="reasonTypeId"]').addClass('text-required').css('font-weight', 'bold');
+            if ($('#nbn_map_reasonTypeId').val() === null || $('#nbn_map_reasonTypeId').val() === '') {
+                $('label[for="nbn_map_reasonTypeId"]').addClass('text-required').css('font-weight', 'bold');
+                errors.push('Please select a reason for download.');
                 valid = false;
             }
 
             // Check checkbox
             if (!$('#nbnMapDownloadConfirmLicense').is(':checked')) {
                 $('label[for="nbnMapDownloadConfirmLicense"]').addClass('text-required').css('font-weight', 'bold');
+                errors.push('You must accept the licensing terms to proceed.');
                 valid = false;
             }
 
     <g:if test="${licenceCount}">
-        if (!$('#excludeCCBYNC').is(':checked') && $('#reasonTypeId').val() =='${commercialLicenceId}') {
-                $('label[for="excludeCCBYNC"]').addClass('text-required').css('font-weight', 'bold');
+        if (!$('#nbn_map_excludeCCBYNC').is(':checked') && $('#nbn_map_reasonTypeId').val() =='${commercialLicenceId}') {
+                $('div[data-for="nbn_map_excludeCCBYNC"]').addClass('text-required').css('font-weight', 'bold');
+                errors.push('You must exclude CC-BY-NC licensed records when downloading for commercial use.');
                 valid = false;
             }
         </g:if>
@@ -274,8 +237,11 @@
             // Only proceed if all fields are valid
             if (valid) {
                 var nextTab = $("#nbnDownloadMap-step2");
-            $('#nbnDownloadMap-step1').removeClass('active');
-            $(nextTab).addClass('active');
+                $('#nbnDownloadMap-step1').removeClass('active');
+                $(nextTab).addClass('active');
+            }
+            else {
+                $('#nbnDownloadMap-step1-error').html('<div class="alert alert-danger"><ul><li>' + errors.join('</li><li>') + '</li></ul></div>');
             }
         });
 
@@ -295,10 +261,10 @@
         });
 
         function removeExcludedRecords(url){
-            var excludeUnconfirmed = $('#mapDownloadForm input[name="excludeUnconfirmed"]').is(':checked');
-            var excludeAbsence = $('#mapDownloadForm input[name="excludeAbsence"]').is(':checked');
-            var excludeFossil = $('#mapDownloadForm input[name="excludeFossil"]').is(':checked');
-            var excludeCCBYNC = $('#mapDownloadForm input[name="excludeCCBYNC"]').is(':checked');
+            var excludeUnconfirmed = $('#nbn_map_mapDownloadForm input[name="excludeUnconfirmed"]').is(':checked');
+            var excludeAbsence = $('#nbn_map_mapDownloadForm input[name="excludeAbsence"]').is(':checked');
+            var excludeFossil = $('#nbn_map_mapDownloadForm input[name="excludeFossil"]').is(':checked');
+            var excludeCCBYNC = $('#nbn_map_mapDownloadForm input[name="excludeCCBYNC"]').is(':checked');
 
             if(excludeUnconfirmed){
                 url += '&fq=-(identification_verification_status%3A"Unconfirmed" OR identification_verification_status%3A"Unconfirmed - not reviewed" OR identification_verification_status%3A"Unconfirmed - plausible")';
@@ -317,12 +283,12 @@
 
         function executeMapDownload(){
             // Get filename and format from inputs
-            var filename = $('#downloadFilename').val().trim() || 'map_export';
-            var format = $('#downloadFormat').val();
+            var filename = $('#nbn_map_downloadFilename').val().trim() || 'map_export';
+            var format = $('#nbn_map_downloadFormat').val();
 
             // Disable all links and inputs in the download modal and show loading indicator
             $('#nbnDownloadMap a, #nbnDownloadMap input, #nbnDownloadMap select').addClass('disabled').prop('disabled', true).css('pointer-events', 'none').css('opacity', '0.6');
-            var icon = $('#downloadMapImage').find('i');
+            var icon = $('#nbn_map_downloadMapImage').find('i');
             icon.addClass('fa-spinner fa-spin').removeClass('fa-download');
 
             createExportMap(function(exportMap) {
@@ -357,15 +323,15 @@
             });
         }
 
-        document.querySelectorAll('a[href="#downloadMap"]').forEach(link => {
+        document.querySelectorAll('a[href="#nbn_map_downloadMap"]').forEach(link => {
            link.href = '#nbnDownloadMap';
         });
 
-        $('#downloadCitationsAndReadme').on('click', function (e) {
+        $('#nbn_map_downloadCitationsAndReadme').on('click', function (e) {
             e.preventDefault();
 
             var icon = $(this).find('i');
-            var filename = $('#downloadFilename').val().trim()+'.citations_and_readme' || 'map_export.citations_and_readme';
+            var filename = $('#nbn_map_downloadFilename').val().trim()+'.citations_and_readme' || 'map_export.citations_and_readme';
             var url = MAP_VAR.mappingUrl + "/mapping/downloadCitationsAndReadme" + MAP_VAR.query + MAP_VAR.additionalFqs+ '&filename=' + encodeURIComponent(filename);
             url = removeExcludedRecords(url);
             icon.removeClass('fa-download').addClass('fa-spinner fa-spin');
@@ -387,13 +353,13 @@
 
         });
 
-        $('#downloadMapImage').on('click', function (e) {
+        $('#nbn_map_downloadMapImage').on('click', function (e) {
             e.preventDefault();
 
-            var filename = $('#downloadFilename').val().trim() || 'map_export';
-            $('#mapDownloadForm input[name="filename"]').val(filename);
+            var filename = $('#nbn_map_downloadFilename').val().trim() || 'map_export';
+            $('#nbn_map_mapDownloadForm input[name="filename"]').val(filename);
 
-            var form = $('#mapDownloadForm');
+            var form = $('#nbn_map_mapDownloadForm');
 
             if (form.length) {
                 $.ajax({
@@ -406,7 +372,7 @@
                     error: function (xhr, status, error) {
 
                         if (xhr.status === 401) {
-                            $('#mapDownloadLoginAgainMessage').removeClass('hidden');
+                            $('#nbn_map_mapDownloadLoginAgainMessage').removeClass('hidden');
                             return;
 
                         }

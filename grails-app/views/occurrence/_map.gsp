@@ -10,7 +10,7 @@
            href="${grailsApplication.config.spatial.baseUrl}${spatialPortalLink}${spatialPortalUrlParams}" title="Continue analysis in the Spatial Portal">
             <i class="fa fa-map-marker"></i>&nbsp&nbsp;<g:message code="map.spatialportal.btn.label" default="View in spatial portal"/></a>
     </g:if>
-        <a href="#downloadMap" id="downloadMapButton" role="button" data-toggle="modal" class="btn btn-default btn-sm tooltips" title="Download image file (single colour mode)">
+        <a href="#nbnDownloadMap" id="downloadMapButton" role="button" data-toggle="modal" class="btn btn-default btn-sm tooltips" title="Download image file (single colour mode)">
             <i class="fa fa-download"></i>&nbsp&nbsp;<g:message code="map.downloadmaps.btn.label" default="Download map"/></a>
     <alatag:wmsButton targetSelector="#downloadMapButton"/>
     <g:if test="${params.wkt}">
@@ -1370,7 +1370,7 @@
         document.location.href = downloadUrlNew;
     }
 </script>
-
+<h1>${grailsApplication.config.feature.nbnMapDownload}</h1>
 <g:if test="${grailsApplication.config.feature.nbnMapDownload?.toString()?.toBoolean()}">
     <g:render template="nbnMapDownload" />
 </g:if>

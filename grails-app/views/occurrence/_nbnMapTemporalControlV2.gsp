@@ -95,7 +95,7 @@
                 <div class="col-xs-12 col-sm-12 col-md-3" style="margin-bottom: 10px; ">
                     <div class="row">
                         <div class="col-xs-6">
-                            <div class="input-group input-group-sm">
+                            <div class="input-group input-group-sm tooltips" title="Year interval">
                                 <span class="input-group-addon">Step</span>
                                 <input type="number" class="form-control"
                                        min="1" max="100" value="1" data-setting="step" style="min-width:55px;">
@@ -167,11 +167,12 @@
                 <div class="col-sm-12 col-md-3" style="margin-bottom: 10px; ">
                     <div class="row">
                         <div class="col-xs-6">
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-addon">Step</span>
-                                <input type="number" class="form-control"
-                                       min="1" max="12" value="1" data-setting="step">
-                            </div>
+                            <input type="hidden" data-setting="step" value="1"/>
+%{--                            <div class="input-group input-group-sm">--}%
+%{--                                <span class="input-group-addon">Step</span>--}%
+%{--                                <input type="number" class="form-control"--}%
+%{--                                       min="1" max="12" value="1" data-setting="step" >--}%
+%{--                            </div>--}%
                         </div>
                         <div class="col-xs-6">
                             <div class="input-group input-group-sm">
