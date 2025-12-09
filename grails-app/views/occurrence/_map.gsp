@@ -35,7 +35,7 @@
             <td>
                 <label for="colourBySelect"><g:message code="map.maplayercontrols.tr01td01.label" default="Colour by"/>:&nbsp;</label>
                 <div class="layerControls">
-                    <select name="colourBySelect" id="colourBySelect" onchange="nbnChangeFacetColours();return true;">
+                    <select name="colourBySelect" id="colourBySelect" onchange="changeFacetColours();return true;">
                         <optgroup label="Ordnance Survey Grids">
                             <option value="variablegrid" ${(defaultColourBy == 'variablegrid')?'selected=\"selected\"':''}><g:message code="map.maplayercontrols.tr01td01.option.variablegrid" default="Variable grids"/></option>
                             <option value="singlegrid" ${(defaultColourBy == 'singlegrid')?'selected=\"selected\"':''}><g:message code="map.maplayercontrols.tr01td01.option.responsive" default="Responsive grids"/></option>

@@ -735,10 +735,8 @@
       });
     }
 
-   });
-
-    function nbnChangeFacetColours() {
-        // Check if nbnTemporalToolbar is showing
+    $('#colourBySelect').on('change', function() {
+         // Check if nbnTemporalToolbar is showing
         if ($('#nbnTemporalToolbar').is(':visible')) {
             // Determine which temporal control is active
             var activeTemporalControl;
@@ -754,9 +752,12 @@
                 return true;
             }
         }
-        // Default behaviour if no temporal control is active
-        return changeFacetColours();
-    }
+    });
+
+   });
+
+
+
 </asset:script>
 
 <style>
