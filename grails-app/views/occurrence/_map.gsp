@@ -1370,7 +1370,7 @@
         document.location.href = downloadUrlNew;
     }
 </script>
-<h1>${grailsApplication.config.feature.nbnMapDownload}</h1>
+
 <g:if test="${grailsApplication.config.feature.nbnMapDownload?.toString()?.toBoolean()}">
     <g:render template="nbnMapDownload" />
 </g:if>
