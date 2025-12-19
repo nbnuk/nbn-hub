@@ -15,7 +15,7 @@ class AccessControlController {
 
         requestParams.qc="data_provider_uid:"+params.dpuid
 
-        Map facetMap = ["Taxon": ["taxon_name"], "Attribution": ["data_resource_uid"], "Occurrence": ["year"], "Location": ["cl256","cl28"], "Sensitive": ["sensitive"]]
+        Map facetMap = ["Taxon": ["taxon_name"], "Attribution": ["data_resource_uid", "license"], "Occurrence": ["year"], "Location": ["cl256","cl28"], "Sensitive": ["sensitive"]]
         requestParams.facets = ["data_resource_uid", "taxon_name", "year", "cl256", "cl28", "sensitive"]
 
 
