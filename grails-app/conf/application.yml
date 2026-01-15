@@ -128,3 +128,8 @@ environments:
         security:
             cas:
                 appServerName: "https://auth.ala.org.au"
+
+feature:
+    accessControl:
+        saveFilterBaseUrl: 'http://localhost:8082/accessControl/updateSpecifiedAccess'
+        cancelFilterEditorBaseUrl: 'http://localhost:8082/accessControl/specifyAccess'
