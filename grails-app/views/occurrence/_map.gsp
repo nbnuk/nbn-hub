@@ -17,6 +17,9 @@
         <a href="#downloadWKT" role="button" class="btn btn-default btn-sm tooltips" title="Download WKT file" onclick="downloadPolygon(); return false;">
             <i class="glyphicon glyphicon-stop"></i>&nbsp&nbsp;<g:message code="map.downloadwkt.btn.label" default="Download WKT"/></a>
     </g:if>
+    <!-- PUT-BUTTON-HERE-->
+    <a href="#" id="dualLayerButton" role="button" class="btn btn-default btn-sm tooltips" title="Show separate layers for supplied resolution and public resolution" onclick="addDualQueryLayers(); return false;">
+        <i class="glyphicon glyphicon-lock"></i>&nbsp&nbsp;<g:message code="map.duallayer.btn.label" default="Preview access controlled records"/></a>
     <%-- <div id="spatialSearchFromMap" class="btn btn-default btn-small">
         <a href="#" id="wktFromMapBounds" class="tooltips" title="Restrict search to current view">
             <i class="hide glyphicon glyphicon-share-alt"></i> Restrict search</a>
@@ -569,7 +572,100 @@
         return true;
     }
 
-    function addDefaultLegendItem(pointColour){
+    /**
+     * A function to add two separate layers - one for specimens (S_ONLY) and one for observations (P_ONLY) with blue color
+     */
+    function addDualQueryLayers(){
+        
+        $.each(MAP_VAR.currentLayers, function(index, value){
+            MAP_VAR.map.removeLayer(MAP_VAR.currentLayers[index]);
+            MAP_VAR.layerControl.removeLayer(MAP_VAR.currentLayers[index]);
+        });
+
+        MAP_VAR.currentLayers = [];
+
+        var colourByFacet = $('#colourBySelect').val();
+        var pointSize = $('#sizeslider-val').html();
+        var opacity = $('#opacityslider-val').html();
+        var outlineDots = $('#outlineDots').is(':checked');
+        var defaultPointColour = "${grailsApplication.config.map.pointColour}";
+
+        // Create environment property for supplied resolution (S_ONLY) - default color
+        var envPropertySuppliedResolution = "color:0000FF;name:circle;size:"+pointSize+";opacity:"+opacity
+
+        // Create environment property for public resolution (P_ONLY) - blue color
+        var envPropertyPublicResolution = "color:${grailsApplication.config.map.pointColour};name:circle;size:"+pointSize+";opacity:"+opacity
+
+        if(colourByFacet){
+            if(colourByFacet == "variablegrid" || colourByFacet == "singlegrid" || colourByFacet == "10kgrid"){
+                envPropertySuppliedResolution = "colormode:osgrid;gridlabels:true;gridres:" + colourByFacet + ";opacity:1;color:" + defaultPointColour;
+                envPropertyPublicResolution = "colormode:osgrid;gridlabels:true;gridres:" + colourByFacet + ";opacity:1;color:0000FF";
+            } else if(colourByFacet == "gridVariable"){
+                colourByFacet = "coordinate_uncertainty"
+                envPropertySuppliedResolution = "colormode:coordinate_uncertainty;name:circle;size:"+pointSize+";opacity:1;cellfill:0xffccff;variablegrids:on"
+                envPropertyPublicResolution = "colormode:coordinate_uncertainty;name:circle;size:"+pointSize+";opacity:1;cellfill:0xccccff;variablegrids:on"
+            } else {
+                envPropertySuppliedResolution = "colormode:" + colourByFacet + ";name:circle;size:"+pointSize+";opacity:1;"
+                envPropertyPublicResolution = "colormode:" + colourByFacet + ";name:circle;size:"+pointSize+";opacity:1;"
+            }
+        }
+
+        var gridSizeMap = {
+            1: 256, 2:128, 3: 64, 4:32, 5:16, 6:8
+        }
+
+        // Create base WMS URL
+        var baseWmsURL = MAP_VAR.mappingUrl + "/mapping/wms/reflect" + MAP_VAR.query + MAP_VAR.additionalFqs;
+        if(!colourByFacet || colourByFacet != 'occurrence_status'){
+            baseWmsURL = baseWmsURL + "&fq=-occurrence_status:absent"
+        }
+
+        // Create supplied resolution layer (S_ONLY)
+        var wmsURLSuppliedResolution = baseWmsURL + "&NBN_AC_MAP_TYPE=S_ONLY";
+        var layerSuppliedResolution = L.tileLayer.wms(wmsURLSuppliedResolution, {
+            layers: 'ALA:occurrences',
+            format: 'image/png',
+            transparent: true,
+            bgcolor:"0x000000",
+            outline:outlineDots,
+            ENV: envPropertySuppliedResolution,
+            opacity: opacity,
+            GRIDDETAIL: gridSizeMap[pointSize],
+            STYLE: "opacity:"+opacity
+        });
+
+        // Create public resolution layer (P_ONLY) with blue color
+        var wmsURLPublicResolution = baseWmsURL + "&NBN_AC_MAP_TYPE=P_ONLY";
+        var layerPublicResolution = L.tileLayer.wms(wmsURLPublicResolution, {
+            layers: 'ALA:occurrences',
+            format: 'image/png',
+            transparent: true,
+            bgcolor:"0x000000",
+            outline:outlineDots,
+            ENV: envPropertyPublicResolution,
+            opacity: opacity,
+            GRIDDETAIL: gridSizeMap[pointSize],
+            STYLE: "opacity:"+opacity
+        });
+
+        // Add both layers to the map
+        MAP_VAR.layerControl.addOverlay(layerSuppliedResolution, 'Supplied Resolution');
+        MAP_VAR.layerControl.addOverlay(layerPublicResolution, 'Public Resolution');
+        MAP_VAR.map.addLayer(layerSuppliedResolution);
+        MAP_VAR.map.addLayer(layerPublicResolution);
+        MAP_VAR.currentLayers.push(layerSuppliedResolution);
+        MAP_VAR.currentLayers.push(layerPublicResolution);
+
+        // Update legend to show both layer types
+        $('.legendTable').html('');
+        addDefaultLegendItem(defaultPointColour, 'SuppliedResolution');
+        addDefaultLegendItem('0000FF', 'PublicResolution');
+
+        return true;
+    }
+
+    function addDefaultLegendItem(pointColour, label){
+        var displayLabel = label || "All records";
         $(".legendTable")
             .append($('<tr>')
                 .append($('<td>')
@@ -580,7 +676,7 @@
                     )
                     .append($('<span>')
                         .addClass('legendItemName')
-                        .html("All records")
+                        .html(displayLabel)
                     )
                 )
         );
