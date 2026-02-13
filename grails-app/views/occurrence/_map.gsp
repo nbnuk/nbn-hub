@@ -18,8 +18,6 @@
             <i class="glyphicon glyphicon-stop"></i>&nbsp&nbsp;<g:message code="map.downloadwkt.btn.label" default="Download WKT"/></a>
     </g:if>
     <!-- PUT-BUTTON-HERE-->
-    <a href="#" id="dualLayerButton" role="button" class="btn btn-default btn-sm tooltips" title="Show separate layers for supplied resolution and public resolution" onclick="addDualQueryLayers(); return false;">
-        <i class="glyphicon glyphicon-lock"></i>&nbsp&nbsp;<g:message code="map.duallayer.btn.label" default="Preview access controlled records"/></a>
     <%-- <div id="spatialSearchFromMap" class="btn btn-default btn-small">
         <a href="#" id="wktFromMapBounds" class="tooltips" title="Restrict search to current view">
             <i class="hide glyphicon glyphicon-share-alt"></i> Restrict search</a>
@@ -48,6 +46,7 @@
                         </optgroup>
                         <optgroup label="Display as points">
                             <option value="" ${(defaultColourBy == 'basis_of_record')?'selected=\"selected\"':''}><g:message code="map.maplayercontrols.tr01td01.option01" default="Points - default colour"/></option>
+                            <option value="preview_access_controlled"><g:message code="map.maplayercontrols.tr01td01.option.preview" default="Preview access controlled records"/></option>
 
                             <g:each var="facetResult" in="${facets}">
                                 <g:set var="Defaultselected">
@@ -480,6 +479,8 @@
             } else if(colourByFacet == "gridVariable"){
                 colourByFacet = "coordinate_uncertainty"
                 envProperty = "colormode:coordinate_uncertainty;name:circle;size:"+pointSize+";opacity:1;cellfill:0xffccff;variablegrids:on"
+            } else if(colourByFacet == 'preview_access_controlled'){
+                return addPublicAndSuppliedDualLayers();
             } else {
                 envProperty = "colormode:" + colourByFacet + ";name:circle;size:"+pointSize+";opacity:1;"
             }
@@ -575,16 +576,11 @@
     /**
      * A function to add two separate layers - one for specimens (S_ONLY) and one for observations (P_ONLY) with blue color
      */
-    function addDualQueryLayers(){
-        
-        $.each(MAP_VAR.currentLayers, function(index, value){
-            MAP_VAR.map.removeLayer(MAP_VAR.currentLayers[index]);
-            MAP_VAR.layerControl.removeLayer(MAP_VAR.currentLayers[index]);
-        });
+    function addPublicAndSuppliedDualLayers(){
+        console.log('addPublicAndSuppliedDualLayers called');
 
         MAP_VAR.currentLayers = [];
 
-        var colourByFacet = $('#colourBySelect').val();
         var pointSize = $('#sizeslider-val').html();
         var opacity = $('#opacityslider-val').html();
         var outlineDots = $('#outlineDots').is(':checked');
@@ -596,19 +592,7 @@
         // Create environment property for public resolution (P_ONLY) - blue color
         var envPropertyPublicResolution = "color:${grailsApplication.config.map.pointColour};name:circle;size:"+pointSize+";opacity:"+opacity
 
-        if(colourByFacet){
-            if(colourByFacet == "variablegrid" || colourByFacet == "singlegrid" || colourByFacet == "10kgrid"){
-                envPropertySuppliedResolution = "colormode:osgrid;gridlabels:true;gridres:" + colourByFacet + ";opacity:1;color:" + defaultPointColour;
-                envPropertyPublicResolution = "colormode:osgrid;gridlabels:true;gridres:" + colourByFacet + ";opacity:1;color:0000FF";
-            } else if(colourByFacet == "gridVariable"){
-                colourByFacet = "coordinate_uncertainty"
-                envPropertySuppliedResolution = "colormode:coordinate_uncertainty;name:circle;size:"+pointSize+";opacity:1;cellfill:0xffccff;variablegrids:on"
-                envPropertyPublicResolution = "colormode:coordinate_uncertainty;name:circle;size:"+pointSize+";opacity:1;cellfill:0xccccff;variablegrids:on"
-            } else {
-                envPropertySuppliedResolution = "colormode:" + colourByFacet + ";name:circle;size:"+pointSize+";opacity:1;"
-                envPropertyPublicResolution = "colormode:" + colourByFacet + ";name:circle;size:"+pointSize+";opacity:1;"
-            }
-        }
+
 
         var gridSizeMap = {
             1: 256, 2:128, 3: 64, 4:32, 5:16, 6:8
@@ -616,9 +600,8 @@
 
         // Create base WMS URL
         var baseWmsURL = MAP_VAR.mappingUrl + "/mapping/wms/reflect" + MAP_VAR.query + MAP_VAR.additionalFqs;
-        if(!colourByFacet || colourByFacet != 'occurrence_status'){
-            baseWmsURL = baseWmsURL + "&fq=-occurrence_status:absent"
-        }
+        // Always exclude absent records for dual layer view
+        baseWmsURL = baseWmsURL + "&fq=-occurrence_status:absent"
 
         // Create supplied resolution layer (S_ONLY)
         var wmsURLSuppliedResolution = baseWmsURL + "&NBN_AC_MAP_TYPE=S_ONLY";
@@ -658,8 +641,8 @@
 
         // Update legend to show both layer types
         $('.legendTable').html('');
-        addDefaultLegendItem(defaultPointColour, 'SuppliedResolution');
-        addDefaultLegendItem('0000FF', 'PublicResolution');
+        addDefaultLegendItem('0000FF', 'Supplied Resolution');
+        addDefaultLegendItem(defaultPointColour, 'Public Resolution');
 
         return true;
     }
