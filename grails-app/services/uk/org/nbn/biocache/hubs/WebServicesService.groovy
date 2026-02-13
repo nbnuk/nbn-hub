@@ -33,7 +33,8 @@ class WebServicesService extends au.org.ala.biocache.hubs.WebServicesService{
     }
 
     def JSONObject apiTextSearch(SearchRequestParams requestParams) {
-        def url = "${grailsApplication.config.biocache.baseUrl}/occurrences/search?${requestParams.getEncodedParams()}"
+//        def url = "${grailsApplication.config.biocache.baseUrl}/occurrences/search?${requestParams.getEncodedParams()}"
+        def url = "${grailsApplication.config.biocache.baseUrl}/accessControl/filterEditorOccurrenceSearch?${requestParams.getEncodedParams()}"
         getJsonElements(url)
     }
 
