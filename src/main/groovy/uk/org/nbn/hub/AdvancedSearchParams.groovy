@@ -354,7 +354,6 @@ class AdvancedSearchParams implements Validateable {
                 : "collector_text:${terms[0]}"
     }
 
-
     private String buildIdentifiedByQuery(String identifiedBy){
         return identifiedBy?"identified_by_text:"+identifiedBy:"";
     }
