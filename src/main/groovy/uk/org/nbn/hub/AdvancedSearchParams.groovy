@@ -339,9 +339,20 @@ class AdvancedSearchParams implements Validateable {
     }
 
     private String buildRecordedByQuery(String recordedBy){
-        return recordedBy?"collector_text:"+recordedBy:"";
-    }
+        if (!recordedBy) {
+            return ""
+        }
 
+        String trimmedValue = recordedBy.replace("+", " ").trim()
+        if (!trimmedValue) {
+            return ""
+        }
+
+        String[] terms = trimmedValue.split("\\s+")
+        return (terms.length > 1)
+                ? "(" + terms.collect { "collector_text:${it}" }.join(" AND ") + ")"
+                : "collector_text:${terms[0]}"
+    }
 
     private String buildIdentifiedByQuery(String identifiedBy){
         return identifiedBy?"identified_by_text:"+identifiedBy:"";
