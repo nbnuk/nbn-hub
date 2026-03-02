@@ -128,3 +128,7 @@ environments:
         security:
             cas:
                 appServerName: "https://auth.ala.org.au"
+
+accessControl:
+    saveFilterBaseUrl: 'https://registry.nbnatlas.org/accessControl/updateSpecifiedAccess'
+    cancelFilterEditorBaseUrl: 'https://registry.nbnatlas.org/accessControl/specifyAccess'

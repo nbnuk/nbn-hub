@@ -123,9 +123,9 @@
 %{--        <input type="text" style="width: 50%;" class="form-control" placeholder="Description of this access control filter"/>--}%
         %{--                hmj <i class="fas fa-pencil-alt"></i>--}%
         <g:if test="${sr && (sr.totalRecords > 0)}">
-            <a href="${grailsApplication.config.collectory.baseUrl}/dataProvider/updateSpecifiedAccess/${dataProvider.uid}?userId=${filterUser.userId}${filterId ? "&filterId=${filterId}":""}${fq.collect { '&fq=' + it.encodeAsURL() }.join()}" role="button" class="btn btn-primary" style="margin-left:1rem;" title="Save the access control filter">Save</a>
+            <a href="${grailsApplication.config.accessControl.saveFilterBaseUrl}/${dataProvider.uid}?userId=${filterUser.userId}${filterId ? "&filterId=${filterId}":""}${fq.collect { '&fq=' + it.encodeAsURL() }.join()}" role="button" class="btn btn-primary" style="margin-left:1rem;" title="Save the access control filter">Save</a>
         </g:if>
-        <a href="${grailsApplication.config.collectory.baseUrl}/dataProvider/specifyAccess/${params.dpuid}?userId=${params.filterUserId}"  role="button" class="btn btn-danger"  title="Cancel" style="margin-left:1rem;">Cancel</a>
+        <a href="${grailsApplication.config.accessControl.cancelFilterEditorBaseUrl}/${params.dpuid}?userId=${params.filterUserId}"  role="button" class="btn btn-danger"  title="Cancel" style="margin-left:1rem;">Cancel</a>
         %{--                <input style="width:100%; background-color:#e8e8e8; padding:0.8rem 2rem 0.9rem 2rem;margin-right:1rem;" placeholder="Description of this collection" /> <i style="margin-left:1rem;" class="fa fa-pencil" aria-hidden="true"></i> <a href="#AccessControlSaveLink" data-toggle="modal" role="button" class="tooltips btn copyLink" style="border-color:orange" title="${g.message(code:"list.copylinks.dlg.copybutton.title")}"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;&nbsp;Save</a> <a href="#"  role="button" class="tooltips btn copyLink"  title="cancel">Cancel</a>--}%
     </div>
 
