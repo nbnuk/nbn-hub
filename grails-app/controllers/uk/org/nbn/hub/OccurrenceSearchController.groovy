@@ -7,7 +7,13 @@ class OccurrenceSearchController {
     private final String OCCURRENCE_SEARCH="/occurrences/search";
 
     def searchByOccurrenceID(String occurrenceID) {
-        return redirect(controller: 'occurrences', action: 'search', params: [q:"occurrence_id:"+occurrenceID])
+        Map searchParams = [q: "occurrence_id:" + occurrenceID]
+
+        if (occurrenceID?.trim()) {
+            searchParams.disableAllQualityFilters = "true"
+        }
+
+        return redirect(controller: 'occurrences', action: 'search', params: searchParams)
     }
 
     def searchByOther(AdvancedSearchParams requestParams) {
