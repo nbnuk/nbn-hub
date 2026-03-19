@@ -7,7 +7,7 @@ class OccurrenceSearchController {
     private final String OCCURRENCE_SEARCH="/occurrences/search";
 
     def searchByOccurrenceID(String occurrenceID) {
-        Map searchParams = [q: "occurrence_id:" + occurrenceID]
+        Map searchParams = [q: "occurrence_id:" + occurrenceID?.trim()]
 
         if (occurrenceID?.trim()) {
             searchParams.disableAllQualityFilters = "true"
