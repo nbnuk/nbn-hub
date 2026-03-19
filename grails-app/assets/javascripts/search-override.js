@@ -17,7 +17,9 @@ function reloadWithParam(paramName, paramValue) {
     var rad = $.url().param('radius');
     var taxa = $.url().param('taxa');
     var qualityProfile = $.url().param('qualityProfile');
+    var disableQualityFilter = $.url().param('disableQualityFilter');
     var disableAllQualityFilters = $.url().param('disableAllQualityFilters');
+
     // add query param
     if (q != null) {
         paramList.push("q=" + q);
@@ -29,11 +31,7 @@ function reloadWithParam(paramName, paramValue) {
         fqList = [];
     }
 
-    fqList = fqList.filter(function (fq) {
-        return fq && fq.trim() !== "";
-    });
-
-    if (fqList.length > 0) {
+    if (fqList) {
         paramList.push("fq=" + fqList.join("&fq="));
     }
 
@@ -69,11 +67,20 @@ function reloadWithParam(paramName, paramValue) {
     }
 
     if (qualityProfile) {
-        paramList.push("qualityProfile=" + qualityProfile);
+        paramList.push('qualityProfile=' + qualityProfile)
+    }
+
+    if (disableQualityFilter) {
+        if (typeof disableQualityFilter === "string") {
+            disableQualityFilter = [ disableQualityFilter ]
+        }
+        disableQualityFilter.forEach(function(value, index, array) {
+            paramList.push('disableQualityFilter=' + value);
+        })
     }
 
     if (disableAllQualityFilters) {
-        paramList.push("disableAllQualityFilters=" + disableAllQualityFilters);
+        paramList.push('disableAllQualityFilters=' + disableAllQualityFilters);
     }
 
     //alert("params = "+paramList.join("&"));
