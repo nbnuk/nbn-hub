@@ -28,7 +28,7 @@
 
                 <div class="col-md-6 input-group" style="padding:0px 15px">
                     <input type="text" class="form-control" name="occurrenceID" id="occurrenceID"
-                           placeholder="e.g. a record id"/>
+                           placeholder="e.g. a record id" required />
                     <span class="input-group-btn">
                         <input class="form-control btn btn-primary" type="submit"
                                value="${g.message(code: "home.index.simsplesearch.button", default: "Search")}"/>
