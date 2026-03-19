@@ -10,10 +10,12 @@ import uk.org.nbn.hub.OccurrenceSearchController
 @TestFor(OccurrenceSearchController)
 class OccurrenceSearchControllerSpec extends Specification {
 
-    def setup() {
-    }
+    void "searchByOccurrenceID adds disableAllQualityFilters"() {
+        when:
+        controller.searchByOccurrenceID("abc-123")
 
-    def cleanup() {
+        then:
+        response.redirectedUrl == "/occurrences/search?q=occurrence_id%3Aabc-123&disableAllQualityFilters=true"
     }
 
 //    void "test something"() {
