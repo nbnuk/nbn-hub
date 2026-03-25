@@ -17,7 +17,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "6.0.12.4-NBN-PIPELINES-1-2-5-SNAPSHOT"
+version "6.0.12.4-NBN-PIPELINES-1-2-5"
 group "uk.org.nbn"
 
 apply plugin:"eclipse"
@@ -111,7 +111,7 @@ dependencies {
 
 
     if(!inplace) {
-        compile "au.org.ala.plugins.grails:biocache-hubs:3.0.12.5-NBN-PIPELINES-0-0-5-SNAPSHOT", noCache
+        compile "au.org.ala.plugins.grails:biocache-hubs:3.0.12.5-NBN-PIPELINES-0-0-5", noCache
         compile "au.org.ala.plugins.grails:downloads-plugin:2.2.1-NBN-0-0-2", noCache
     }
 }
