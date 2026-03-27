@@ -1,6 +1,7 @@
 package uk.org.nbn.biocache.hubs
 
 import au.org.ala.biocache.hubs.SpatialSearchRequestParams
+import au.org.ala.web.UserDetails
 import org.apache.http.HttpStatus
 import grails.web.mapping.LinkGenerator
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,6 +35,8 @@ class OccurrenceController extends au.org.ala.biocache.hubs.OccurrenceController
         //these are for the Overview tab:
         requestParams.nbnRequiredFacets = grailsApplication.config.nbnRequiredFacets.split(",")
 
+        request.setAttribute("downloadLimit", nbnGetDownloadLimit())
+
         return super.list(requestParams)
 
     }
@@ -63,5 +66,19 @@ class OccurrenceController extends au.org.ala.biocache.hubs.OccurrenceController
             render(status: postResponse.statusCode)
         }
 
+    }
+
+
+    private Integer nbnGetDownloadLimit() {
+        UserDetails userDetails = authService?.userDetails()
+        if (userDetails){
+            for (String role : userDetails.getRoles()) {
+                if (role.startsWith("ROLE_DOWNLOAD_LIMIT_")) {
+                    return grailsApplication.config.getProperty(role, Integer, grailsApplication.config.maxDownloadRecords)
+                }
+            }
+        }
+
+        return Integer.parseInt(grailsApplication.config.maxDownloadRecords);
     }
 }

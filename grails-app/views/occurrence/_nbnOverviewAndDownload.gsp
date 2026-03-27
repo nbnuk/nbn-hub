@@ -2,7 +2,7 @@
 
 <g:if test="${grailsApplication.config.useDownloadPlugin?.toBoolean()}">
     <div id="overview" class="tab-pane">
-        <g:set var="maxDownloadExceeded" value="${grailsApplication.config.maxDownloadRecords && Integer.parseInt(grailsApplication.config.maxDownloadRecords) < sr.totalRecords}"/>
+        <g:set var="maxDownloadExceeded" value="${downloadLimit < sr.totalRecords}"/>
         <g:set var="unconfirmedIdentificationCount" value="${
             (sr.facetResults?.find{it.fieldName=="identification_verification_status"}?.fieldResult.find{it.label=="Unconfirmed"}?.count ?: 0) +
             (sr.facetResults?.find{it.fieldName=="identification_verification_status"}?.fieldResult.find{it.label=="Unconfirmed - not reviewed"}?.count ?: 0) +
@@ -77,12 +77,12 @@
 
         <div id="downloads" class="pull-right">
             <g:if test="${maxDownloadExceeded}">
-                <span class="alert-warning">Maximum records that can be downloaded is ${g.formatNumber(number: grailsApplication.config.maxDownloadRecords, format: "#,###,###")}. Please apply filters before downloading.</span>
+                <span class="alert-warning">Maximum records that can be downloaded is ${g.formatNumber(number: downloadLimit, format: "#,###,###")}. Please apply filters before downloading.</span>
                 <a href="javascript:void(0)"
                disabled
                class="btn btn-primary tooltips newDownload"
                style="color: #c0c0c0"
-               title="Maximum records that can be downloaded is ${g.formatNumber(number: grailsApplication.config.maxDownloadRecords, format: "#,###,###")}. Please apply filters before downloading.">
+               title="Maximum records that can be downloaded is ${g.formatNumber(number: downloadLimit, format: "#,###,###")}. Please apply filters before downloading.">
                 <i class="fa fa-download"></i>&nbsp;&nbsp;<g:message code="list.downloads.navigator" default="Download"/></a>
             </g:if>
             <g:else>
