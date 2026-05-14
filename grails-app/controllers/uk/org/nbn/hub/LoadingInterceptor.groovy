@@ -1,5 +1,7 @@
 package uk.org.nbn.hub
 
+import javax.servlet.http.Cookie
+
 
 class LoadingInterceptor {
     LoadingInterceptor() {
@@ -9,11 +11,17 @@ class LoadingInterceptor {
     boolean before() {
         //loading spinner is only supported for GET requests (for now). Most are GET
         String userAgent = request.getHeader("User-Agent");
-        if (request.get && !params.get("nbn_loading") && userAgent.indexOf("UptimeRobot")<0) {
-            String url = request.requestURI+"?"+request.queryString+"&nbn_loading=true";
-            render(view: "../loading", model:[url:url])
+        boolean loadingCookie = request.cookies?.any {
+            it.name == "nbn_loading" && it.value == "true"
+        }
+        if (request.get && !loadingCookie && userAgent.indexOf("UptimeRobot")<0) {
+            render(view: "../loading")
             return false
         }
+        def c = new Cookie("nbn_loading", "")
+        c.path = "/"
+        c.maxAge = 0
+        response.addCookie(c)
         return true
 
 

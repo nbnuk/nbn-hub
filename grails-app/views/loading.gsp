@@ -13,7 +13,9 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        location.replace("${raw(url)}")
+        document.cookie = "nbn_loading=true; path=/;";
+        location.reload()
+
     })
 
 </script>
