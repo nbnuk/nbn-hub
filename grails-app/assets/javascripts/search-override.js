@@ -31,7 +31,11 @@ function reloadWithParam(paramName, paramValue) {
         fqList = [];
     }
 
-    if (fqList) {
+    fqList = fqList.filter(function (fq) {
+        return fq && fq.trim() !== "";
+    });
+
+    if (fqList.length > 0) {
         paramList.push("fq=" + fqList.join("&fq="));
     }
 
